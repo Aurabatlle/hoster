@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Hoster - Login</title>
+    <title>Hoster Login - Aura Battle</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -12,36 +12,46 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-     body {
-        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.93), rgba(255, 255, 255, 0.93)),
-                    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect fill='%23d32f2f' width='100' height='100'/%3E%3C/svg%3E");
-        background-size: 100% 100%, 300px 300px;
-        background-blend-mode: normal, overlay;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-    }
+        
+        :root {
+            --primary: #e63946;
+            --secondary: #d00000;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --white: #ffffff;
+        }
+        
+        body {
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)),
+                        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3Cpath d='M0,0 L100,100 M100,0 L0,100' stroke='%23e63946' stroke-width='1' stroke-opacity='0.1'/%3E%3C/svg%3E");
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
         .login-container {
             width: 100%;
             max-width: 400px;
-            background: white;
+            background: var(--white);
             border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
             overflow: hidden;
+            border-top: 5px solid var(--primary);
         }
         
         .header {
-            background: #d32f2f;
+            background: var(--primary);
             padding: 25px 20px;
             text-align: center;
         }
         
-        .logo {
-            max-width: 180px;
-            height: auto;
-            filter: brightness(0) invert(1);
+        .header h1 {
+            color: var(--white);
+            font-size: 24px;
+            font-weight: 600;
         }
         
         .form-container {
@@ -49,7 +59,7 @@
         }
         
         h2 {
-            color: #d32f2f;
+            color: var(--primary);
             text-align: center;
             margin-bottom: 20px;
             font-weight: 600;
@@ -63,7 +73,7 @@
         label {
             display: block;
             margin-bottom: 8px;
-            color: #d32f2f;
+            color: var(--primary);
             font-weight: 500;
         }
         
@@ -77,22 +87,23 @@
         }
         
         input:focus {
-            border-color: #d32f2f;
+            border-color: var(--primary);
             outline: none;
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
         }
         
         .input-icon {
             position: absolute;
             left: 12px;
             top: 55px;
-            color: #d32f2f;
+            color: var(--primary);
         }
         
         button {
             width: 100%;
             padding: 14px;
-            background: #d32f2f;
-            color: white;
+            background: var(--primary);
+            color: var(--white);
             border: none;
             border-radius: 8px;
             font-size: 16px;
@@ -102,7 +113,7 @@
         }
         
         button:hover {
-            background: #b71c1c;
+            background: var(--secondary);
         }
         
         .forgot-password {
@@ -111,7 +122,7 @@
         }
         
         .forgot-password a {
-            color: #d32f2f;
+            color: var(--primary);
             text-decoration: none;
             font-size: 14px;
         }
@@ -130,8 +141,8 @@
         
         .error {
             background-color: #ffebee;
-            color: #d32f2f;
-            border: 1px solid #d32f2f;
+            color: var(--primary);
+            border: 1px solid var(--primary);
         }
         
         .success {
@@ -155,7 +166,7 @@
         .footer {
             text-align: center;
             padding: 15px;
-            color: #757575;
+            color: var(--gray);
             font-size: 12px;
             border-top: 1px solid #e0e0e0;
         }
@@ -174,17 +185,18 @@
         }
         
         .modal-content {
-            background-color: white;
+            background-color: var(--white);
             padding: 25px;
             border-radius: 10px;
             width: 90%;
             max-width: 400px;
             text-align: center;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-top: 5px solid var(--primary);
         }
         
         .modal h3 {
-            color: #d32f2f;
+            color: var(--primary);
             margin-bottom: 15px;
         }
         
@@ -195,12 +207,27 @@
         
         .modal-close {
             padding: 10px 20px;
-            background: #d32f2f;
-            color: white;
+            background: var(--primary);
+            color: var(--white);
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-weight: 500;
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--white);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         @media (max-width: 480px) {
@@ -225,7 +252,7 @@
 <body>
     <div class="login-container">
         <div class="header">
-            <img src="https://i.imghippo.com/files/JaE9679Nc.png" alt="Match Hoster Logo" class="logo">
+            <h1>Aura Battle Hoster</h1>
         </div>
         
         <div class="form-container">
@@ -253,7 +280,7 @@
         </div>
         
         <div class="footer">
-            &copy; 2023 Match Hoster. All rights reserved.
+            &copy; 2023 Aura Battle. All rights reserved.
         </div>
     </div>
 
@@ -309,7 +336,7 @@
             }
             
             // Show loading state
-            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+            loginBtn.innerHTML = '<span class="loader"></span> Authenticating...';
             loginBtn.disabled = true;
             
             // Check credentials against hosters in database
@@ -350,23 +377,20 @@
                     
                     if (hosterFound) {
                         // Store hoster info in local storage
-                        localStorage.setItem('hoster_id', hosterId);
-                        localStorage.setItem('hoster_data', JSON.stringify(hosterData));
+                        localStorage.setItem('hosterId', hosterId);
+                        localStorage.setItem('hosterUsername', hosterData.username);
+                        localStorage.setItem('hosterEmail', hosterData.email);
+                        localStorage.setItem('hosterData', JSON.stringify(hosterData));
                         
-                        // Set expiration time (30 minutes from now)
-                        const expirationTime = new Date().getTime() + 30 * 60 * 1000;
-                        localStorage.setItem('login_expiration', expirationTime);
-                        
-                        // Update last login time
-                        const updates = {};
-                        updates['/hosters/' + hosterId + '/lastLogin'] = new Date().toISOString();
-                        database.ref().update(updates);
+                        // Set login time
+                        const loginTime = new Date().getTime();
+                        localStorage.setItem('loginTime', loginTime);
                         
                         showMessage('Login successful! Redirecting to dashboard...', 'success');
                         
                         // Redirect to dashboard
                         setTimeout(() => {
-                            window.location.href = 'dashboard.html';
+                            window.location.href = 'hoster-dashboard.html';
                         }, 1500);
                     } else if (!hosterFound && loginBtn.disabled) {
                         // Only show error if not already shown
@@ -384,18 +408,17 @@
 
         // Check if login has expired
         function checkLoginExpiration() {
-            const expirationTime = localStorage.getItem('login_expiration');
-            if (expirationTime && new Date().getTime() > parseInt(expirationTime)) {
+            const loginTime = localStorage.getItem('loginTime');
+            if (loginTime && new Date().getTime() - parseInt(loginTime) > 30 * 60 * 1000) {
                 // Clear login data if expired
-                localStorage.removeItem('hoster_id');
-                localStorage.removeItem('hoster_data');
-                localStorage.removeItem('login_expiration');
+                localStorage.removeItem('hosterId');
+                localStorage.removeItem('hosterUsername');
+                localStorage.removeItem('hosterEmail');
+                localStorage.removeItem('hosterData');
+                localStorage.removeItem('loginTime');
                 showMessage('Your login session has expired. Please login again.', 'warning');
             }
         }
-
-        // Check expiration every minute
-        setInterval(checkLoginExpiration, 60000);
 
         // Forgot password handler
         forgotLink.addEventListener('click', function(e) {
@@ -433,14 +456,29 @@
 
         // Check if already logged in but not expired
         window.addEventListener('DOMContentLoaded', function() {
-            checkLoginExpiration();
+            const hosterId = localStorage.getItem('hosterId');
+            const loginTime = localStorage.getItem('loginTime');
             
-            const hosterId = localStorage.getItem('hoster_id');
-            const hosterData = localStorage.getItem('hoster_data');
-            
-            if (hosterId && hosterData) {
-                // If already logged in, redirect to dashboard
-                window.location.href = 'dashboard.html';
+            if (hosterId && loginTime) {
+                // Check if login is still valid (within 30 minutes)
+                if (new Date().getTime() - parseInt(loginTime) < 30 * 60 * 1000) {
+                    // If already logged in, redirect to dashboard
+                    window.location.href = 'hoster-dashboard.html';
+                } else {
+                    // Clear expired login
+                    localStorage.removeItem('hosterId');
+                    localStorage.removeItem('hosterUsername');
+                    localStorage.removeItem('hosterEmail');
+                    localStorage.removeItem('hosterData');
+                    localStorage.removeItem('loginTime');
+                }
+            }
+        });
+
+        // Allow form submission with Enter key
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loginBtn.click();
             }
         });
     </script>
