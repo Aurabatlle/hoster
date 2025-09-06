@@ -14,7 +14,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background: linear-gradient(to bottom, #d32f2f, #b71c1c);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -24,25 +24,23 @@
         
         .login-container {
             width: 100%;
-            max-width: 450px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
             overflow: hidden;
-            animation: fadeIn 0.5s ease-out;
         }
         
         .header {
-            background: #1a2a6c;
+            background: #d32f2f;
             padding: 25px 20px;
             text-align: center;
-            position: relative;
         }
         
         .logo {
             max-width: 180px;
             height: auto;
-            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+            filter: brightness(0) invert(1);
         }
         
         .form-container {
@@ -50,7 +48,7 @@
         }
         
         h2 {
-            color: #1a2a6c;
+            color: #d32f2f;
             text-align: center;
             margin-bottom: 20px;
             font-weight: 600;
@@ -64,73 +62,46 @@
         label {
             display: block;
             margin-bottom: 8px;
-            color: #555;
+            color: #d32f2f;
             font-weight: 500;
         }
         
         input {
             width: 100%;
             padding: 14px 14px 14px 45px;
-            border: 1px solid #ddd;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 16px;
             transition: border-color 0.3s;
         }
         
         input:focus {
-            border-color: #1a2a6c;
+            border-color: #d32f2f;
             outline: none;
-            box-shadow: 0 0 0 2px rgba(26, 42, 108, 0.2);
         }
         
         .input-icon {
             position: absolute;
             left: 15px;
             top: 40px;
-            color: #777;
-        }
-        
-        .login-options {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .login-option {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            background: #f0f0f0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .login-option.active {
-            background: #1a2a6c;
-            color: white;
+            color: #d32f2f;
         }
         
         button {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(to right, #1a2a6c, #b21f1f);
+            background: #d32f2f;
             color: white;
             border: none;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: background 0.3s;
         }
         
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        button:active {
-            transform: translateY(0);
+            background: #b71c1c;
         }
         
         .forgot-password {
@@ -139,7 +110,7 @@
         }
         
         .forgot-password a {
-            color: #b21f1f;
+            color: #d32f2f;
             text-decoration: none;
             font-size: 14px;
         }
@@ -159,7 +130,7 @@
         .error {
             background-color: #ffebee;
             color: #d32f2f;
-            border: 1px solid #f44336;
+            border: 1px solid #d32f2f;
         }
         
         .success {
@@ -183,9 +154,9 @@
         .footer {
             text-align: center;
             padding: 15px;
-            color: #666;
+            color: #757575;
             font-size: 12px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #e0e0e0;
         }
         
         .modal {
@@ -209,11 +180,10 @@
             max-width: 400px;
             text-align: center;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            animation: slideDown 0.3s ease-out;
         }
         
         .modal h3 {
-            color: #1a2a6c;
+            color: #d32f2f;
             margin-bottom: 15px;
         }
         
@@ -224,22 +194,12 @@
         
         .modal-close {
             padding: 10px 20px;
-            background: #1a2a6c;
+            background: #d32f2f;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-weight: 500;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-50px); }
-            to { opacity: 1; transform: translateY(0); }
         }
         
         @media (max-width: 480px) {
@@ -258,10 +218,6 @@
             input {
                 padding: 12px 12px 12px 40px;
             }
-            
-            .login-options {
-                flex-direction: column;
-            }
         }
     </style>
 </head>
@@ -274,16 +230,10 @@
         <div class="form-container">
             <h2>Hoster Login</h2>
             
-            <div class="login-options">
-                <div class="login-option active" id="emailOption">Email</div>
-                <div class="login-option" id="phoneOption">Phone</div>
-                <div class="login-option" id="usernameOption">Username</div>
-            </div>
-            
             <div class="input-group">
-                <label for="loginId" id="loginLabel">Email</label>
-                <i class="fas fa-envelope input-icon" id="loginIcon"></i>
-                <input type="text" id="loginId" placeholder="Enter your email" required>
+                <label for="loginId">Email, Phone or Username</label>
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" id="loginId" placeholder="Enter your email, phone or username" required>
             </div>
             
             <div class="input-group">
@@ -345,53 +295,15 @@
         const messageDiv = document.getElementById('message');
         const forgotModal = document.getElementById('forgotModal');
         const closeModal = document.getElementById('closeModal');
-        const emailOption = document.getElementById('emailOption');
-        const phoneOption = document.getElementById('phoneOption');
-        const usernameOption = document.getElementById('usernameOption');
-        const loginLabel = document.getElementById('loginLabel');
-        const loginIcon = document.getElementById('loginIcon');
-
-        let loginType = 'email'; // Default login type
-
-        // Login type selection
-        emailOption.addEventListener('click', () => setLoginType('email'));
-        phoneOption.addEventListener('click', () => setLoginType('phone'));
-        usernameOption.addEventListener('click', () => setLoginType('username'));
-
-        function setLoginType(type) {
-            loginType = type;
-            
-            // Update UI
-            emailOption.classList.remove('active');
-            phoneOption.classList.remove('active');
-            usernameOption.classList.remove('active');
-            
-            if (type === 'email') {
-                emailOption.classList.add('active');
-                loginLabel.textContent = 'Email';
-                loginIdInput.placeholder = 'Enter your email';
-                loginIcon.className = 'fas fa-envelope input-icon';
-            } else if (type === 'phone') {
-                phoneOption.classList.add('active');
-                loginLabel.textContent = 'Phone Number';
-                loginIdInput.placeholder = 'Enter your phone number';
-                loginIcon.className = 'fas fa-phone input-icon';
-            } else {
-                usernameOption.classList.add('active');
-                loginLabel.textContent = 'Username';
-                loginIdInput.placeholder = 'Enter your username';
-                loginIcon.className = 'fas fa-user input-icon';
-            }
-        }
 
         // Login function
         loginBtn.addEventListener('click', function() {
-            const loginId = loginIdInput.value;
+            const loginId = loginIdInput.value.trim();
             const password = passwordInput.value;
             
             // Validate inputs
             if (!loginId || !validatePassword(password)) {
-                showMessage('Please enter a valid login ID and password (min 6 characters)', 'error');
+                showMessage('Please enter your login ID and password (min 6 characters)', 'error');
                 return;
             }
             
@@ -411,12 +323,8 @@
                     snapshot.forEach((childSnapshot) => {
                         const data = childSnapshot.val();
                         
-                        // Check based on login type
-                        if (
-                            (loginType === 'email' && data.email === loginId) ||
-                            (loginType === 'phone' && data.phone === loginId) ||
-                            (loginType === 'username' && data.username === loginId)
-                        ) {
+                        // Check if login ID matches email, phone, or username
+                        if (data.email === loginId || data.phone === loginId || data.username === loginId) {
                             if (data.password === password) {
                                 // Check if account is banned
                                 if (data.status === 'banned') {
@@ -530,20 +438,8 @@
             const hosterData = localStorage.getItem('hoster_data');
             
             if (hosterId && hosterData) {
-                const data = JSON.parse(hosterData);
-                // Pre-fill the login field based on what's available
-                if (data.email) {
-                    setLoginType('email');
-                    loginIdInput.value = data.email;
-                } else if (data.phone) {
-                    setLoginType('phone');
-                    loginIdInput.value = data.phone;
-                } else if (data.username) {
-                    setLoginType('username');
-                    loginIdInput.value = data.username;
-                }
-                
-                showMessage('Welcome back! You can login with your credentials.', 'info');
+                // If already logged in, redirect to dashboard
+                window.location.href = 'dashboard.html';
             }
         });
     </script>
