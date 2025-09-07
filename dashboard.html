@@ -11,69 +11,43 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
         
         :root {
             --primary: #e63946;
             --secondary: #d00000;
-            --success: #4cc9f0;
             --light: #f8f9fa;
             --dark: #212529;
-            --danger: #e63946;
-            --warning: #fca311;
             --gray: #6c757d;
             --white: #ffffff;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
         
         body {
             background-color: #f5f7fb;
             color: #333;
             line-height: 1.6;
-            padding-bottom: 20px;
-        }
-        
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 15px;
+            padding-bottom: 70px; /* Space for bottom nav */
         }
         
         /* Header Styles */
-        header {
+        .header {
             background: var(--white);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 15px 0;
+            padding: 12px 16px;
             position: sticky;
             top: 0;
             z-index: 100;
-        }
-        
-        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-        }
-        
-        .logo h1 {
-            font-size: 20px;
+        .header-title {
+            font-size: 18px;
             color: var(--primary);
-        }
-        
-        .user-profile {
-            position: relative;
-            margin-right: auto; /* Push to the left */
+            font-weight: 600;
         }
         
         .profile-img {
@@ -88,13 +62,14 @@
         /* Profile dropdown */
         .profile-dropdown {
             display: none;
-            position: absolute;
-            top: 50px;
-            right: 0;
+            position: fixed;
+            top: 64px;
+            right: 16px;
             background: var(--white);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            width: 250px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            width: 85%;
+            max-width: 280px;
             z-index: 1000;
             overflow: hidden;
         }
@@ -104,7 +79,7 @@
         }
         
         .profile-info {
-            padding: 15px;
+            padding: 16px;
             text-align: center;
             border-bottom: 1px solid #eee;
         }
@@ -134,62 +109,62 @@
         }
         
         .profile-menu li {
-            padding: 10px 20px;
+            padding: 14px 20px;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 14px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
         }
         
-        .profile-menu li:hover {
+        .profile-menu li:active {
             background: #f5f7fb;
         }
         
         .profile-menu i {
-            margin-right: 10px;
+            margin-right: 12px;
             width: 18px;
             text-align: center;
+            color: var(--primary);
         }
         
-        /* Content Area */
-        .content {
-            background: var(--white);
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            padding: 15px;
-            margin: 15px 0;
+        /* Main Content */
+        .main-content {
+            padding: 16px;
         }
         
-        .page-title {
-            font-size: 20px;
-            margin-bottom: 15px;
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 16px;
             color: var(--dark);
+            font-weight: 600;
         }
         
         /* Stats Cards */
         .stats-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
             margin-bottom: 20px;
         }
         
         .stat-card {
             background: var(--white);
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            padding: 15px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 16px;
             text-align: center;
             border-left: 4px solid var(--primary);
         }
         
         .stat-card h3 {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--gray);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         
         .stat-card p {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             color: var(--primary);
         }
@@ -197,96 +172,90 @@
         /* Dashboard Cards */
         .dashboard-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
+            grid-template-columns: 1fr;
+            gap: 14px;
             margin-bottom: 20px;
         }
         
         .card {
             background: var(--white);
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-radius: 14px;
+            box-shadow: var(--card-shadow);
             padding: 20px;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
             cursor: pointer;
-            border-left: 4px solid var(--primary);
         }
         
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(230, 57, 70, 0.2);
+        .card:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
-        .card i {
-            font-size: 35px;
-            margin-bottom: 15px;
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: rgba(230, 57, 70, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+        
+        .card-icon i {
+            font-size: 22px;
             color: var(--primary);
         }
         
-        .card h3 {
-            margin-bottom: 10px;
-            font-size: 16px;
+        .card-content {
+            flex: 1;
         }
         
-        .card p {
+        .card-content h3 {
+            margin-bottom: 6px;
+            font-size: 16px;
+            color: var(--dark);
+        }
+        
+        .card-content p {
             color: var(--gray);
             font-size: 13px;
         }
         
-        /* Search Bar */
-        .search-container {
-            position: relative;
-            margin-bottom: 20px;
-        }
-        
-        .search-bar {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            padding-left: 40px;
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-        
-        .search-results {
-            position: absolute;
-            top: 100%;
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
             left: 0;
-            width: 100%;
-            background: white;
-            border-radius: 0 0 8px 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            max-height: 300px;
-            overflow-y: auto;
-            z-index: 100;
-            display: none;
-        }
-        
-        .search-result-item {
-            padding: 12px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
+            right: 0;
+            background: var(--white);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
             display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            font-size: 14px;
+            text-decoration: none;
+            color: var(--gray);
+            font-size: 11px;
+            width: 25%;
         }
         
-        .search-result-item:hover {
-            background-color: #f5f7fb;
-        }
-        
-        .search-result-item i {
-            margin-right: 10px;
+        .nav-item.active {
             color: var(--primary);
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
         }
         
         /* Modal Styles */
@@ -301,17 +270,17 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
-            padding: 15px;
+            padding: 16px;
         }
         
         .modal-content {
             background: var(--white);
-            border-radius: 10px;
+            border-radius: 16px;
             width: 100%;
-            max-width: 500px;
+            max-width: 400px;
             padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            max-height: 90vh;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            max-height: 85vh;
             overflow-y: auto;
         }
         
@@ -319,30 +288,39 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-header h3 {
+            font-size: 18px;
+            color: var(--dark);
         }
         
         .close {
             font-size: 24px;
             cursor: pointer;
+            color: var(--gray);
         }
         
         /* Form Styles */
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
         
         .form-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
+            color: var(--dark);
         }
         
         .form-control {
             width: 100%;
-            padding: 12px 15px;
+            padding: 14px 16px;
             border: 1px solid #ddd;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
             transition: all 0.3s ease;
         }
@@ -354,9 +332,9 @@
         }
         
         .btn {
-            padding: 12px 20px;
+            padding: 16px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 16px;
             font-weight: 500;
@@ -370,18 +348,8 @@
             color: var(--white);
         }
         
-        .btn-primary:hover {
+        .btn-primary:active {
             background: var(--secondary);
-        }
-        
-        .btn-secondary {
-            background: var(--gray);
-            color: var(--white);
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-            color: var(--white);
         }
         
         /* File Upload */
@@ -389,18 +357,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 15px 0;
+            margin: 16px 0;
         }
         
         .file-upload-label {
             display: inline-block;
-            padding: 12px 20px;
+            padding: 14px 20px;
             background: var(--light);
             color: var(--dark);
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             text-align: center;
+            width: 100%;
         }
         
         .file-upload-label i {
@@ -410,7 +379,7 @@
         .upload-preview {
             width: 120px;
             height: 120px;
-            border-radius: 8px;
+            border-radius: 12px;
             object-fit: cover;
             border: 2px dashed #ddd;
             padding: 5px;
@@ -418,21 +387,21 @@
         
         /* Alert Styles */
         .alert {
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
             display: none;
         }
         
         .alert-danger {
-            background: #f8d7da;
-            color: #721c24;
+            background: #ffebee;
+            color: #d32f2f;
             border: 1px solid #f5c6cb;
         }
         
         .alert-success {
-            background: #d4edda;
-            color: #155724;
+            background: #e8f5e9;
+            color: #388e3c;
             border: 1px solid #c3e6cb;
         }
         
@@ -459,87 +428,20 @@
             margin-bottom: 20px;
         }
         
-        /* Password Change Modal */
-        #passwordModal .modal-content {
-            max-width: 400px;
+        /* Overlay for dropdown */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 99;
         }
         
-        /* Mobile-first responsive styles */
-        @media (max-width: 768px) {
-            .dashboard-cards {
-                grid-template-columns: 1fr;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .header-left {
-                margin-bottom: 10px;
-                justify-content: center;
-                width: 100%;
-            }
-            
-            .profile-dropdown {
-                width: 200px;
-                left: 50%;
-                transform: translateX(-50%);
-            }
-            
-            .modal-content {
-                padding: 15px;
-            }
-            
-            .stats-container {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .logo h1 {
-                font-size: 18px;
-            }
-            
-            .profile-img {
-                width: 35px;
-                height: 35px;
-            }
-            
-            .user-profile {
-                margin-right: 0;
-                order: -1; /* Move to the beginning on mobile */
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .stats-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .card {
-                padding: 15px;
-            }
-            
-            .card i {
-                font-size: 30px;
-            }
-            
-            .profile-dropdown {
-                width: 90%;
-            }
-        }
-        
-        @media (min-width: 769px) {
-            .btn {
-                width: auto;
-            }
-            
-            .header-left {
-                flex-direction: row;
-            }
-            
-            .user-profile {
-                order: 0; /* Reset order for desktop */
-            }
+        .overlay.active {
+            display: block;
         }
         
         /* Loader */
@@ -558,55 +460,6 @@
             to { transform: rotate(360deg); }
         }
         
-        /* API Status */
-        .api-status {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            text-align: center;
-            display: none;
-        }
-        
-        .api-status.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .api-status.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        /* Mobile menu button */
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: var(--primary);
-            cursor: pointer;
-        }
-        
-        @media (max-width: 768px) {
-            .menu-toggle {
-                display: block;
-                position: absolute;
-                right: 15px;
-                top: 15px;
-            }
-            
-            .header-left {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .user-profile {
-                margin-top: 10px;
-            }
-        }
-        
         /* Stats loading animation */
         .stats-loading {
             opacity: 0.7;
@@ -615,6 +468,36 @@
         .stats-loading p {
             color: #ccc !important;
         }
+        
+        /* Swipe indicator */
+        .swipe-indicator {
+            text-align: center;
+            color: var(--gray);
+            font-size: 12px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr 1fr 1fr 1fr;
+                max-width: 600px;
+                margin: 0 auto 20px;
+            }
+            
+            .main-content {
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            
+            .swipe-indicator {
+                display: block;
+            }
+        }
     </style>
     <!-- Firebase App (the core Firebase SDK) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -622,87 +505,88 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
+    <!-- Overlay for dropdown -->
+    <div class="overlay" id="overlay"></div>
+
     <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <button class="menu-toggle" id="menuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="header-left">
-                    <div class="user-profile" id="userProfile">
-                        <img src="https://via.placeholder.com/45" alt="Profile" class="profile-img" id="profileMenuBtn">
-                        <div class="profile-dropdown" id="profileDropdown">
-                            <div class="profile-info">
-                                <img src="https://via.placeholder.com/80" alt="Profile" id="dropdownProfileImg">
-                                <h3 id="dropdownUsername">Hoster User</h3>
-                                <p id="dropdownRole">Hoster</p>
-                            </div>
-                            <ul class="profile-menu">
-                                <li onclick="openSettings()"><i class="fas fa-cog"></i> Settings</li>
-                                <li onclick="openPasswordModal()"><i class="fas fa-key"></i> Change Password</li>
-                                <li onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="logo">
-                        <h1>Aura Battle Hoster</h1>
-                    </div>
-                </div>
+    <div class="header">
+        <div class="header-title">Hoster Dashboard</div>
+        <img src="https://via.placeholder.com/45" alt="Profile" class="profile-img" id="profileMenuBtn">
+        <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-info">
+                <img src="https://via.placeholder.com/80" alt="Profile" id="dropdownProfileImg">
+                <h3 id="dropdownUsername">Hoster User</h3>
+                <p id="dropdownRole">Hoster</p>
             </div>
+            <ul class="profile-menu">
+                <li onclick="openSettings()"><i class="fas fa-cog"></i> Settings</li>
+                <li onclick="openPasswordModal()"><i class="fas fa-key"></i> Change Password</li>
+                <li onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</li>
+            </ul>
         </div>
-    </header>
+    </div>
 
     <!-- Main Content -->
-    <div class="container">
+    <div class="main-content">
         <div id="dashboardContent" style="display: none;">
-            <div class="content">
-                <h2 class="page-title">Hoster Dashboard</h2>
-                
-                <!-- Stats Cards -->
-                <div class="stats-container">
-                    <div class="stat-card stats-loading" id="totalMatchesCard">
-                        <h3>Total Matches</h3>
-                        <p id="totalMatches">Loading...</p>
-                    </div>
-                    <div class="stat-card stats-loading" id="canceledMatchesCard">
-                        <h3>Canceled Matches</h3>
-                        <p id="canceledMatches">Loading...</p>
-                    </div>
+            <!-- Stats Cards -->
+            <div class="stats-container">
+                <div class="stat-card stats-loading" id="totalMatchesCard">
+                    <h3>Total Matches</h3>
+                    <p id="totalMatches">...</p>
                 </div>
-                
-                <!-- Search Bar -->
-                <div class="search-container">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-bar" id="searchInput" placeholder="Search options...">
-                    <div class="search-results" id="searchResults"></div>
+                <div class="stat-card stats-loading" id="canceledMatchesCard">
+                    <h3>Canceled Matches</h3>
+                    <p id="canceledMatches">...</p>
                 </div>
-                
-                <div class="dashboard-cards">
-                    <div class="card" onclick="navigateTo('creatematch.html')">
+            </div>
+            
+            <h2 class="section-title">Manage Matches</h2>
+            
+            <div class="dashboard-cards">
+                <div class="card" onclick="navigateTo('creatematch.html')">
+                    <div class="card-icon">
                         <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <div class="card-content">
                         <h3>Create Match</h3>
                         <p>Create a new tournament match</p>
                     </div>
-                    
-                    <div class="card" onclick="navigateTo('hostmatch.html')">
+                </div>
+                
+                <div class="card" onclick="navigateTo('hostmatch.html')">
+                    <div class="card-icon">
                         <i class="fas fa-play-circle"></i>
+                    </div>
+                    <div class="card-content">
                         <h3>Host Match</h3>
                         <p>Host and manage live matches</p>
                     </div>
-                    
-                    <div class="card" onclick="navigateTo('manageresult.html')">
+                </div>
+                
+                <div class="card" onclick="navigateTo('manageresult.html')">
+                    <div class="card-icon">
                         <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="card-content">
                         <h3>Manage Result</h3>
                         <p>Update and verify match results</p>
                     </div>
-                    
-                    <div class="card" onclick="navigateTo('managematch.html')">
+                </div>
+                
+                <div class="card" onclick="navigateTo('managematch.html')">
+                    <div class="card-icon">
                         <i class="fas fa-edit"></i>
+                    </div>
+                    <div class="card-content">
                         <h3>Manage Match</h3>
                         <p>Edit or delete existing matches</p>
                     </div>
                 </div>
+            </div>
+            
+            <div class="swipe-indicator">
+                <i class="fas fa-arrows-alt-h"></i> Swipe for more options
             </div>
         </div>
         
@@ -712,6 +596,26 @@
             <p>Please login to access the hoster dashboard</p>
             <button class="btn btn-primary" onclick="window.location.href='hosterlogin.html'">Go to Login</button>
         </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="#" class="nav-item active">
+            <i class="fas fa-home nav-icon"></i>
+            <span>Home</span>
+        </a>
+        <a href="creatematch.html" class="nav-item">
+            <i class="fas fa-plus nav-icon"></i>
+            <span>Create</span>
+        </a>
+        <a href="hostmatch.html" class="nav-item">
+            <i class="fas fa-play nav-icon"></i>
+            <span>Host</span>
+        </a>
+        <a href="#" class="nav-item" onclick="openSettings(); return false;">
+            <i class="fas fa-cog nav-icon"></i>
+            <span>Settings</span>
+        </a>
     </div>
 
     <!-- Settings Modal -->
@@ -815,21 +719,11 @@
         const dashboardContent = document.getElementById('dashboardContent');
         const loginPrompt = document.getElementById('loginPrompt');
         const userProfile = document.getElementById('userProfile');
-        const searchInput = document.getElementById('searchInput');
-        const searchResults = document.getElementById('searchResults');
-        const menuToggle = document.getElementById('menuToggle');
+        const overlay = document.getElementById('overlay');
         const totalMatchesElement = document.getElementById('totalMatches');
         const canceledMatchesElement = document.getElementById('canceledMatches');
         const totalMatchesCard = document.getElementById('totalMatchesCard');
         const canceledMatchesCard = document.getElementById('canceledMatchesCard');
-        
-        // Card data for search functionality
-        const cardData = [
-            { title: "Create Match", description: "Create a new tournament match", icon: "fas fa-plus-circle", link: "creatematch.html" },
-            { title: "Host Match", description: "Host and manage live matches", icon: "fas fa-play-circle", link: "hostmatch.html" },
-            { title: "Manage Result", description: "Update and verify match results", icon: "fas fa-chart-line", link: "manageresult.html" },
-            { title: "Manage Match", description: "Edit or delete existing matches", icon: "fas fa-edit", link: "managematch.html" }
-        ];
         
         // Check if hoster is logged in
         window.addEventListener('DOMContentLoaded', () => {
@@ -848,64 +742,26 @@
             }
         });
         
-        // Mobile menu toggle
-        menuToggle.addEventListener('click', () => {
-            const headerLeft = document.querySelector('.header-left');
-            headerLeft.classList.toggle('active');
+        // Toggle profile dropdown
+        profileMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileDropdown.classList.toggle('active');
+            overlay.classList.toggle('active');
         });
         
-        // Search functionality
-        function performSearch() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            searchResults.innerHTML = '';
-            
-            if (!searchTerm) {
-                searchResults.style.display = 'none';
-                return;
-            }
-            
-            // Filter card data based on search term
-            const filteredResults = cardData.filter(card => 
-                card.title.toLowerCase().includes(searchTerm) || 
-                card.description.toLowerCase().includes(searchTerm)
-            );
-            
-            if (filteredResults.length > 0) {
-                filteredResults.forEach(result => {
-                    const resultItem = document.createElement('div');
-                    resultItem.className = 'search-result-item';
-                    resultItem.innerHTML = `
-                        <i class="${result.icon}"></i>
-                        <div>
-                            <div><strong>${result.title}</strong></div>
-                            <div style="font-size: 12px; color: var(--gray);">${result.description}</div>
-                        </div>
-                    `;
-                    resultItem.addEventListener('click', () => {
-                        navigateTo(result.link);
-                    });
-                    searchResults.appendChild(resultItem);
-                });
-                searchResults.style.display = 'block';
-            } else {
-                const noResults = document.createElement('div');
-                noResults.className = 'search-result-item';
-                noResults.textContent = 'No results found';
-                searchResults.appendChild(noResults);
-                searchResults.style.display = 'block';
-            }
+        // Close dropdown when clicking outside
+        overlay.addEventListener('click', () => {
+            profileDropdown.classList.remove('active');
+            overlay.classList.remove('active');
+            closeAllModals();
+        });
+        
+        // Close all modals
+        function closeAllModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
         }
-        
-        // Add event listeners for search
-        searchInput.addEventListener('input', performSearch);
-        searchInput.addEventListener('focus', performSearch);
-        
-        // Hide search results when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.search-container')) {
-                searchResults.style.display = 'none';
-            }
-        });
         
         // Verify hoster exists in database
         function verifyHosterInDatabase(hosterId, username) {
@@ -942,7 +798,7 @@
                             const match = matchSnapshot.val();
                             totalMatches++;
                             
-                            // Check if match is canceled (you might need to adjust this based on your data structure)
+                            // Check if match is canceled
                             if (match.status === 'canceled' || match.status === 'cancelled') {
                                 canceledMatches++;
                             }
@@ -988,7 +844,6 @@
         function showDashboard(hosterData) {
             dashboardContent.style.display = 'block';
             loginPrompt.style.display = 'none';
-            userProfile.style.display = 'block'; // Show profile icon after login
             
             // Update profile dropdown
             document.getElementById('dropdownProfileImg').src = hosterData.profileImage || 'https://via.placeholder.com/80';
@@ -1008,7 +863,6 @@
         function showLoginPrompt() {
             dashboardContent.style.display = 'none';
             loginPrompt.style.display = 'block';
-            userProfile.style.display = 'none'; // Hide profile icon before login
             
             // Clear localStorage
             localStorage.removeItem('hosterId');
@@ -1017,19 +871,6 @@
             localStorage.removeItem('hosterData');
             localStorage.removeItem('loginTime');
         }
-        
-        // Toggle profile dropdown
-        profileMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            profileDropdown.classList.toggle('active');
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.user-profile')) {
-                profileDropdown.classList.remove('active');
-            }
-        });
         
         // Navigate to page
         function navigateTo(page) {
@@ -1040,17 +881,20 @@
         function openSettings() {
             document.getElementById('settingsModal').style.display = 'flex';
             profileDropdown.classList.remove('active');
+            overlay.classList.add('active');
         }
         
         // Open password modal
         function openPasswordModal() {
             document.getElementById('passwordModal').style.display = 'flex';
             profileDropdown.classList.remove('active');
+            overlay.classList.add('active');
         }
         
         // Close modal
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
+            overlay.classList.remove('active');
         }
         
         // Logout
@@ -1091,225 +935,6 @@
             }
         });
         
-        // Upload image to ImgBB
-        document.getElementById('uploadProfileImageBtn').addEventListener('click', function() {
-            const fileInput = document.getElementById('profileImageUpload');
-            const file = fileInput.files[0];
-            
-            if (!file) {
-                showAlert('settingsError', 'Please select an image first');
-                return;
-            }
-            
-            // Show loading state
-            const originalText = this.innerHTML;
-            this.innerHTML = 'Uploading... <div class="loader"></div>';
-            this.disabled = true;
-            
-            // Convert image to base64 for ImgBB API
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = function() {
-                const base64Image = reader.result.split(',')[1];
-                
-                // Create form data
-                const formData = new FormData();
-                formData.append('key', IMGBB_API_KEY);
-                formData.append('image', base64Image);
-                
-                // Make the API request to ImgBB
-                fetch('https://api.imgbb.com/1/upload', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('ImgBB API Response:', data);
-                    
-                    if (data.success) {
-                        // Update profile image in UI
-                        const imageUrl = data.data.url;
-                        document.getElementById('profileImagePreview').src = imageUrl;
-                        document.getElementById('profileMenuBtn').src = imageUrl;
-                        document.getElementById('dropdownProfileImg').src = imageUrl;
-                        
-                        // Save to Firebase database
-                        updateProfileImageInDatabase(imageUrl);
-                        
-                        showAlert('settingsSuccess', 'Profile image updated successfully!');
-                    } else {
-                        showAlert('settingsError', 'Failed to upload image: ' + (data.error.message || 'Unknown error'));
-                    }
-                    
-                    // Reset button
-                    document.getElementById('uploadProfileImageBtn').innerHTML = 'Upload Image';
-                    document.getElementById('uploadProfileImageBtn').disabled = false;
-                })
-                .catch(error => {
-                    console.error('Upload error:', error);
-                    showAlert('settingsError', 'Error uploading image: ' + error.message);
-                    
-                    // Reset button
-                    document.getElementById('uploadProfileImageBtn').innerHTML = 'Upload Image';
-                    document.getElementById('uploadProfileImageBtn').disabled = false;
-                });
-            };
-            
-            reader.onerror = function(error) {
-                console.error('File reading error:', error);
-                showAlert('settingsError', 'Error reading image file');
-                
-                // Reset button
-                document.getElementById('uploadProfileImageBtn').innerHTML = 'Upload Image';
-                document.getElementById('uploadProfileImageBtn').disabled = false;
-            };
-        });
-        
-        // Update profile image in Firebase database
-        function updateProfileImageInDatabase(imageUrl) {
-            const hosterId = localStorage.getItem('hosterId');
-            const hostersRef = database.ref('hosters').child(hosterId);
-            
-            hostersRef.update({
-                profileImage: imageUrl
-            })
-            .catch(error => {
-                console.error('Error updating profile image in database:', error);
-            });
-        }
-        
-        // Update profile information
-        document.getElementById('updateProfileBtn').addEventListener('click', function() {
-            const username = document.getElementById('settingsUsername').value.trim();
-            const email = document.getElementById('settingsEmail').value.trim();
-            const phone = document.getElementById('settingsPhone').value.trim();
-            const firstName = document.getElementById('settingsFirstName').value.trim();
-            const hosterId = localStorage.getItem('hosterId');
-            
-            if (!username || !email || !firstName) {
-                showAlert('settingsError', 'Please fill in all required fields');
-                return;
-            }
-            
-            if (!validateEmail(email) && email !== '') {
-                showAlert('settingsError', 'Please enter a valid email address');
-                return;
-            }
-            
-            // Show loading state
-            const originalText = this.innerHTML;
-            this.innerHTML = 'Updating... <div class="loader"></div>';
-            this.disabled = true;
-            
-            // Update in Firebase database
-            updateHosterProfile(hosterId, username, email, phone, firstName);
-        });
-        
-        // Update hoster profile in Firebase
-        function updateHosterProfile(hosterId, username, email, phone, firstName) {
-            const hostersRef = database.ref('hosters').child(hosterId);
-            
-            hostersRef.update({
-                username: username,
-                email: email,
-                phone: phone,
-                firstName: firstName
-            }, (error) => {
-                const updateBtn = document.getElementById('updateProfileBtn');
-                
-                if (error) {
-                    showAlert('settingsError', 'Error updating profile: ' + error.message);
-                    updateBtn.innerHTML = 'Update Profile';
-                    updateBtn.disabled = false;
-                } else {
-                    // Update localStorage
-                    localStorage.setItem('hosterUsername', username);
-                    localStorage.setItem('hosterEmail', email);
-                    
-                    // Update UI
-                    document.getElementById('dropdownUsername').textContent = username;
-                    
-                    showAlert('settingsSuccess', 'Profile updated successfully!');
-                    updateBtn.innerHTML = 'Update Profile';
-                    updateBtn.disabled = false;
-                }
-            });
-        }
-        
-        // Change password
-        document.getElementById('changePasswordBtn').addEventListener('click', function() {
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const hosterId = localStorage.getItem('hosterId');
-            
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                showAlert('passwordError', 'Please fill in all fields');
-                return;
-            }
-            
-            if (newPassword !== confirmPassword) {
-                showAlert('passwordError', 'New passwords do not match');
-                return;
-            }
-            
-            if (newPassword.length < 6) {
-                showAlert('passwordError', 'Password must be at least 6 characters long');
-                return;
-            }
-            
-            // Show loading state
-            const originalText = this.innerHTML;
-            this.innerHTML = 'Changing... <div class="loader"></div>';
-            this.disabled = true;
-            
-            // Verify current password and update
-            verifyAndUpdatePassword(hosterId, currentPassword, newPassword);
-        });
-        
-        // Verify current password and update to new password
-        function verifyAndUpdatePassword(hosterId, currentPassword, newPassword) {
-            const hostersRef = database.ref('hosters').child(hosterId);
-            
-            hostersRef.once('value')
-                .then(snapshot => {
-                    if (snapshot.exists()) {
-                        const hosterData = snapshot.val();
-                        
-                        // Check if current password matches
-                        if (hosterData.password === currentPassword) {
-                            // Update password
-                            hostersRef.update({
-                                password: newPassword
-                            }, (error) => {
-                                const changeBtn = document.getElementById('changePasswordBtn');
-                                
-                                if (error) {
-                                    showAlert('passwordError', 'Error updating password: ' + error.message);
-                                    changeBtn.innerHTML = 'Change Password';
-                                    changeBtn.disabled = false;
-                                } else {
-                                    showAlert('passwordSuccess', 'Password updated successfully!');
-                                    document.getElementById('passwordForm').reset();
-                                    changeBtn.innerHTML = 'Change Password';
-                                    changeBtn.disabled = false;
-                                }
-                            });
-                        } else {
-                            showAlert('passwordError', 'Current password is incorrect');
-                            document.getElementById('changePasswordBtn').innerHTML = 'Change Password';
-                            document.getElementById('changePasswordBtn').disabled = false;
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Database error:', error);
-                    showAlert('passwordError', 'Error verifying password: ' + error.message);
-                    document.getElementById('changePasswordBtn').innerHTML = 'Change Password';
-                    document.getElementById('changePasswordBtn').disabled = false;
-                });
-        }
-        
         // Helper function to show alerts
         function showAlert(elementId, message) {
             const alertElement = document.getElementById(elementId);
@@ -1322,16 +947,11 @@
             }, 5000);
         }
         
-        // Helper function to validate email
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-        
         // Close modals when clicking outside
         window.addEventListener('click', function(event) {
             if (event.target.classList.contains('modal')) {
                 event.target.style.display = 'none';
+                overlay.classList.remove('active');
             }
         });
         
@@ -1345,6 +965,16 @@
                 logout();
             }
         }, 60000); // Check every minute
+        
+        // Add touch events for better mobile experience
+        document.addEventListener('touchstart', function() {
+            // Add touch feedback
+        }, { passive: true });
+        
+        // Prevent zoom on double-tap
+        document.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+        }, { passive: false });
     </script>
 </body>
 </html>
