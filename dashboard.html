@@ -73,6 +73,7 @@
         
         .user-profile {
             position: relative;
+            margin-right: auto; /* Push to the left */
         }
         
         .profile-img {
@@ -502,6 +503,11 @@
                 width: 35px;
                 height: 35px;
             }
+            
+            .user-profile {
+                margin-right: 0;
+                order: -1; /* Move to the beginning on mobile */
+            }
         }
         
         @media (max-width: 480px) {
@@ -525,6 +531,14 @@
         @media (min-width: 769px) {
             .btn {
                 width: auto;
+            }
+            
+            .header-left {
+                flex-direction: row;
+            }
+            
+            .user-profile {
+                order: 0; /* Reset order for desktop */
             }
         }
         
@@ -592,6 +606,15 @@
                 margin-top: 10px;
             }
         }
+        
+        /* Stats loading animation */
+        .stats-loading {
+            opacity: 0.7;
+        }
+        
+        .stats-loading p {
+            color: #ccc !important;
+        }
     </style>
     <!-- Firebase App (the core Firebase SDK) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -638,13 +661,13 @@
                 
                 <!-- Stats Cards -->
                 <div class="stats-container">
-                    <div class="stat-card">
+                    <div class="stat-card stats-loading" id="totalMatchesCard">
                         <h3>Total Matches</h3>
-                        <p id="totalMatches">0</p>
+                        <p id="totalMatches">Loading...</p>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card stats-loading" id="canceledMatchesCard">
                         <h3>Canceled Matches</h3>
-                        <p id="canceledMatches">0</p>
+                        <p id="canceledMatches">Loading...</p>
                     </div>
                 </div>
                 
@@ -786,21 +809,19 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         
-        // ImgBB API Key
-        const IMGBB_API_KEY = 'a7dcfb1d31cf1961024c9dcc608cc0e4';
-        
         // DOM Elements
         const profileMenuBtn = document.getElementById('profileMenuBtn');
         const profileDropdown = document.getElementById('profileDropdown');
         const dashboardContent = document.getElementById('dashboardContent');
         const loginPrompt = document.getElementById('loginPrompt');
-        const apiStatus = document.getElementById('apiStatus');
         const userProfile = document.getElementById('userProfile');
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
         const menuToggle = document.getElementById('menuToggle');
         const totalMatchesElement = document.getElementById('totalMatches');
         const canceledMatchesElement = document.getElementById('canceledMatches');
+        const totalMatchesCard = document.getElementById('totalMatchesCard');
+        const canceledMatchesCard = document.getElementById('canceledMatchesCard');
         
         // Card data for search functionality
         const cardData = [
@@ -895,7 +916,8 @@
                     if (snapshot.exists()) {
                         const hosterData = snapshot.val();
                         showDashboard(hosterData);
-                        updateHosterStats(hosterId);
+                        // Fetch match statistics from database
+                        fetchMatchStatistics(hosterId);
                     } else {
                         showLoginPrompt();
                     }
@@ -906,19 +928,60 @@
                 });
         }
         
-        // Update hoster stats
-        function updateHosterStats(hosterId) {
-            // In a real implementation, you would query the database for match statistics
-            // This is a placeholder implementation with sample data
-            const totalMatches = Math.floor(Math.random() * 50) + 10;
-            const canceledMatches = Math.floor(Math.random() * 10);
+        // Fetch match statistics from database
+        function fetchMatchStatistics(hosterId) {
+            const matchesRef = database.ref('matches');
             
-            totalMatchesElement.textContent = totalMatches;
-            canceledMatchesElement.textContent = canceledMatches;
-            
-            // Store in localStorage for persistence
-            localStorage.setItem('totalMatches', totalMatches);
-            localStorage.setItem('canceledMatches', canceledMatches);
+            matchesRef.orderByChild('hosterId').equalTo(hosterId).once('value')
+                .then(snapshot => {
+                    let totalMatches = 0;
+                    let canceledMatches = 0;
+                    
+                    if (snapshot.exists()) {
+                        snapshot.forEach(matchSnapshot => {
+                            const match = matchSnapshot.val();
+                            totalMatches++;
+                            
+                            // Check if match is canceled (you might need to adjust this based on your data structure)
+                            if (match.status === 'canceled' || match.status === 'cancelled') {
+                                canceledMatches++;
+                            }
+                        });
+                    }
+                    
+                    // Update UI with match statistics
+                    totalMatchesElement.textContent = totalMatches;
+                    canceledMatchesElement.textContent = canceledMatches;
+                    
+                    // Remove loading state
+                    totalMatchesCard.classList.remove('stats-loading');
+                    canceledMatchesCard.classList.remove('stats-loading');
+                    
+                    // Store in localStorage for persistence
+                    localStorage.setItem('totalMatches', totalMatches);
+                    localStorage.setItem('canceledMatches', canceledMatches);
+                })
+                .catch(error => {
+                    console.error('Error fetching match statistics:', error);
+                    
+                    // Fallback to localStorage if available
+                    const totalMatches = localStorage.getItem('totalMatches');
+                    const canceledMatches = localStorage.getItem('canceledMatches');
+                    
+                    if (totalMatches) {
+                        totalMatchesElement.textContent = totalMatches;
+                        totalMatchesCard.classList.remove('stats-loading');
+                    } else {
+                        totalMatchesElement.textContent = 'Error';
+                    }
+                    
+                    if (canceledMatches) {
+                        canceledMatchesElement.textContent = canceledMatches;
+                        canceledMatchesCard.classList.remove('stats-loading');
+                    } else {
+                        canceledMatchesElement.textContent = 'Error';
+                    }
+                });
         }
         
         // Show dashboard
@@ -939,18 +1002,6 @@
             document.getElementById('settingsPhone').value = hosterData.phone;
             document.getElementById('settingsFirstName').value = hosterData.firstName;
             document.getElementById('profileImagePreview').src = hosterData.profileImage || 'https://via.placeholder.com/150';
-            
-            // Load stats from localStorage if available
-            const totalMatches = localStorage.getItem('totalMatches');
-            const canceledMatches = localStorage.getItem('canceledMatches');
-            
-            if (totalMatches) {
-                totalMatchesElement.textContent = totalMatches;
-            }
-            
-            if (canceledMatches) {
-                canceledMatchesElement.textContent = canceledMatches;
-            }
         }
         
         // Show login prompt
