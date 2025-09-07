@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Match - Aura Battle</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #e63946;
+            --secondary: #d00000;
+            --light-red: #ffcccc;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --white: #ffffff;
+        }
+        
+        body {
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)),
+                        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3Cpath d='M0,0 L100,100 M100,0 L0,100' stroke='%23e63946' stroke-width='1' stroke-opacity='0.1'/%3E%3C/svg%3E");
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .header {
+            background: var(--primary);
+            padding: 15px 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 20px;
+            color: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .logout-btn {
+            background: var(--white);
+            color: var(--primary);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .container {
+            max-width: 100%;
+            background: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            margin: 0 auto 30px;
+            border-top: 5px solid var(--primary);
+        }
+        
+        .form-container {
+            padding: 20px;
+        }
+        
+        h2 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .form-section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+        
+        .radio-option input {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .prize-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .prize-row input {
+            flex: 1;
+        }
+        
+        .add-prize {
+            background: var(--light-red);
+            color: var(--primary);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .remove-prize {
+            background: var(--light-red);
+            color: var(--primary);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        button {
+            padding: 14px;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+        
+        button:hover {
+            background: var(--secondary);
+        }
+        
+        .message {
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .error {
+            background-color: #ffebee;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .success {
+            background-color: #e8f5e9;
+            color: #388e3c;
+            border: 1px solid #4caf50;
+        }
+        
+        .info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #2196f3;
+        }
+        
+        .warning {
+            background-color: #fff8e1;
+            color: #f57c00;
+            border: 1px solid #ffa000;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 15px;
+            color: var(--gray);
+            font-size: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--white);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 18px;
+            }
+            
+            .form-container {
+                padding: 15px;
+            }
+            
+            input, select, textarea {
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Create New Match</h1>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+        </div>
+        
+        <div class="form-container">
+            <h2>Match Details</h2>
+            
+            <div id="message" class="message"></div>
+            
+            <form id="matchForm">
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-info-circle"></i> Basic Information</div>
+                    
+                    <div class="input-group">
+                        <label for="matchTitle">Match Title</label>
+                        <input type="text" id="matchTitle" placeholder="Enter match title" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="slots">Number of Slots</label>
+                        <input type="number" id="slots" min="2" max="100" placeholder="Enter number of slots" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="matchType">Match Type</label>
+                        <select id="matchType" required>
+                            <option value="">Select match type</option>
+                            <option value="CS">Clash Squad (CS)</option>
+                            <option value="LW">Lonewolf (LW)</option>
+                            <option value="BR">Battle Royal (BR)</option>
+                            <option value="CF">Crewfight Race (CF)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="matchMode">Match Mode</label>
+                        <select id="matchMode" required>
+                            <option value="">Select match mode</option>
+                            <option value="solo">Solo</option>
+                            <option value="duo">Duo</option>
+                            <option value="squad">Squad</option>
+                            <option value="6v6">6 vs 6</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-money-bill-wave"></i> Entry Fee</div>
+                    
+                    <div class="input-group">
+                        <label>Match Fee Type</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="free" name="feeType" value="free" checked>
+                                <label for="free">Free</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="paid" name="feeType" value="paid">
+                                <label for="paid">Paid</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="paidOptions" class="hidden">
+                        <div class="input-group">
+                            <label for="premiumCategory">Premium Category</label>
+                            <select id="premiumCategory">
+                                <option value="">Select premium category</option>
+                                <!-- Categories will be loaded from Firebase -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-calendar-alt"></i> Schedule</div>
+                    
+                    <div class="input-group">
+                        <label for="matchDate">Match Date</label>
+                        <input type="date" id="matchDate" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="matchTime">Match Time</label>
+                        <input type="time" id="matchTime" required>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-trophy"></i> Prize Distribution</div>
+                    
+                    <div class="input-group">
+                        <label for="prizeType">Prize Distribution Type</label>
+                        <select id="prizeType" required>
+                            <option value="">Select distribution type</option>
+                            <option value="kill">Kill Wise</option>
+                            <option value="winner">Winner Only</option>
+                            <option value="rank">Rank Wise</option>
+                        </select>
+                    </div>
+                    
+                    <div id="killPrize" class="input-group hidden">
+                        <label for="perKillPrize">Prize Per Kill</label>
+                        <input type="number" id="perKillPrize" min="0" placeholder="Enter prize amount per kill">
+                    </div>
+                    
+                    <div id="rankPrizes" class="hidden">
+                        <label>Rank Prizes (Max 20 ranks)</label>
+                        <div id="prizeContainer">
+                            <div class="prize-row">
+                                <input type="number" placeholder="Rank" class="rank-input" min="1" max="20" disabled value="1">
+                                <input type="number" placeholder="Prize amount" class="prize-amount" min="0">
+                                <button type="button" class="remove-prize">-</button>
+                            </div>
+                        </div>
+                        <button type="button" class="add-prize" id="addPrizeRow">Add Rank</button>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="totalPrize">Total Prize Pool</label>
+                        <input type="number" id="totalPrize" min="0" placeholder="Enter total prize pool" required>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title"><i class="fas fa-map-marked-alt"></i> Additional Details</div>
+                    
+                    <div class="input-group">
+                        <label for="mapName">Map Name</label>
+                        <input type="text" id="mapName" placeholder="Enter map name" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="matchRules">Match Rules (Optional)</label>
+                        <textarea id="matchRules" placeholder="Enter any special rules for the match" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <button type="submit" id="createMatchBtn">Create Match</button>
+            </form>
+        </div>
+        
+        <div class="footer">
+            &copy; 2023 Aura Battle. All rights reserved.
+        </div>
+    </div>
+
+    <!-- Firebase App (core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <!-- Firebase Database -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        // Firebase configuration (same as login page)
+        const firebaseConfig = {
+            apiKey: "AIzaSyD7pAsdYqkJzDbSsi8xbLsy2X5s0bgP040",
+            authDomain: "aura-battle-main.firebaseapp.com",
+            databaseURL: "https://aura-battle-main-default-rtdb.firebaseio.com",
+            projectId: "aura-battle-main",
+            storageBucket: "aura-battle-main.firebasestorage.app",
+            messagingSenderId: "763779990289",
+            appId: "1:763779990289:web:5caa7bc861e80b6f0b02b0",
+            measurementId: "G-ZZXZ00HK07"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // DOM elements
+        const matchForm = document.getElementById('matchForm');
+        const messageDiv = document.getElementById('message');
+        const createMatchBtn = document.getElementById('createMatchBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const feeTypeRadios = document.querySelectorAll('input[name="feeType"]');
+        const paidOptions = document.getElementById('paidOptions');
+        const prizeTypeSelect = document.getElementById('prizeType');
+        const killPrize = document.getElementById('killPrize');
+        const rankPrizes = document.getElementById('rankPrizes');
+        const prizeContainer = document.getElementById('prizeContainer');
+        const addPrizeRowBtn = document.getElementById('addPrizeRow');
+        const premiumCategorySelect = document.getElementById('premiumCategory');
+        
+        // Hoster info from localStorage
+        let hosterId, hosterUsername, hosterEmail;
+
+        // Check authentication on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            hosterId = localStorage.getItem('hosterId');
+            hosterUsername = localStorage.getItem('hosterUsername');
+            hosterEmail = localStorage.getItem('hosterEmail');
+            const loginTime = localStorage.getItem('loginTime');
+            
+            if (!hosterId || !loginTime) {
+                // Redirect to login if not logged in
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Check if login is still valid (within 30 minutes)
+            if (new Date().getTime() - parseInt(loginTime) > 30 * 60 * 1000) {
+                // Clear expired login
+                localStorage.removeItem('hosterId');
+                localStorage.removeItem('hosterUsername');
+                localStorage.removeItem('hosterEmail');
+                localStorage.removeItem('hosterData');
+                localStorage.removeItem('loginTime');
+                
+                // Redirect to login
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Load premium categories from Firebase
+            loadPremiumCategories();
+        });
+
+        // Load premium categories from Firebase
+        function loadPremiumCategories() {
+            const categoriesRef = database.ref('categories');
+            categoriesRef.once('value')
+                .then((snapshot) => {
+                    premiumCategorySelect.innerHTML = '<option value="">Select premium category</option>';
+                    
+                    snapshot.forEach((childSnapshot) => {
+                        const category = childSnapshot.val();
+                        const option = document.createElement('option');
+                        option.value = childSnapshot.key;
+                        option.textContent = category.name;
+                        premiumCategorySelect.appendChild(option);
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error loading categories:', error);
+                    showMessage('Error loading categories. Please refresh the page.', 'error');
+                });
+        }
+
+        // Handle fee type change
+        feeTypeRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'paid') {
+                    paidOptions.classList.remove('hidden');
+                    premiumCategorySelect.setAttribute('required', 'required');
+                } else {
+                    paidOptions.classList.add('hidden');
+                    premiumCategorySelect.removeAttribute('required');
+                }
+            });
+        });
+
+        // Handle prize type change
+        prizeTypeSelect.addEventListener('change', function() {
+            const value = this.value;
+            
+            // Hide all prize options first
+            killPrize.classList.add('hidden');
+            rankPrizes.classList.add('hidden');
+            
+            // Show relevant options
+            if (value === 'kill') {
+                killPrize.classList.remove('hidden');
+            } else if (value === 'rank') {
+                rankPrizes.classList.remove('hidden');
+            }
+        });
+
+        // Add prize row
+        addPrizeRowBtn.addEventListener('click', function() {
+            if (prizeContainer.children.length >= 20) {
+                showMessage('Maximum 20 ranks allowed', 'warning');
+                return;
+            }
+            
+            const newRow = document.createElement('div');
+            newRow.className = 'prize-row';
+            newRow.innerHTML = `
+                <input type="number" placeholder="Rank" class="rank-input" min="1" max="20" value="${prizeContainer.children.length + 1}">
+                <input type="number" placeholder="Prize amount" class="prize-amount" min="0">
+                <button type="button" class="remove-prize">-</button>
+            `;
+            
+            prizeContainer.appendChild(newRow);
+            
+            // Add event listener to remove button
+            newRow.querySelector('.remove-prize').addEventListener('click', function() {
+                prizeContainer.removeChild(newRow);
+                updateRankNumbers();
+            });
+        });
+
+        // Update rank numbers when rows are removed
+        function updateRankNumbers() {
+            const rows = prizeContainer.children;
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].querySelector('.rank-input').value = i + 1;
+            }
+        }
+
+        // Generate a 6-digit alphanumeric match ID
+        function generateMatchId() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Form submission
+        matchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            if (!validateForm()) {
+                return;
+            }
+            
+            // Get form values
+            const matchTitle = document.getElementById('matchTitle').value;
+            const slots = parseInt(document.getElementById('slots').value);
+            const matchType = document.getElementById('matchType').value;
+            const matchMode = document.getElementById('matchMode').value;
+            const feeType = document.querySelector('input[name="feeType"]:checked').value;
+            const premiumCategory = feeType === 'paid' ? document.getElementById('premiumCategory').value : '';
+            const matchDate = document.getElementById('matchDate').value;
+            const matchTime = document.getElementById('matchTime').value;
+            const prizeType = document.getElementById('prizeType').value;
+            const perKillPrize = prizeType === 'kill' ? parseFloat(document.getElementById('perKillPrize').value) : 0;
+            const totalPrize = parseFloat(document.getElementById('totalPrize').value);
+            const mapName = document.getElementById('mapName').value;
+            const matchRules = document.getElementById('matchRules').value;
+            
+            // Get rank prizes if applicable
+            const rankPrizes = {};
+            if (prizeType === 'rank') {
+                const prizeRows = prizeContainer.children;
+                for (let i = 0; i < prizeRows.length; i++) {
+                    const rank = prizeRows[i].querySelector('.rank-input').value;
+                    const amount = parseFloat(prizeRows[i].querySelector('.prize-amount').value);
+                    if (!isNaN(amount) && amount > 0) {
+                        rankPrizes[rank] = amount;
+                    }
+                }
+            }
+            
+            // Generate match ID
+            const matchId = generateMatchId();
+            
+            // Create match data object
+            const matchData = {
+                matchId: matchId,
+                title: matchTitle,
+                slots: slots,
+                type: matchType,
+                mode: matchMode,
+                feeType: feeType,
+                premiumCategory: premiumCategory,
+                date: matchDate,
+                time: matchTime,
+                prizeType: prizeType,
+                perKillPrize: perKillPrize,
+                rankPrizes: rankPrizes,
+                totalPrize: totalPrize,
+                mapName: mapName,
+                rules: matchRules,
+                hostedBy: hosterUsername,
+                hosterId: hosterId,
+                status: 'upcoming',
+                createdAt: new Date().toISOString(),
+                participants: {}
+            };
+            
+            // Show loading state
+            createMatchBtn.innerHTML = '<span class="loader"></span> Creating Match...';
+            createMatchBtn.disabled = true;
+            
+            // Save to Firebase
+            const matchesRef = database.ref('matches');
+            const newMatchRef = matchesRef.push();
+            
+            newMatchRef.set(matchData)
+                .then(() => {
+                    showMessage('Match created successfully! Match ID: ' + matchId, 'success');
+                    matchForm.reset();
+                    
+                    // Reset UI state
+                    paidOptions.classList.add('hidden');
+                    killPrize.classList.add('hidden');
+                    rankPrizes.classList.add('hidden');
+                    prizeContainer.innerHTML = `
+                        <div class="prize-row">
+                            <input type="number" placeholder="Rank" class="rank-input" min="1" max="20" disabled value="1">
+                            <input type="number" placeholder="Prize amount" class="prize-amount" min="0">
+                            <button type="button" class="remove-prize">-</button>
+                        </div>
+                    `;
+                    
+                    // Add event listener to the new remove button
+                    prizeContainer.querySelector('.remove-prize').addEventListener('click', function() {
+                        // Don't remove the first row
+                        showMessage('At least one rank is required', 'warning');
+                    });
+                })
+                .catch((error) => {
+                    showMessage('Error creating match: ' + error.message, 'error');
+                })
+                .finally(() => {
+                    createMatchBtn.innerHTML = 'Create Match';
+                    createMatchBtn.disabled = false;
+                });
+        });
+
+        // Form validation
+        function validateForm() {
+            const matchTitle = document.getElementById('matchTitle').value;
+            const slots = document.getElementById('slots').value;
+            const matchType = document.getElementById('matchType').value;
+            const matchMode = document.getElementById('matchMode').value;
+            const matchDate = document.getElementById('matchDate').value;
+            const matchTime = document.getElementById('matchTime').value;
+            const prizeType = document.getElementById('prizeType').value;
+            const totalPrize = document.getElementById('totalPrize').value;
+            const mapName = document.getElementById('mapName').value;
+            
+            if (!matchTitle || !slots || !matchType || !matchMode || !matchDate || !matchTime || !prizeType || !totalPrize || !mapName) {
+                showMessage('Please fill all required fields', 'error');
+                return false;
+            }
+            
+            if (prizeType === 'kill') {
+                const perKillPrize = document.getElementById('perKillPrize').value;
+                if (!perKillPrize || parseFloat(perKillPrize) <= 0) {
+                    showMessage('Please enter a valid prize per kill amount', 'error');
+                    return false;
+                }
+            }
+            
+            if (prizeType === 'rank') {
+                let valid = true;
+                const prizeRows = prizeContainer.children;
+                
+                if (prizeRows.length === 0) {
+                    showMessage('Please add at least one rank prize', 'error');
+                    return false;
+                }
+                
+                for (let i = 0; i < prizeRows.length; i++) {
+                    const amount = prizeRows[i].querySelector('.prize-amount').value;
+                    if (!amount || parseFloat(amount) <= 0) {
+                        showMessage('Please enter a valid prize amount for all ranks', 'error');
+                        valid = false;
+                        break;
+                    }
+                }
+                
+                if (!valid) return false;
+            }
+            
+            return true;
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            messageDiv.textContent = message;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Logout handler
+        logoutBtn.addEventListener('click', function() {
+            // Clear login data
+            localStorage.removeItem('hosterId');
+            localStorage.removeItem('hosterUsername');
+            localStorage.removeItem('hosterEmail');
+            localStorage.removeItem('hosterData');
+            localStorage.removeItem('loginTime');
+            
+            // Redirect to login page
+            window.location.href = 'index.html';
+        });
+
+        // Add event listener to the first remove button (prevent removal)
+        prizeContainer.querySelector('.remove-prize').addEventListener('click', function() {
+            showMessage('At least one rank is required', 'warning');
+        });
+
+        // Set minimum date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('matchDate').setAttribute('min', today);
+    </script>
+</body>
+</html>
