@@ -447,8 +447,8 @@ let hosterId = null, hosterUsername = null;
 try {
     const s = JSON.parse(atob(localStorage.getItem(SESS)||''));
     if(Date.now()-s.t < TTL){ hosterId=s.id; hosterUsername=s.username; }
-    else { window.location.href='hoster-login.html'; }
-} catch(_){ window.location.href='hoster-login.html'; }
+    else { window.location.href='index.html'; }
+} catch(_){ window.location.href='index.html'; }
 
 // ── State ───────────────────────────────────────────────────────────────────
 let currentStep = 1;
