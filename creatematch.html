@@ -10,313 +10,347 @@
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --red: #e63946; --red-dark: #b5202d; --red-glow: rgba(230,57,70,0.18);
-            --gold: #f5c518; --gold-dark: #c9a000; --gold-glow: rgba(245,197,24,0.2);
+            --red: #e63946; --red-dark: #b5202d;
+            --gold: #f5c518; --gold-dark: #c9a000; --gold-dim: rgba(245,197,24,0.15);
+            --green: #22c55e;
             --bg: #0d0d0f; --surface: #141418; --surface2: #1a1a1f; --surface3: #1f1f25;
-            --border: rgba(255,255,255,0.07); --border-red: rgba(230,57,70,0.2);
+            --border: rgba(255,255,255,0.07); --border-red: rgba(230,57,70,0.22);
+            --border-gold: rgba(245,197,24,0.25);
             --text: #f0f0f2; --dim: #9898a8; --muted: #5a5a68;
         }
         html, body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(230,57,70,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(230,57,70,0.025) 1px, transparent 1px); background-size: 44px 44px; pointer-events: none; z-index: 0; }
 
-        /* Header */
-        .header { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; gap: 14px; padding: 13px 18px; background: rgba(13,13,15,0.93); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
-        .back-btn { width: 34px; height: 34px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--dim); font-size: 14px; text-decoration: none; transition: color .2s, border-color .2s; flex-shrink: 0; }
-        .back-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
-        .header-logo { width: 30px; height: 30px; border-radius: 8px; background: rgba(230,57,70,0.12); border: 1px solid rgba(230,57,70,0.3); display: flex; align-items: center; justify-content: center; }
-        .header-logo i { color: var(--red); font-size: 13px; }
-        .header-title { font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
-        .header-title span { color: var(--red); }
+        /* ── Header ── */
+        .header { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; gap: 12px; padding: 13px 18px; background: rgba(13,13,15,0.94); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+        .back-btn { width: 34px; height: 34px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--dim); font-size: 14px; text-decoration: none; transition: color .2s; flex-shrink: 0; }
+        .h-logo { width: 30px; height: 30px; border-radius: 8px; background: rgba(230,57,70,0.12); border: 1px solid rgba(230,57,70,0.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .h-logo i { color: var(--red); font-size: 13px; }
+        .h-title { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .h-title span { color: var(--red); }
 
-        /* Progress bar */
+        /* ── Progress ── */
         .progress-wrap { padding: 14px 18px 0; position: relative; z-index: 1; }
-        .progress-steps { display: flex; align-items: center; gap: 0; }
-        .step-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); transition: all .3s; flex-shrink: 0; }
-        .step-dot.active { border-color: var(--red); color: var(--red); background: rgba(230,57,70,0.1); }
-        .step-dot.done { border-color: var(--red); background: var(--red); color: #fff; }
-        .step-line { flex: 1; height: 2px; background: var(--border); transition: background .3s; }
-        .step-line.done { background: var(--red); }
-        .step-labels { display: flex; justify-content: space-between; margin-top: 6px; }
-        .step-lbl { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; text-align: center; flex: 1; }
-        .step-lbl:first-child { text-align: left; }
-        .step-lbl:last-child { text-align: right; }
-        .step-lbl.active { color: var(--red); }
+        .p-steps { display: flex; align-items: center; }
+        .p-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700; color: var(--muted); transition: all .3s; flex-shrink: 0; }
+        .p-dot.active { border-color: var(--red); color: var(--red); background: rgba(230,57,70,0.1); }
+        .p-dot.done { border-color: var(--red); background: var(--red); color: #fff; }
+        .p-line { flex: 1; height: 2px; background: var(--border); transition: background .3s; }
+        .p-line.done { background: var(--red); }
+        .p-labels { display: flex; justify-content: space-between; margin-top: 6px; }
+        .p-lbl { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; flex: 1; text-align: center; }
+        .p-lbl:first-child { text-align: left; }
+        .p-lbl:last-child { text-align: right; }
+        .p-lbl.active { color: var(--red); }
 
-        /* Main */
-        .main { padding: 20px 18px 100px; max-width: 560px; margin: 0 auto; position: relative; z-index: 1; }
-
-        /* Step panels */
-        .step-panel { display: none; animation: fadeUp .35s ease both; }
+        /* ── Main ── */
+        .main { padding: 20px 18px 110px; max-width: 560px; margin: 0 auto; position: relative; z-index: 1; }
+        .step-panel { display: none; animation: fadeUp .32s ease both; }
         .step-panel.active { display: block; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-        .panel-title { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; }
+        .panel-title { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
         .panel-title span { color: var(--red); }
-        .panel-sub { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
+        .panel-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
 
-        /* Type selector cards */
-        .type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 8px; }
-        .type-card { background: var(--surface); border: 2px solid var(--border); border-radius: 14px; padding: 18px 12px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s, transform .15s; position: relative; overflow: hidden; }
-        .type-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 100%, rgba(230,57,70,0.08), transparent 70%); opacity: 0; transition: opacity .2s; }
-        .type-card:hover::before, .type-card.selected::before { opacity: 1; }
-        .type-card.selected { border-color: var(--red); background: rgba(230,57,70,0.06); }
+        /* ── Section label ── */
+        .sec-label { font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .sec-div { height: 1px; background: var(--border); margin: 20px 0; }
+
+        /* ── Match type cards ── */
+        .type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 6px; }
+        .type-card { background: var(--surface); border: 2px solid var(--border); border-radius: 14px; padding: 16px 10px 14px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s, transform .15s; position: relative; overflow: hidden; }
+        .type-card::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 110%, rgba(230,57,70,0.1), transparent 65%); opacity: 0; transition: opacity .2s; }
+        .type-card:hover::after, .type-card.sel::after { opacity: 1; }
+        .type-card.sel { border-color: var(--red); background: rgba(230,57,70,0.05); }
         .type-card:active { transform: scale(.97); }
-        .type-icon { font-size: 26px; margin-bottom: 8px; }
-        .type-name { font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 1px; }
-        .type-desc { font-size: 11px; color: var(--muted); margin-top: 3px; }
-        .type-check { position: absolute; top: 8px; right: 8px; width: 18px; height: 18px; border-radius: 50%; background: var(--red); display: none; align-items: center; justify-content: center; font-size: 9px; color: #fff; }
-        .type-card.selected .type-check { display: flex; }
+        .tc-check { position: absolute; top: 7px; right: 7px; width: 17px; height: 17px; border-radius: 50%; background: var(--red); display: none; align-items: center; justify-content: center; font-size: 8px; color: #fff; z-index: 1; }
+        .type-card.sel .tc-check { display: flex; }
+        .tc-emoji { font-size: 28px; margin-bottom: 8px; line-height: 1; }
+        .tc-name { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 1px; color: var(--text); }
+        .tc-desc { font-size: 10px; color: var(--muted); margin-top: 3px; letter-spacing: .5px; }
 
-        /* Options grid (entry type, prize type) */
+        /* ── Option cards (2-col / 4-col) ── */
         .opt-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .opt-grid-4 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .opt-card { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 14px 12px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s, transform .15s; position: relative; }
-        .opt-card.selected { border-color: var(--red); background: rgba(230,57,70,0.06); }
+        .opt-card { background: var(--surface); border: 2px solid var(--border); border-radius: 13px; padding: 14px 10px 12px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s, transform .15s; position: relative; }
+        .opt-card.sel { border-color: var(--red); background: rgba(230,57,70,0.05); }
         .opt-card:active { transform: scale(.97); }
-        .opt-icon { font-size: 20px; margin-bottom: 6px; }
-        .opt-name { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .5px; }
-        .opt-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
-        .opt-check { position: absolute; top: 7px; right: 7px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); display: none; align-items: center; justify-content: center; font-size: 8px; color: #fff; }
-        .opt-card.selected .opt-check { display: flex; }
+        .oc-check { position: absolute; top: 6px; right: 6px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); display: none; align-items: center; justify-content: center; font-size: 8px; color: #fff; }
+        .opt-card.sel .oc-check { display: flex; }
+        .oc-emoji { font-size: 22px; margin-bottom: 6px; line-height: 1; }
+        .oc-name { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .5px; }
+        .oc-desc { font-size: 10px; color: var(--muted); margin-top: 2px; }
 
-        /* Fields */
-        .field { margin-bottom: 18px; }
+        /* ── Entry mode cards (FREE vs GOLD) ── */
+        .entry-mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+        .em-card { border: 2px solid var(--border); border-radius: 14px; padding: 18px 14px; text-align: center; cursor: pointer; transition: all .2s; position: relative; overflow: hidden; }
+        .em-card.free-card { background: rgba(34,197,94,0.04); }
+        .em-card.gold-card { background: rgba(245,197,24,0.04); }
+        .em-card.sel-free { border-color: var(--green); background: rgba(34,197,94,0.08); box-shadow: 0 0 20px rgba(34,197,94,0.1); }
+        .em-card.sel-gold { border-color: var(--gold); background: rgba(245,197,24,0.08); box-shadow: 0 0 20px rgba(245,197,24,0.12); }
+        .em-card:active { transform: scale(.97); }
+        .em-check { position: absolute; top: 8px; right: 8px; width: 18px; height: 18px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 9px; color: #fff; }
+        .em-card.sel-free .em-check { display: flex; background: var(--green); }
+        .em-card.sel-gold .em-check { display: flex; background: var(--gold); }
+        .em-icon { font-size: 30px; margin-bottom: 10px; line-height: 1; }
+        .em-label { font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 1px; }
+        .free-card .em-label { color: var(--green); }
+        .gold-card .em-label { color: var(--gold); }
+        .em-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+        /* ── Fields ── */
+        .field { margin-bottom: 16px; }
         .field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
-        .field input, .field textarea, .field select {
-            width: 100%; padding: 13px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-            color: var(--text); font-size: 15px; font-family: 'DM Sans', sans-serif; transition: border-color .2s, box-shadow .2s; -webkit-appearance: none;
+        .field input, .field textarea {
+            width: 100%; padding: 13px 16px; background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; color: var(--text); font-size: 15px; font-family: 'DM Sans', sans-serif;
+            transition: border-color .2s, box-shadow .2s; -webkit-appearance: none;
         }
-        .field textarea { resize: vertical; min-height: 90px; }
-        .field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: rgba(230,57,70,.5); box-shadow: 0 0 0 3px rgba(230,57,70,.1); }
+        .field textarea { resize: vertical; min-height: 88px; }
+        .field input:focus, .field textarea:focus { outline: none; border-color: rgba(230,57,70,.5); box-shadow: 0 0 0 3px rgba(230,57,70,.1); }
         .field input::placeholder, .field textarea::placeholder { color: var(--muted); font-size: 14px; }
-        .field select option { background: var(--surface2); }
 
-        /* Gold coin input */
-        .gold-wrap { position: relative; }
-        .gold-wrap input { padding-left: 46px; }
-        .gold-wrap .gold-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; }
-        .gold-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(245,197,24,0.1); border: 1px solid rgba(245,197,24,0.25); border-radius: 20px; padding: 4px 10px; font-size: 12px; color: var(--gold); margin-top: 6px; }
-        .gold-badge img { width: 16px; height: 16px; }
+        /* gold input */
+        .gold-input-wrap { position: relative; }
+        .gold-input-wrap input { padding-left: 46px; border-color: var(--border-gold) !important; }
+        .gold-input-wrap input:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(245,197,24,0.12) !important; }
+        .gold-input-wrap .gi-coin { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; pointer-events: none; }
+        .gold-hint { display: inline-flex; align-items: center; gap: 5px; margin-top: 7px; background: rgba(245,197,24,0.1); border: 1px solid var(--border-gold); border-radius: 20px; padding: 4px 10px; font-size: 12px; color: var(--gold); }
+        .gold-hint img { width: 15px; height: 15px; }
 
-        /* Free toggle */
-        .free-toggle { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; cursor: pointer; margin-bottom: 10px; }
-        .free-toggle input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--red); cursor: pointer; }
-        .free-toggle span { font-size: 14px; color: var(--dim); }
+        /* spots input */
+        .spots-wrap { position: relative; }
+        .spots-wrap input { padding-left: 46px; }
+        .spots-wrap .si-coin { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; pointer-events: none; }
 
-        /* Kill prize */
-        .kill-box { background: var(--surface); border: 1px solid var(--border-red); border-radius: 12px; padding: 16px; margin-bottom: 18px; }
-        .kill-box-title { font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 600; color: var(--red); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+        /* ── Kill box ── */
+        .kill-box { background: var(--surface); border: 1px solid var(--border-red); border-radius: 13px; padding: 16px; margin-top: 16px; }
+        .kill-box-head { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; color: var(--red); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
 
-        /* Rank table */
-        .rank-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .add-rank-btn { display: flex; align-items: center; gap: 6px; background: rgba(230,57,70,0.1); border: 1px solid rgba(230,57,70,0.25); border-radius: 8px; padding: 7px 12px; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; color: var(--red); cursor: pointer; letter-spacing: 1px; text-transform: uppercase; }
+        /* ── Rank rows ── */
+        .rank-hdr { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; margin-bottom: 10px; }
+        .add-rank-btn { display: flex; align-items: center; gap: 6px; background: rgba(230,57,70,0.1); border: 1px solid rgba(230,57,70,0.25); border-radius: 8px; padding: 7px 12px; font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 600; color: var(--red); cursor: pointer; letter-spacing: 1px; text-transform: uppercase; transition: background .2s; }
+        .add-rank-btn:hover { background: rgba(230,57,70,0.16); }
         .rank-rows { display: flex; flex-direction: column; gap: 8px; }
         .rank-row { display: flex; align-items: center; gap: 10px; background: var(--surface2); border-radius: 10px; padding: 10px 12px; }
-        .rank-badge { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); width: 28px; text-align: center; flex-shrink: 0; }
-        .rank-badge.gold-r { color: var(--gold); }
-        .rank-badge.silver-r { color: #c0c0c0; }
-        .rank-badge.bronze-r { color: #cd7f32; }
-        .rank-input-wrap { flex: 1; position: relative; }
-        .rank-input-wrap img { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; }
-        .rank-input-wrap input { width: 100%; padding: 9px 12px 9px 36px; background: var(--surface3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; font-family: 'DM Sans', sans-serif; }
-        .rank-input-wrap input:focus { outline: none; border-color: rgba(245,197,24,.5); }
-        .rank-del { width: 28px; height: 28px; border-radius: 7px; background: rgba(230,57,70,0.08); border: 1px solid rgba(230,57,70,0.15); display: flex; align-items: center; justify-content: center; color: var(--red); font-size: 12px; cursor: pointer; flex-shrink: 0; }
+        .rank-badge { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; width: 28px; text-align: center; flex-shrink: 0; }
+        .rank-badge.gr { color: var(--gold); }
+        .rank-badge.sr { color: #c0c0c0; }
+        .rank-badge.br { color: #cd7f32; }
+        .rank-badge.nr { color: var(--dim); }
+        .ri-wrap { flex: 1; position: relative; }
+        .ri-wrap img { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; pointer-events: none; }
+        .ri-wrap input { width: 100%; padding: 9px 10px 9px 36px; background: var(--surface3); border: 1px solid var(--border-gold); border-radius: 8px; color: var(--text); font-size: 14px; font-family: 'DM Sans', sans-serif; transition: border-color .2s; }
+        .ri-wrap input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 2px rgba(245,197,24,0.1); }
+        .ri-wrap input::placeholder { color: var(--muted); }
+        .rank-del { width: 28px; height: 28px; border-radius: 7px; background: rgba(230,57,70,0.08); border: 1px solid rgba(230,57,70,0.15); display: flex; align-items: center; justify-content: center; color: var(--red); font-size: 12px; cursor: pointer; flex-shrink: 0; transition: background .2s; }
+        .rank-del:hover { background: rgba(230,57,70,0.18); }
 
-        /* Section divider */
-        .sec-div { height: 1px; background: var(--border); margin: 22px 0; }
-        .sec-label { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
-
-        /* Date time row */
+        /* ── Date/time row ── */
         .dt-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        /* Review card */
-        .review-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 16px; }
-        .review-stripe { height: 3px; background: linear-gradient(90deg, var(--red-dark), var(--red)); }
-        .review-body { padding: 16px; }
-        .review-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
-        .review-row:last-child { border-bottom: none; }
-        .rv-key { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-        .rv-val { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
-        .rv-val img { width: 18px; height: 18px; }
-        .rv-val.red { color: var(--red); }
-        .rv-badge { padding: 2px 8px; border-radius: 12px; font-size: 12px; font-family: 'DM Sans', sans-serif; font-weight: 500; }
-        .rv-badge.br { background: rgba(100,200,100,.12); color: #6dc86d; border: 1px solid rgba(100,200,100,.2); }
-        .rv-badge.cs { background: rgba(100,150,230,.12); color: #78a7f5; border: 1px solid rgba(100,150,230,.2); }
-        .rv-badge.lw { background: rgba(230,150,50,.12); color: #f5a550; border: 1px solid rgba(230,150,50,.2); }
-        .match-id-preview { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 700; color: var(--red); text-align: center; padding: 14px; border-radius: 10px; background: rgba(230,57,70,0.06); border: 1px dashed rgba(230,57,70,0.25); margin-bottom: 16px; letter-spacing: 3px; }
-        .mid-label { font-size: 11px; color: var(--muted); text-align: center; margin-top: -10px; margin-bottom: 16px; letter-spacing: 1.5px; text-transform: uppercase; }
+        /* ── Review card ── */
+        .review-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 14px; }
+        .rv-stripe { height: 3px; background: linear-gradient(90deg, var(--red-dark), var(--red)); }
+        .rv-body { padding: 4px 16px 8px; }
+        .rv-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .rv-row:last-child { border-bottom: none; }
+        .rv-k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; }
+        .rv-v { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 5px; }
+        .rv-v img { width: 17px; height: 17px; }
+        .rv-pill { padding: 2px 9px; border-radius: 12px; font-size: 12px; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+        .pill-br { background: rgba(100,200,100,.1); color: #6dc86d; border: 1px solid rgba(100,200,100,.2); }
+        .pill-cs { background: rgba(100,150,230,.1); color: #78a7f5; border: 1px solid rgba(100,150,230,.2); }
+        .pill-lw { background: rgba(230,150,50,.1); color: #f5a550; border: 1px solid rgba(230,150,50,.2); }
 
-        /* Nav buttons */
-        .nav-btns { position: fixed; bottom: 0; left: 0; right: 0; padding: 14px 18px; background: rgba(13,13,15,0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; gap: 12px; z-index: 100; max-width: 560px; margin: 0 auto; left: 50%; transform: translateX(-50%); width: 100%; }
-        .btn-back { flex: 0 0 auto; width: 48px; height: 48px; border-radius: 12px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--dim); font-size: 16px; transition: color .2s; }
-        .btn-back:hover { color: var(--text); }
-        .btn-back:disabled { opacity: .3; cursor: not-allowed; }
-        .btn-next { flex: 1; padding: 14px; background: linear-gradient(135deg, var(--red), var(--red-dark)); color: #fff; border: none; border-radius: 12px; font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 20px rgba(230,57,70,0.3); transition: opacity .2s; }
-        .btn-next:disabled { opacity: .4; cursor: not-allowed; }
-        .btn-next.gold-btn { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #1a1200; box-shadow: 0 4px 20px rgba(245,197,24,0.3); }
+        .mid-preview { font-family: 'Rajdhani', sans-serif; font-size: 26px; font-weight: 700; color: var(--red); text-align: center; padding: 14px; border-radius: 10px; background: rgba(230,57,70,0.06); border: 1px dashed rgba(230,57,70,0.28); margin-bottom: 6px; letter-spacing: 4px; }
+        .mid-sub { font-size: 11px; color: var(--muted); text-align: center; margin-bottom: 16px; letter-spacing: 1.5px; text-transform: uppercase; }
 
-        /* Toast */
-        .toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-20px); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px; font-size: 14px; z-index: 999; opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap; }
+        /* ── Bottom nav btns ── */
+        .nav-btns { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 560px; padding: 13px 18px; background: rgba(13,13,15,0.96); backdrop-filter: blur(14px); border-top: 1px solid var(--border); display: flex; gap: 12px; z-index: 100; }
+        .btn-bk { flex-shrink: 0; width: 48px; height: 48px; border-radius: 12px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--dim); font-size: 16px; transition: color .2s; }
+        .btn-bk:disabled { opacity: .28; cursor: not-allowed; }
+        .btn-nx { flex: 1; padding: 14px; background: linear-gradient(135deg, var(--red), var(--red-dark)); color: #fff; border: none; border-radius: 12px; font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 20px rgba(230,57,70,0.3); transition: opacity .2s; }
+        .btn-nx:disabled { opacity: .4; cursor: not-allowed; }
+        .btn-nx.gold { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #1a1200; box-shadow: 0 4px 20px rgba(245,197,24,0.3); }
+
+        /* ── Toast ── */
+        .toast { position: fixed; top: 68px; left: 50%; transform: translateX(-50%) translateY(-16px); background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 11px 20px; font-size: 13px; z-index: 999; opacity: 0; transition: all .28s; pointer-events: none; white-space: nowrap; max-width: 90vw; text-align: center; }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .toast.error { border-color: rgba(230,57,70,.4); color: #ff8a91; }
-        .toast.success { border-color: rgba(34,197,94,.4); color: #4ade80; }
+        .toast.error { border-color: rgba(230,57,70,.45); color: #ff8a91; }
+        .toast.success { border-color: rgba(34,197,94,.45); color: #4ade80; }
 
-        /* Success screen */
-        .success-screen { display: none; text-align: center; padding: 40px 20px; animation: fadeUp .5s ease both; }
-        .success-ring { width: 90px; height: 90px; border-radius: 50%; background: rgba(34,197,94,.1); border: 2px solid rgba(34,197,94,.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
-        .success-ring i { color: #4ade80; font-size: 36px; }
-        .success-id { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; color: var(--red); letter-spacing: 4px; margin: 10px 0 4px; }
-        .success-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
-        .success-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-        .s-btn { padding: 12px 24px; border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
-        .s-btn-primary { background: linear-gradient(135deg, var(--red), var(--red-dark)); color: #fff; }
-        .s-btn-outline { background: var(--surface2); color: var(--dim); border: 1px solid var(--border); }
-
-        @media (max-width: 380px) {
-            .type-grid { grid-template-columns: 1fr 1fr 1fr; }
-            .type-name { font-size: 14px; }
-        }
+        /* ── Success ── */
+        .success-screen { display: none; text-align: center; padding: 50px 20px 30px; animation: fadeUp .5s ease both; }
+        .s-ring { width: 88px; height: 88px; border-radius: 50%; background: rgba(34,197,94,.1); border: 2px solid rgba(34,197,94,.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; }
+        .s-ring i { color: var(--green); font-size: 34px; }
+        .s-heading { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .s-id { font-family: 'Rajdhani', sans-serif; font-size: 34px; font-weight: 700; color: var(--red); letter-spacing: 5px; margin: 6px 0; }
+        .s-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+        .s-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .s-btn { padding: 12px 22px; border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .s-btn-p { background: linear-gradient(135deg, var(--red), var(--red-dark)); color: #fff; }
+        .s-btn-o { background: var(--surface2); color: var(--dim); border: 1px solid var(--border); }
     </style>
 </head>
 <body>
 
-<!-- Header -->
 <div class="header">
     <a href="hoster-dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-    <div class="header-logo"><i class="fas fa-bolt"></i></div>
-    <div class="header-title">Aura <span>Battle</span> &nbsp;—&nbsp; Create Match</div>
+    <div class="h-logo"><i class="fas fa-bolt"></i></div>
+    <div class="h-title">Aura <span>Battle</span> — Create Match</div>
 </div>
 
-<!-- Progress -->
 <div class="progress-wrap" id="progressWrap">
-    <div class="progress-steps">
-        <div class="step-dot active" id="dot1">1</div>
-        <div class="step-line" id="line1"></div>
-        <div class="step-dot" id="dot2">2</div>
-        <div class="step-line" id="line2"></div>
-        <div class="step-dot" id="dot3">3</div>
-        <div class="step-line" id="line3"></div>
-        <div class="step-dot" id="dot4">4</div>
+    <div class="p-steps">
+        <div class="p-dot active" id="dot1">1</div>
+        <div class="p-line" id="line1"></div>
+        <div class="p-dot" id="dot2">2</div>
+        <div class="p-line" id="line2"></div>
+        <div class="p-dot" id="dot3">3</div>
+        <div class="p-line" id="line3"></div>
+        <div class="p-dot" id="dot4">4</div>
     </div>
-    <div class="step-labels">
-        <span class="step-lbl active" id="lbl1">Type</span>
-        <span class="step-lbl" id="lbl2">Setup</span>
-        <span class="step-lbl" id="lbl3">Details</span>
-        <span class="step-lbl" id="lbl4">Review</span>
+    <div class="p-labels">
+        <span class="p-lbl active" id="lbl1">Type</span>
+        <span class="p-lbl" id="lbl2">Fee & Prize</span>
+        <span class="p-lbl" id="lbl3">Details</span>
+        <span class="p-lbl" id="lbl4">Review</span>
     </div>
 </div>
 
 <div class="main">
 
-    <!-- ── STEP 1: Match Type ── -->
+    <!-- ══ STEP 1: Match Type + Entry Mode ══ -->
     <div class="step-panel active" id="step1">
         <div class="panel-title">Select <span>Match Type</span></div>
-        <div class="panel-sub">Choose the game mode for this tournament match.</div>
+        <div class="panel-sub">Choose the game mode and player format for this match.</div>
 
+        <div class="sec-label">Game Mode</div>
         <div class="type-grid">
-            <div class="type-card" onclick="selectType('BR',this)">
-                <div class="type-check"><i class="fas fa-check"></i></div>
-                <div class="type-icon">🔫</div>
-                <div class="type-name">BR</div>
-                <div class="type-desc">Battle Royale</div>
+            <div class="type-card" onclick="sel('matchType','BR',this,'type-card')">
+                <div class="tc-check"><i class="fas fa-check"></i></div>
+                <div class="tc-emoji">🔫</div>
+                <div class="tc-name">BR</div>
+                <div class="tc-desc">Battle Royale</div>
             </div>
-            <div class="type-card" onclick="selectType('CS',this)">
-                <div class="type-check"><i class="fas fa-check"></i></div>
-                <div class="type-icon">🎯</div>
-                <div class="type-name">CS</div>
-                <div class="type-desc">Classic Squad</div>
+            <div class="type-card" onclick="sel('matchType','CS',this,'type-card')">
+                <div class="tc-check"><i class="fas fa-check"></i></div>
+                <div class="tc-emoji">🎯</div>
+                <div class="tc-name">CS</div>
+                <div class="tc-desc">Classic Squad</div>
             </div>
-            <div class="type-card" onclick="selectType('LW',this)">
-                <div class="type-check"><i class="fas fa-check"></i></div>
-                <div class="type-icon">⚔️</div>
-                <div class="type-name">LW</div>
-                <div class="type-desc">Last War</div>
+            <div class="type-card" onclick="sel('matchType','LW',this,'type-card')">
+                <div class="tc-check"><i class="fas fa-check"></i></div>
+                <div class="tc-emoji">⚔️</div>
+                <div class="tc-name">LW</div>
+                <div class="tc-desc">Last War</div>
             </div>
         </div>
 
         <div class="sec-div"></div>
-        <div class="sec-label">Entry Type</div>
+        <div class="sec-label">Player Format</div>
         <div class="opt-grid-4">
-            <div class="opt-card" onclick="selectEntryType('Solo',this)">
-                <div class="opt-check"><i class="fas fa-check"></i></div>
-                <div class="opt-icon">🧍</div>
-                <div class="opt-name">Solo</div>
+            <div class="opt-card" onclick="sel('entryType','Solo',this,'opt-card')">
+                <div class="oc-check"><i class="fas fa-check"></i></div>
+                <div class="oc-emoji">🧍</div>
+                <div class="oc-name">Solo</div>
+                <div class="oc-desc">1 player</div>
             </div>
-            <div class="opt-card" onclick="selectEntryType('Duo',this)">
-                <div class="opt-check"><i class="fas fa-check"></i></div>
-                <div class="opt-icon">👥</div>
-                <div class="opt-name">Duo</div>
+            <div class="opt-card" onclick="sel('entryType','Duo',this,'opt-card')">
+                <div class="oc-check"><i class="fas fa-check"></i></div>
+                <div class="oc-emoji">👥</div>
+                <div class="oc-name">Duo</div>
+                <div class="oc-desc">2 players</div>
             </div>
-            <div class="opt-card" onclick="selectEntryType('Squad',this)">
-                <div class="opt-check"><i class="fas fa-check"></i></div>
-                <div class="opt-icon">👨‍👩‍👧‍👦</div>
-                <div class="opt-name">Squad</div>
+            <div class="opt-card" onclick="sel('entryType','Squad',this,'opt-card')">
+                <div class="oc-check"><i class="fas fa-check"></i></div>
+                <div class="oc-emoji">🪖</div>
+                <div class="oc-name">Squad</div>
+                <div class="oc-desc">4 players</div>
             </div>
-            <div class="opt-card" onclick="selectEntryType('6v6',this)">
-                <div class="opt-check"><i class="fas fa-check"></i></div>
-                <div class="opt-icon">⚔️</div>
-                <div class="opt-name">6 vs 6</div>
+            <div class="opt-card" onclick="sel('entryType','6v6',this,'opt-card')">
+                <div class="oc-check"><i class="fas fa-check"></i></div>
+                <div class="oc-emoji">🏟️</div>
+                <div class="oc-name">6 vs 6</div>
+                <div class="oc-desc">Team battle</div>
             </div>
         </div>
     </div>
 
-    <!-- ── STEP 2: Fee & Prize ── -->
+    <!-- ══ STEP 2: Entry Mode + Fee + Prize ══ -->
     <div class="step-panel" id="step2">
         <div class="panel-title">Entry <span>Fee & Prize</span></div>
-        <div class="panel-sub">Set the entry cost and how winners are rewarded.</div>
+        <div class="panel-sub">Set how players join and how winners are rewarded.</div>
 
-        <div class="sec-label">Entry Fee</div>
-        <label class="free-toggle">
-            <input type="checkbox" id="freeToggle" onchange="toggleFree(this)">
-            <span>Free Entry (No entry fee)</span>
-        </label>
-        <div class="field" id="feeField">
-            <label>Entry Fee Amount</label>
-            <div class="gold-wrap">
-                <img src="gold.png" class="gold-icon" alt="gold">
-                <input type="number" id="entryFee" placeholder="e.g. 50" min="1" oninput="updateFeeLabel()">
+        <div class="sec-label">Entry Mode</div>
+        <div class="entry-mode-grid">
+            <div class="em-card free-card" id="emFree" onclick="setEntryMode('free')">
+                <div class="em-check"><i class="fas fa-check"></i></div>
+                <div class="em-icon">🆓</div>
+                <div class="em-label">Free</div>
+                <div class="em-sub">No entry cost</div>
             </div>
-            <div class="gold-badge" id="feeBadge" style="display:none;">
-                <img src="gold.png" alt=""> <span id="feeBadgeText">0 Gold Coins</span>
+            <div class="em-card gold-card" id="emGold" onclick="setEntryMode('gold')">
+                <div class="em-check"><i class="fas fa-check"></i></div>
+                <div class="em-icon"><img src="gold.png" style="width:32px;height:32px;" alt="gold"></div>
+                <div class="em-label">Gold</div>
+                <div class="em-sub">Pay to enter</div>
+            </div>
+        </div>
+
+        <!-- Fee amount — shown only when gold selected -->
+        <div id="feeSection" style="display:none;">
+            <div class="field">
+                <label>Entry Fee Amount</label>
+                <div class="gold-input-wrap">
+                    <img src="gold.png" class="gi-coin" alt="gold">
+                    <input type="number" id="entryFee" placeholder="e.g. 50" min="1" oninput="updateFeeHint()">
+                </div>
+                <div class="gold-hint" id="feeHint" style="display:none;">
+                    <img src="gold.png" alt=""> <span id="feeHintText">50 Gold Coins per player</span>
+                </div>
             </div>
         </div>
 
         <div class="sec-div"></div>
         <div class="sec-label">Prize Distribution</div>
         <div class="opt-grid-2">
-            <div class="opt-card" onclick="selectPrizeType('rank',this)">
-                <div class="opt-check"><i class="fas fa-check"></i></div>
-                <div class="opt-icon">🏆</div>
-                <div class="opt-name">By Rank</div>
-                <div class="opt-desc">Top ranks win prizes</div>
+            <div class="opt-card" onclick="setPrizeType('rank',this)">
+                <div class="oc-check"><i class="fas fa-check"></i></div>
+                <div class="oc-emoji">🏆</div>
+                <div class="oc-name">By Rank</div>
+                <div class="oc-desc">Top ranks win</div>
             </div>
-            <div class="opt-card" onclick="selectPrizeType('kill',this)">
-                <div class="opt-check"><i class="fas fa-check"></i></div>
-                <div class="opt-icon">💀</div>
-                <div class="opt-name">Per Kill</div>
-                <div class="opt-desc">Gold per elimination</div>
+            <div class="opt-card" onclick="setPrizeType('kill',this)">
+                <div class="oc-check"><i class="fas fa-check"></i></div>
+                <div class="oc-emoji">💀</div>
+                <div class="oc-name">Per Kill</div>
+                <div class="oc-desc">Gold per frag</div>
             </div>
         </div>
 
-        <!-- Kill prize section -->
-        <div id="killSection" style="display:none; margin-top:18px;">
+        <!-- Kill reward -->
+        <div id="killSection" style="display:none;">
             <div class="kill-box">
-                <div class="kill-box-title"><i class="fas fa-skull-crossbones"></i> Kill Reward</div>
+                <div class="kill-box-head"><i class="fas fa-skull-crossbones"></i> Kill Reward</div>
                 <div class="field" style="margin-bottom:0;">
                     <label>Gold Coins Per Kill</label>
-                    <div class="gold-wrap">
-                        <img src="gold.png" class="gold-icon" alt="gold">
+                    <div class="gold-input-wrap">
+                        <img src="gold.png" class="gi-coin" alt="gold">
                         <input type="number" id="perKillGold" placeholder="e.g. 10" min="1">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Rank prize section -->
-        <div id="rankSection" style="display:none; margin-top:18px;">
-            <div class="rank-header">
+        <!-- Rank prizes -->
+        <div id="rankSection" style="display:none;">
+            <div class="rank-hdr">
                 <div class="sec-label" style="margin:0;">Rank Prizes</div>
-                <button class="add-rank-btn" onclick="addRankRow()" id="addRankBtn">
+                <button class="add-rank-btn" id="addRankBtn" onclick="addRankRow()">
                     <i class="fas fa-plus"></i> Add Rank
                 </button>
             </div>
@@ -324,10 +358,10 @@
         </div>
     </div>
 
-    <!-- ── STEP 3: Match Details ── -->
+    <!-- ══ STEP 3: Match Details ══ -->
     <div class="step-panel" id="step3">
         <div class="panel-title">Match <span>Details</span></div>
-        <div class="panel-sub">Fill in the tournament information.</div>
+        <div class="panel-sub">Fill in all tournament information below.</div>
 
         <div class="field">
             <label>Match Title</label>
@@ -336,7 +370,7 @@
 
         <div class="field">
             <label>Description</label>
-            <textarea id="matchDesc" placeholder="Describe the match rules, requirements, etc."></textarea>
+            <textarea id="matchDesc" placeholder="Rules, requirements, special notes..."></textarea>
         </div>
 
         <div class="dt-row">
@@ -352,80 +386,59 @@
 
         <div class="field">
             <label>Map Name</label>
-            <input type="text" id="mapName" placeholder="e.g. Erangel, Bermuda, Kalahari">
+            <input type="text" id="mapName" placeholder="e.g. Bermuda, Kalahari, Purgatory">
         </div>
 
         <div class="field">
             <label>Total Spots</label>
-            <input type="number" id="matchSpots" placeholder="e.g. 100" min="2">
-        </div>
-    </div>
-
-    <!-- ── STEP 4: Review ── -->
-    <div class="step-panel" id="step4">
-        <div class="panel-title">Review & <span>Create</span></div>
-        <div class="panel-sub">Confirm all match details before publishing.</div>
-
-        <div class="match-id-preview" id="previewMatchId">----</div>
-        <div class="mid-label">Match ID (auto-assigned)</div>
-
-        <div class="review-card">
-            <div class="review-stripe"></div>
-            <div class="review-body">
-                <div class="review-row">
-                    <span class="rv-key">Match Type</span>
-                    <span class="rv-val" id="rv-type">—</span>
-                </div>
-                <div class="review-row">
-                    <span class="rv-key">Entry Type</span>
-                    <span class="rv-val" id="rv-entry">—</span>
-                </div>
-                <div class="review-row">
-                    <span class="rv-key">Entry Fee</span>
-                    <span class="rv-val" id="rv-fee">—</span>
-                </div>
-                <div class="review-row">
-                    <span class="rv-key">Prize Type</span>
-                    <span class="rv-val" id="rv-prize">—</span>
-                </div>
-                <div class="review-row">
-                    <span class="rv-key">Title</span>
-                    <span class="rv-val" id="rv-title">—</span>
-                </div>
-                <div class="review-row">
-                    <span class="rv-key">Date & Time</span>
-                    <span class="rv-val" id="rv-dt">—</span>
-                </div>
-                <div class="review-row">
-                    <span class="rv-key">Map</span>
-                    <span class="rv-val" id="rv-map">—</span>
-                </div>
-                <div class="review-row">
-                    <span class="rv-key">Spots</span>
-                    <span class="rv-val" id="rv-spots">—</span>
-                </div>
+            <div class="spots-wrap">
+                <img src="gold.png" class="si-coin" alt="spots">
+                <input type="number" id="matchSpots" placeholder="e.g. 100" min="2" style="padding-left:46px;">
             </div>
         </div>
     </div>
 
-    <!-- Success Screen -->
+    <!-- ══ STEP 4: Review ══ -->
+    <div class="step-panel" id="step4">
+        <div class="panel-title">Review & <span>Create</span></div>
+        <div class="panel-sub">Confirm everything before publishing your match.</div>
+
+        <div class="mid-preview" id="previewMatchId">----</div>
+        <div class="mid-sub">Match ID — Auto-assigned</div>
+
+        <div class="review-card">
+            <div class="rv-stripe"></div>
+            <div class="rv-body">
+                <div class="rv-row"><span class="rv-k">Game Mode</span><span class="rv-v" id="rv-type">—</span></div>
+                <div class="rv-row"><span class="rv-k">Format</span><span class="rv-v" id="rv-entry">—</span></div>
+                <div class="rv-row"><span class="rv-k">Entry</span><span class="rv-v" id="rv-fee">—</span></div>
+                <div class="rv-row"><span class="rv-k">Prize Type</span><span class="rv-v" id="rv-prize">—</span></div>
+                <div class="rv-row"><span class="rv-k">Title</span><span class="rv-v" id="rv-title">—</span></div>
+                <div class="rv-row"><span class="rv-k">Date & Time</span><span class="rv-v" id="rv-dt">—</span></div>
+                <div class="rv-row"><span class="rv-k">Map</span><span class="rv-v" id="rv-map">—</span></div>
+                <div class="rv-row"><span class="rv-k">Spots</span><span class="rv-v" id="rv-spots">—</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success -->
     <div class="success-screen" id="successScreen">
-        <div class="success-ring"><i class="fas fa-check"></i></div>
-        <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--text);">Match Created!</div>
-        <div class="success-id" id="successId">0001</div>
-        <div class="success-sub">Your match has been published and is now live.</div>
-        <div class="success-btns">
-            <button class="s-btn s-btn-primary" onclick="createAnother()"><i class="fas fa-plus"></i> New Match</button>
-            <a href="hoster-dashboard.html" class="s-btn s-btn-outline"><i class="fas fa-home"></i> Dashboard</a>
+        <div class="s-ring"><i class="fas fa-check"></i></div>
+        <div class="s-heading">Match Created! 🎉</div>
+        <div class="s-id" id="successId">0001</div>
+        <div class="s-sub">Your match is now live and accepting players.</div>
+        <div class="s-btns">
+            <button class="s-btn s-btn-p" onclick="window.location.reload()"><i class="fas fa-plus"></i> New Match</button>
+            <a href="hoster-dashboard.html" class="s-btn s-btn-o"><i class="fas fa-home"></i> Dashboard</a>
         </div>
     </div>
 
 </div>
 
-<!-- Bottom Nav Buttons -->
+<!-- Nav Buttons -->
 <div class="nav-btns" id="navBtns">
-    <button class="btn-back" id="btnBack" onclick="prevStep()" disabled><i class="fas fa-arrow-left"></i></button>
-    <button class="btn-next" id="btnNext" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+    <button class="btn-bk" id="btnBack" onclick="prevStep()" disabled><i class="fas fa-arrow-left"></i></button>
+    <button class="btn-nx" id="btnNext" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -436,288 +449,252 @@
 (function(){
 'use strict';
 
-// ── Firebase ────────────────────────────────────────────────────────────────
+// ── Firebase ───────────────────────────────────────────────────────────────
 const _cfg = JSON.parse(atob('eyJhcGlLZXkiOiJBSXphU3lEN3BBc2RZcWtKekRiU3NpOHhiTHN5Mlg1czBiZ1AwNDAiLCJhdXRoRG9tYWluIjoiYXVyYS1iYXR0bGUtbWFpbi5maXJlYmFzZWFwcC5jb20iLCJkYXRhYmFzZVVSTCI6Imh0dHBzOi8vYXVyYS1iYXR0bGUtbWFpbi1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb20iLCJwcm9qZWN0SWQiOiJhdXJhLWJhdHRsZS1tYWluIiwic3RvcmFnZUJ1Y2tldCI6ImF1cmEtYmF0dGxlLW1haW4uZmlyZWJhc2VzdG9yYWdlLmFwcCIsIm1lc3NhZ2luZ1NlbmRlcklkIjoiNzYzNzc5OTkwMjg5IiwiYXBwSWQiOiIxOjc2Mzc3OTk5MDI4OTp3ZWI6NWNhYTdiYzg2MWU4MGI2ZjBiMDJiMCIsIm1lYXN1cmVtZW50SWQiOiJHLVpaWFowMEhLMDcifQ=='));
 firebase.initializeApp(_cfg);
 const db = firebase.database();
 
-// ── Session check ───────────────────────────────────────────────────────────
-const SESS = 'h_sess', TTL = 90*60*1000;
-let hosterId = null, hosterUsername = null;
+// ── Session check — redirect to index.html if not logged in ─────────────────
+const SESS='h_sess', TTL=90*60*1000;
+let hosterId=null, hosterUsername=null;
 try {
-    const s = JSON.parse(atob(localStorage.getItem(SESS)||''));
-    if(Date.now()-s.t < TTL){ hosterId=s.id; hosterUsername=s.username; }
-    else { window.location.href='index.html'; }
+    const s=JSON.parse(atob(localStorage.getItem(SESS)||''));
+    if(Date.now()-s.t<TTL){ hosterId=s.id; hosterUsername=s.username; }
+    else{ localStorage.removeItem(SESS); window.location.href='index.html'; }
 } catch(_){ window.location.href='index.html'; }
 
-// ── State ───────────────────────────────────────────────────────────────────
-let currentStep = 1;
-const TOTAL_STEPS = 4;
-const data = {
-    matchType: '', entryType: '', isFree: false, entryFee: 0,
-    prizeType: '', perKillGold: 0, rankPrizes: [],
-    title: '', description: '', date: '', time: '', map: '', spots: 0
+// ── Data state ─────────────────────────────────────────────────────────────
+let step=1;
+const STEPS=4;
+const D={
+    matchType:'', entryType:'',
+    entryMode:'',  // 'free' | 'gold'
+    entryFee:0,
+    prizeType:'', perKillGold:0, rankPrizes:[],
+    title:'', description:'', date:'', time:'', map:'', spots:0
 };
 
-// ── Step navigation ─────────────────────────────────────────────────────────
-window.nextStep = function(){
-    if(!validateStep(currentStep)) return;
-    if(currentStep === TOTAL_STEPS){ submitMatch(); return; }
-    currentStep++;
-    renderStep();
+// ── Generic selector helper ────────────────────────────────────────────────
+window.sel=function(field,val,el,cls){
+    D[field]=val;
+    document.querySelectorAll('.'+cls).forEach(c=>c.classList.remove('sel'));
+    el.classList.add('sel');
 };
 
-window.prevStep = function(){
-    if(currentStep <= 1) return;
-    currentStep--;
-    renderStep();
-};
-
-function renderStep(){
-    document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));
-    document.getElementById('step'+currentStep).classList.add('active');
-
-    // Update progress dots
-    for(let i=1;i<=TOTAL_STEPS;i++){
-        const dot = document.getElementById('dot'+i);
-        dot.classList.remove('active','done');
-        if(i < currentStep) dot.classList.add('done'), dot.innerHTML='<i class="fas fa-check" style="font-size:10px;"></i>';
-        else if(i === currentStep) dot.classList.add('active'), dot.textContent=i;
-        else dot.textContent=i;
-
-        const lbl = document.getElementById('lbl'+i);
-        lbl.classList.toggle('active', i===currentStep);
-
-        if(i < TOTAL_STEPS){
-            document.getElementById('line'+i).classList.toggle('done', i < currentStep);
-        }
-    }
-
-    document.getElementById('btnBack').disabled = currentStep===1;
-
-    const btnNext = document.getElementById('btnNext');
-    if(currentStep===TOTAL_STEPS){
-        btnNext.innerHTML='<i class="fas fa-bolt"></i> Create Match';
-        btnNext.classList.add('gold-btn');
-        buildReview();
+// ── Entry mode ─────────────────────────────────────────────────────────────
+window.setEntryMode=function(mode){
+    D.entryMode=mode;
+    document.getElementById('emFree').classList.remove('sel-free');
+    document.getElementById('emGold').classList.remove('sel-gold');
+    if(mode==='free'){
+        document.getElementById('emFree').classList.add('sel-free');
+        document.getElementById('feeSection').style.display='none';
+        D.entryFee=0;
     } else {
-        btnNext.innerHTML='Next <i class="fas fa-arrow-right"></i>';
-        btnNext.classList.remove('gold-btn');
+        document.getElementById('emGold').classList.add('sel-gold');
+        document.getElementById('feeSection').style.display='block';
     }
-}
-
-// ── Validate each step ──────────────────────────────────────────────────────
-function validateStep(step){
-    if(step===1){
-        if(!data.matchType){ toast('Select a match type.','error'); return false; }
-        if(!data.entryType){ toast('Select an entry type.','error'); return false; }
-    }
-    if(step===2){
-        if(!data.isFree && (!data.entryFee || data.entryFee<1)){ toast('Enter entry fee or mark as free.','error'); return false; }
-        if(!data.prizeType){ toast('Select a prize distribution type.','error'); return false; }
-        if(data.prizeType==='kill'){
-            const v=parseInt(document.getElementById('perKillGold').value);
-            if(!v||v<1){ toast('Enter gold coins per kill.','error'); return false; }
-            data.perKillGold=v;
-        }
-        if(data.prizeType==='rank'){
-            const rows=document.querySelectorAll('.rank-row');
-            if(rows.length===0){ toast('Add at least one rank prize.','error'); return false; }
-            data.rankPrizes=[];
-            let valid=true;
-            rows.forEach((r,i)=>{
-                const v=parseInt(r.querySelector('input').value);
-                if(!v||v<1){ valid=false; return; }
-                data.rankPrizes.push({rank:i+1, gold:v});
-            });
-            if(!valid){ toast('Fill all rank prize amounts.','error'); return false; }
-        }
-    }
-    if(step===3){
-        data.title=document.getElementById('matchTitle').value.trim();
-        data.description=document.getElementById('matchDesc').value.trim();
-        data.date=document.getElementById('matchDate').value;
-        data.time=document.getElementById('matchTime').value;
-        data.map=document.getElementById('mapName').value.trim();
-        data.spots=parseInt(document.getElementById('matchSpots').value);
-        if(!data.title){ toast('Enter a match title.','error'); return false; }
-        if(!data.date){ toast('Select a match date.','error'); return false; }
-        if(!data.time){ toast('Select a match time.','error'); return false; }
-        if(!data.map){ toast('Enter a map name.','error'); return false; }
-        if(!data.spots||data.spots<2){ toast('Enter valid number of spots (min 2).','error'); return false; }
-    }
-    return true;
-}
-
-// ── Type / option selectors ─────────────────────────────────────────────────
-window.selectType = function(type, el){
-    data.matchType=type;
-    document.querySelectorAll('#step1 .type-card').forEach(c=>c.classList.remove('selected'));
-    el.classList.add('selected');
 };
 
-window.selectEntryType = function(type, el){
-    data.entryType=type;
-    document.querySelectorAll('#step1 .opt-card').forEach(c=>c.classList.remove('selected'));
-    el.classList.add('selected');
+window.updateFeeHint=function(){
+    const v=parseInt(document.getElementById('entryFee').value)||0;
+    D.entryFee=v;
+    const hint=document.getElementById('feeHint');
+    if(v>0){ hint.style.display='inline-flex'; document.getElementById('feeHintText').textContent=v+' Gold Coins per player'; }
+    else hint.style.display='none';
 };
 
-window.selectPrizeType = function(type, el){
-    data.prizeType=type;
-    document.querySelectorAll('#step2 .opt-card').forEach(c=>c.classList.remove('selected'));
-    el.classList.add('selected');
-    document.getElementById('killSection').style.display = type==='kill'?'block':'none';
-    document.getElementById('rankSection').style.display = type==='rank'?'block':'none';
+// ── Prize type ─────────────────────────────────────────────────────────────
+window.setPrizeType=function(type,el){
+    D.prizeType=type;
+    document.querySelectorAll('#step2 .opt-card').forEach(c=>c.classList.remove('sel'));
+    el.classList.add('sel');
+    document.getElementById('killSection').style.display=type==='kill'?'block':'none';
+    document.getElementById('rankSection').style.display=type==='rank'?'block':'none';
     if(type==='rank' && document.querySelectorAll('.rank-row').length===0) addRankRow();
 };
 
-// ── Free toggle ─────────────────────────────────────────────────────────────
-window.toggleFree = function(cb){
-    data.isFree = cb.checked;
-    document.getElementById('feeField').style.display = cb.checked?'none':'block';
-    if(cb.checked){ data.entryFee=0; }
-};
-
-window.updateFeeLabel = function(){
-    const v=parseInt(document.getElementById('entryFee').value)||0;
-    data.entryFee=v;
-    const badge=document.getElementById('feeBadge');
-    if(v>0){ badge.style.display='inline-flex'; document.getElementById('feeBadgeText').textContent=v+' Gold Coins'; }
-    else badge.style.display='none';
-};
-
-// ── Rank rows ───────────────────────────────────────────────────────────────
+// ── Rank rows ──────────────────────────────────────────────────────────────
 let rankCount=0;
-window.addRankRow = function(){
-    if(rankCount>=20){ toast('Maximum 20 rank prizes allowed.','error'); return; }
+window.addRankRow=function(){
+    if(rankCount>=20){ toast('Max 20 rank prizes allowed.','error'); return; }
     rankCount++;
     const n=document.querySelectorAll('.rank-row').length+1;
     const medals=['🥇','🥈','🥉'];
-    const badgeClass = n===1?'gold-r':n===2?'silver-r':n===3?'bronze-r':'';
-    const label = n<=3 ? medals[n-1] : '#'+n;
+    const cls=n===1?'gr':n===2?'sr':n===3?'br':'nr';
+    const lbl=n<=3?medals[n-1]:'#'+n;
     const row=document.createElement('div');
     row.className='rank-row';
     row.innerHTML=`
-        <div class="rank-badge ${badgeClass}">${label}</div>
-        <div class="rank-input-wrap">
+        <div class="rank-badge ${cls}">${lbl}</div>
+        <div class="ri-wrap">
             <img src="gold.png" alt="gold">
-            <input type="number" placeholder="Gold coins" min="1">
+            <input type="number" placeholder="Gold coins for rank ${n}" min="1">
         </div>
-        <div class="rank-del" onclick="removeRankRow(this)"><i class="fas fa-times"></i></div>
-    `;
+        <div class="rank-del" onclick="removeRankRow(this)"><i class="fas fa-times"></i></div>`;
     document.getElementById('rankRows').appendChild(row);
     if(rankCount>=20) document.getElementById('addRankBtn').style.opacity='.4';
 };
 
-window.removeRankRow = function(el){
+window.removeRankRow=function(el){
     el.closest('.rank-row').remove();
     rankCount--;
-    // Re-label all rows
+    const medals=['🥇','🥈','🥉'];
     document.querySelectorAll('.rank-row').forEach((r,i)=>{
-        const medals=['🥇','🥈','🥉'];
         const n=i+1;
-        const badge=r.querySelector('.rank-badge');
-        badge.textContent = n<=3?medals[n-1]:'#'+n;
-        badge.className='rank-badge '+(n===1?'gold-r':n===2?'silver-r':n===3?'bronze-r':'');
+        const b=r.querySelector('.rank-badge');
+        b.textContent=n<=3?medals[n-1]:'#'+n;
+        b.className='rank-badge '+(n===1?'gr':n===2?'sr':n===3?'br':'nr');
+        r.querySelector('input').placeholder='Gold coins for rank '+n;
     });
     document.getElementById('addRankBtn').style.opacity='1';
 };
 
-// ── Build review ─────────────────────────────────────────────────────────────
+// ── Navigation ─────────────────────────────────────────────────────────────
+window.nextStep=function(){
+    if(!validate(step)) return;
+    if(step===STEPS){ submitMatch(); return; }
+    step++; renderStep();
+};
+window.prevStep=function(){
+    if(step<=1) return;
+    step--; renderStep();
+};
+
+function renderStep(){
+    document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('step'+step).classList.add('active');
+    for(let i=1;i<=STEPS;i++){
+        const d=document.getElementById('dot'+i);
+        d.classList.remove('active','done');
+        if(i<step){ d.classList.add('done'); d.innerHTML='<i class="fas fa-check" style="font-size:9px;"></i>'; }
+        else if(i===step){ d.classList.add('active'); d.textContent=i; }
+        else d.textContent=i;
+        document.getElementById('lbl'+i).classList.toggle('active',i===step);
+        if(i<STEPS) document.getElementById('line'+i).classList.toggle('done',i<step);
+    }
+    document.getElementById('btnBack').disabled=step===1;
+    const bn=document.getElementById('btnNext');
+    if(step===STEPS){
+        bn.innerHTML='<img src="gold.png" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;" alt=""> Create Match';
+        bn.classList.add('gold');
+        buildReview();
+    } else {
+        bn.innerHTML='Next <i class="fas fa-arrow-right"></i>';
+        bn.classList.remove('gold');
+    }
+}
+
+// ── Validation ─────────────────────────────────────────────────────────────
+function validate(s){
+    if(s===1){
+        if(!D.matchType){ toast('Select a game mode (BR / CS / LW).','error'); return false; }
+        if(!D.entryType){ toast('Select a player format.','error'); return false; }
+    }
+    if(s===2){
+        if(!D.entryMode){ toast('Choose entry mode — Free or Gold.','error'); return false; }
+        if(D.entryMode==='gold'){
+            const v=parseInt(document.getElementById('entryFee').value);
+            if(!v||v<1){ toast('Enter a valid entry fee amount.','error'); return false; }
+            D.entryFee=v;
+        }
+        if(!D.prizeType){ toast('Select a prize distribution type.','error'); return false; }
+        if(D.prizeType==='kill'){
+            const v=parseInt(document.getElementById('perKillGold').value);
+            if(!v||v<1){ toast('Enter gold coins per kill.','error'); return false; }
+            D.perKillGold=v;
+        }
+        if(D.prizeType==='rank'){
+            const rows=document.querySelectorAll('.rank-row');
+            if(rows.length===0){ toast('Add at least one rank prize.','error'); return false; }
+            D.rankPrizes=[];
+            let ok=true;
+            rows.forEach((r,i)=>{
+                const v=parseInt(r.querySelector('input').value);
+                if(!v||v<1){ ok=false; return; }
+                D.rankPrizes.push({rank:i+1,gold:v});
+            });
+            if(!ok){ toast('Fill all rank prize amounts.','error'); return false; }
+        }
+    }
+    if(s===3){
+        D.title=document.getElementById('matchTitle').value.trim();
+        D.description=document.getElementById('matchDesc').value.trim();
+        D.date=document.getElementById('matchDate').value;
+        D.time=document.getElementById('matchTime').value;
+        D.map=document.getElementById('mapName').value.trim();
+        D.spots=parseInt(document.getElementById('matchSpots').value);
+        if(!D.title){ toast('Enter a match title.','error'); return false; }
+        if(!D.date){ toast('Select a match date.','error'); return false; }
+        if(!D.time){ toast('Select a match time.','error'); return false; }
+        if(!D.map){ toast('Enter a map name.','error'); return false; }
+        if(!D.spots||D.spots<2){ toast('Enter valid spots (minimum 2).','error'); return false; }
+    }
+    return true;
+}
+
+// ── Review ─────────────────────────────────────────────────────────────────
 async function buildReview(){
-    // Get next match ID for preview
-    const nextId = await getNextMatchId();
-    document.getElementById('previewMatchId').textContent = nextId;
+    const snap=await db.ref('matchCounter').once('value');
+    document.getElementById('previewMatchId').textContent=String((snap.val()||0)+1).padStart(4,'0');
 
-    const typeBadgeClass = {BR:'br',CS:'cs',LW:'lw'}[data.matchType]||'';
-    document.getElementById('rv-type').innerHTML=`<span class="rv-badge ${typeBadgeClass}">${data.matchType}</span>`;
-    document.getElementById('rv-entry').textContent=data.entryType;
-    document.getElementById('rv-fee').innerHTML = data.isFree
-        ? '<span style="color:#4ade80">FREE</span>'
-        : `<img src="gold.png" width="18"> ${data.entryFee} Gold`;
-    document.getElementById('rv-prize').textContent = data.prizeType==='kill'
-        ? `Per Kill — ${data.perKillGold} Gold` : `By Rank (${data.rankPrizes.length} ranks)`;
-    document.getElementById('rv-title').textContent=data.title;
-    const dateStr = data.date ? new Date(data.date+'T'+data.time).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}) : '—';
-    document.getElementById('rv-dt').textContent=dateStr;
-    document.getElementById('rv-map').textContent=data.map;
-    document.getElementById('rv-spots').textContent=data.spots;
+    const cls={BR:'pill-br',CS:'pill-cs',LW:'pill-lw'}[D.matchType]||'';
+    document.getElementById('rv-type').innerHTML=`<span class="rv-pill ${cls}">${D.matchType}</span>`;
+    document.getElementById('rv-entry').textContent=D.entryType;
+    document.getElementById('rv-fee').innerHTML=D.entryMode==='free'
+        ? '<span style="color:var(--green)">🆓 FREE</span>'
+        : `<img src="gold.png"> ${D.entryFee} Gold`;
+    document.getElementById('rv-prize').innerHTML=D.prizeType==='kill'
+        ? `💀 Per Kill — <img src="gold.png" style="width:14px;height:14px;"> ${D.perKillGold} Gold`
+        : `🏆 By Rank (${D.rankPrizes.length} positions)`;
+    document.getElementById('rv-title').textContent=D.title;
+    const dt=D.date?new Date(D.date+'T'+D.time).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'—';
+    document.getElementById('rv-dt').textContent=dt;
+    document.getElementById('rv-map').textContent=D.map;
+    document.getElementById('rv-spots').innerHTML=`<img src="gold.png" style="width:16px;height:16px;"> ${D.spots} Slots`;
 }
 
-// ── Serial Match ID ──────────────────────────────────────────────────────────
-async function getNextMatchId(){
-    const snap = await db.ref('matchCounter').once('value');
-    const current = snap.val()||0;
-    return String(current+1).padStart(4,'0');
-}
-
-// ── Submit ───────────────────────────────────────────────────────────────────
+// ── Submit ─────────────────────────────────────────────────────────────────
 async function submitMatch(){
-    const btnNext=document.getElementById('btnNext');
-    btnNext.disabled=true;
-    btnNext.innerHTML='<i class="fas fa-spinner fa-spin"></i> Creating...';
-
+    const btn=document.getElementById('btnNext');
+    btn.disabled=true;
+    btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Creating...';
     try {
-        // Get and increment counter atomically
-        const counterRef=db.ref('matchCounter');
-        const snap=await counterRef.once('value');
-        const current=snap.val()||0;
-        const newCount=current+1;
-        const matchId=String(newCount).padStart(4,'0');
-
-        await counterRef.set(newCount);
-
-        const matchData = {
-            matchId,
-            matchType: data.matchType,
-            entryType: data.entryType,
-            isFree: data.isFree,
-            entryFee: data.isFree?0:data.entryFee,
-            prizeType: data.prizeType,
-            title: data.title,
-            description: data.description,
-            date: data.date,
-            time: data.time,
-            map: data.map,
-            spots: data.spots,
-            hosterId: hosterId,
-            hosterUsername: hosterUsername,
-            status: 'upcoming',
-            createdAt: Date.now()
+        const ref=db.ref('matchCounter');
+        const snap=await ref.once('value');
+        const n=(snap.val()||0)+1;
+        const matchId=String(n).padStart(4,'0');
+        await ref.set(n);
+        const md={
+            matchId, matchType:D.matchType, entryType:D.entryType,
+            entryMode:D.entryMode, entryFee:D.entryFee,
+            prizeType:D.prizeType, title:D.title, description:D.description,
+            date:D.date, time:D.time, map:D.map, spots:D.spots,
+            hosterId, hosterUsername, status:'upcoming', createdAt:Date.now()
         };
-
-        if(data.prizeType==='kill') matchData.perKillGold=data.perKillGold;
-        if(data.prizeType==='rank') matchData.rankPrizes=data.rankPrizes;
-
-        await db.ref('matches/'+matchId).set(matchData);
-
-        // Show success
+        if(D.prizeType==='kill') md.perKillGold=D.perKillGold;
+        if(D.prizeType==='rank') md.rankPrizes=D.rankPrizes;
+        await db.ref('matches/'+matchId).set(md);
         document.getElementById('progressWrap').style.display='none';
         document.querySelectorAll('.step-panel').forEach(p=>p.style.display='none');
         document.getElementById('navBtns').style.display='none';
         document.getElementById('successScreen').style.display='block';
         document.getElementById('successId').textContent=matchId;
-
     } catch(e){
-        toast('Error creating match: '+e.message,'error');
-        btnNext.disabled=false;
-        btnNext.innerHTML='<i class="fas fa-bolt"></i> Create Match';
-        btnNext.classList.add('gold-btn');
+        toast('Error: '+e.message,'error');
+        btn.disabled=false;
+        btn.innerHTML='<img src="gold.png" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;" alt=""> Create Match';
+        btn.classList.add('gold');
     }
 }
 
-window.createAnother = function(){
-    window.location.reload();
-};
-
-// ── Toast ────────────────────────────────────────────────────────────────────
-let toastTimer;
+// ── Toast ──────────────────────────────────────────────────────────────────
+let _tt;
 function toast(msg,type){
-    clearTimeout(toastTimer);
+    clearTimeout(_tt);
     const el=document.getElementById('toast');
-    el.textContent=msg;
-    el.className='toast '+type+' show';
-    toastTimer=setTimeout(()=>el.classList.remove('show'),3000);
+    el.textContent=msg; el.className='toast '+type+' show';
+    _tt=setTimeout(()=>el.classList.remove('show'),3000);
 }
 
 })();
