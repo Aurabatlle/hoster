@@ -2,766 +2,725 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Create Match - Aura Battle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary: #e63946;
-            --secondary: #d00000;
-            --light-red: #ffcccc;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --white: #ffffff;
+            --red: #e63946; --red-dark: #b5202d; --red-glow: rgba(230,57,70,0.18);
+            --gold: #f5c518; --gold-dark: #c9a000; --gold-glow: rgba(245,197,24,0.2);
+            --bg: #0d0d0f; --surface: #141418; --surface2: #1a1a1f; --surface3: #1f1f25;
+            --border: rgba(255,255,255,0.07); --border-red: rgba(230,57,70,0.2);
+            --text: #f0f0f2; --dim: #9898a8; --muted: #5a5a68;
         }
-        
-        body {
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)),
-                        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3Cpath d='M0,0 L100,100 M100,0 L0,100' stroke='%23e63946' stroke-width='1' stroke-opacity='0.1'/%3E%3C/svg%3E");
-            min-height: 100vh;
-            padding: 20px;
+        html, body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(230,57,70,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(230,57,70,0.025) 1px, transparent 1px); background-size: 44px 44px; pointer-events: none; z-index: 0; }
+
+        /* Header */
+        .header { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; gap: 14px; padding: 13px 18px; background: rgba(13,13,15,0.93); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+        .back-btn { width: 34px; height: 34px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--dim); font-size: 14px; text-decoration: none; transition: color .2s, border-color .2s; flex-shrink: 0; }
+        .back-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+        .header-logo { width: 30px; height: 30px; border-radius: 8px; background: rgba(230,57,70,0.12); border: 1px solid rgba(230,57,70,0.3); display: flex; align-items: center; justify-content: center; }
+        .header-logo i { color: var(--red); font-size: 13px; }
+        .header-title { font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+        .header-title span { color: var(--red); }
+
+        /* Progress bar */
+        .progress-wrap { padding: 14px 18px 0; position: relative; z-index: 1; }
+        .progress-steps { display: flex; align-items: center; gap: 0; }
+        .step-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); transition: all .3s; flex-shrink: 0; }
+        .step-dot.active { border-color: var(--red); color: var(--red); background: rgba(230,57,70,0.1); }
+        .step-dot.done { border-color: var(--red); background: var(--red); color: #fff; }
+        .step-line { flex: 1; height: 2px; background: var(--border); transition: background .3s; }
+        .step-line.done { background: var(--red); }
+        .step-labels { display: flex; justify-content: space-between; margin-top: 6px; }
+        .step-lbl { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; text-align: center; flex: 1; }
+        .step-lbl:first-child { text-align: left; }
+        .step-lbl:last-child { text-align: right; }
+        .step-lbl.active { color: var(--red); }
+
+        /* Main */
+        .main { padding: 20px 18px 100px; max-width: 560px; margin: 0 auto; position: relative; z-index: 1; }
+
+        /* Step panels */
+        .step-panel { display: none; animation: fadeUp .35s ease both; }
+        .step-panel.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+        .panel-title { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 1px; margin-bottom: 6px; }
+        .panel-title span { color: var(--red); }
+        .panel-sub { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
+
+        /* Type selector cards */
+        .type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 8px; }
+        .type-card { background: var(--surface); border: 2px solid var(--border); border-radius: 14px; padding: 18px 12px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s, transform .15s; position: relative; overflow: hidden; }
+        .type-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 100%, rgba(230,57,70,0.08), transparent 70%); opacity: 0; transition: opacity .2s; }
+        .type-card:hover::before, .type-card.selected::before { opacity: 1; }
+        .type-card.selected { border-color: var(--red); background: rgba(230,57,70,0.06); }
+        .type-card:active { transform: scale(.97); }
+        .type-icon { font-size: 26px; margin-bottom: 8px; }
+        .type-name { font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 1px; }
+        .type-desc { font-size: 11px; color: var(--muted); margin-top: 3px; }
+        .type-check { position: absolute; top: 8px; right: 8px; width: 18px; height: 18px; border-radius: 50%; background: var(--red); display: none; align-items: center; justify-content: center; font-size: 9px; color: #fff; }
+        .type-card.selected .type-check { display: flex; }
+
+        /* Options grid (entry type, prize type) */
+        .opt-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .opt-grid-4 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .opt-card { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 14px 12px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s, transform .15s; position: relative; }
+        .opt-card.selected { border-color: var(--red); background: rgba(230,57,70,0.06); }
+        .opt-card:active { transform: scale(.97); }
+        .opt-icon { font-size: 20px; margin-bottom: 6px; }
+        .opt-name { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .5px; }
+        .opt-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+        .opt-check { position: absolute; top: 7px; right: 7px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); display: none; align-items: center; justify-content: center; font-size: 8px; color: #fff; }
+        .opt-card.selected .opt-check { display: flex; }
+
+        /* Fields */
+        .field { margin-bottom: 18px; }
+        .field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .field input, .field textarea, .field select {
+            width: 100%; padding: 13px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+            color: var(--text); font-size: 15px; font-family: 'DM Sans', sans-serif; transition: border-color .2s, box-shadow .2s; -webkit-appearance: none;
         }
-        
-        .header {
-            background: var(--primary);
-            padding: 15px 20px;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-            margin-bottom: 20px;
-            color: var(--white);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .header h1 {
-            font-size: 20px;
-            font-weight: 600;
-        }
-        
-        .logout-btn {
-            background: var(--white);
-            color: var(--primary);
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        
-        .container {
-            max-width: 100%;
-            background: var(--white);
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
-            margin: 0 auto 30px;
-            border-top: 5px solid var(--primary);
-        }
-        
-        .form-container {
-            padding: 20px;
-        }
-        
-        h2 {
-            color: var(--primary);
-            text-align: center;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-        
-        .form-section {
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .section-title {
-            color: var(--primary);
-            margin-bottom: 15px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-        }
-        
-        .section-title i {
-            margin-right: 10px;
-        }
-        
-        .input-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--dark);
-            font-weight: 500;
-        }
-        
-        input, select, textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
-        }
-        
-        .radio-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 10px;
-        }
-        
-        .radio-option {
-            display: flex;
-            align-items: center;
-        }
-        
-        .radio-option input {
-            width: auto;
-            margin-right: 8px;
-        }
-        
-        .prize-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: center;
-        }
-        
-        .prize-row input {
-            flex: 1;
-        }
-        
-        .add-prize {
-            background: var(--light-red);
-            color: var(--primary);
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
-        .remove-prize {
-            background: var(--light-red);
-            color: var(--primary);
-            border: none;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        button {
-            padding: 14px;
-            background: var(--primary);
-            color: var(--white);
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-            width: 100%;
-        }
-        
-        button:hover {
-            background: var(--secondary);
-        }
-        
-        .message {
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 8px;
-            text-align: center;
-            display: none;
-        }
-        
-        .error {
-            background-color: #ffebee;
-            color: var(--primary);
-            border: 1px solid var(--primary);
-        }
-        
-        .success {
-            background-color: #e8f5e9;
-            color: #388e3c;
-            border: 1px solid #4caf50;
-        }
-        
-        .info {
-            background-color: #e3f2fd;
-            color: #1565c0;
-            border: 1px solid #2196f3;
-        }
-        
-        .warning {
-            background-color: #fff8e1;
-            color: #f57c00;
-            border: 1px solid #ffa000;
-        }
-        
-        .footer {
-            text-align: center;
-            padding: 15px;
-            color: var(--gray);
-            font-size: 12px;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .loader {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--white);
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 18px;
-            }
-            
-            .form-container {
-                padding: 15px;
-            }
-            
-            input, select, textarea {
-                padding: 10px 12px;
-            }
+        .field textarea { resize: vertical; min-height: 90px; }
+        .field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: rgba(230,57,70,.5); box-shadow: 0 0 0 3px rgba(230,57,70,.1); }
+        .field input::placeholder, .field textarea::placeholder { color: var(--muted); font-size: 14px; }
+        .field select option { background: var(--surface2); }
+
+        /* Gold coin input */
+        .gold-wrap { position: relative; }
+        .gold-wrap input { padding-left: 46px; }
+        .gold-wrap .gold-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; }
+        .gold-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(245,197,24,0.1); border: 1px solid rgba(245,197,24,0.25); border-radius: 20px; padding: 4px 10px; font-size: 12px; color: var(--gold); margin-top: 6px; }
+        .gold-badge img { width: 16px; height: 16px; }
+
+        /* Free toggle */
+        .free-toggle { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; cursor: pointer; margin-bottom: 10px; }
+        .free-toggle input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--red); cursor: pointer; }
+        .free-toggle span { font-size: 14px; color: var(--dim); }
+
+        /* Kill prize */
+        .kill-box { background: var(--surface); border: 1px solid var(--border-red); border-radius: 12px; padding: 16px; margin-bottom: 18px; }
+        .kill-box-title { font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 600; color: var(--red); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+
+        /* Rank table */
+        .rank-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .add-rank-btn { display: flex; align-items: center; gap: 6px; background: rgba(230,57,70,0.1); border: 1px solid rgba(230,57,70,0.25); border-radius: 8px; padding: 7px 12px; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; color: var(--red); cursor: pointer; letter-spacing: 1px; text-transform: uppercase; }
+        .rank-rows { display: flex; flex-direction: column; gap: 8px; }
+        .rank-row { display: flex; align-items: center; gap: 10px; background: var(--surface2); border-radius: 10px; padding: 10px 12px; }
+        .rank-badge { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); width: 28px; text-align: center; flex-shrink: 0; }
+        .rank-badge.gold-r { color: var(--gold); }
+        .rank-badge.silver-r { color: #c0c0c0; }
+        .rank-badge.bronze-r { color: #cd7f32; }
+        .rank-input-wrap { flex: 1; position: relative; }
+        .rank-input-wrap img { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; }
+        .rank-input-wrap input { width: 100%; padding: 9px 12px 9px 36px; background: var(--surface3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; font-family: 'DM Sans', sans-serif; }
+        .rank-input-wrap input:focus { outline: none; border-color: rgba(245,197,24,.5); }
+        .rank-del { width: 28px; height: 28px; border-radius: 7px; background: rgba(230,57,70,0.08); border: 1px solid rgba(230,57,70,0.15); display: flex; align-items: center; justify-content: center; color: var(--red); font-size: 12px; cursor: pointer; flex-shrink: 0; }
+
+        /* Section divider */
+        .sec-div { height: 1px; background: var(--border); margin: 22px 0; }
+        .sec-label { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
+
+        /* Date time row */
+        .dt-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        /* Review card */
+        .review-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 16px; }
+        .review-stripe { height: 3px; background: linear-gradient(90deg, var(--red-dark), var(--red)); }
+        .review-body { padding: 16px; }
+        .review-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .review-row:last-child { border-bottom: none; }
+        .rv-key { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+        .rv-val { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
+        .rv-val img { width: 18px; height: 18px; }
+        .rv-val.red { color: var(--red); }
+        .rv-badge { padding: 2px 8px; border-radius: 12px; font-size: 12px; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+        .rv-badge.br { background: rgba(100,200,100,.12); color: #6dc86d; border: 1px solid rgba(100,200,100,.2); }
+        .rv-badge.cs { background: rgba(100,150,230,.12); color: #78a7f5; border: 1px solid rgba(100,150,230,.2); }
+        .rv-badge.lw { background: rgba(230,150,50,.12); color: #f5a550; border: 1px solid rgba(230,150,50,.2); }
+        .match-id-preview { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 700; color: var(--red); text-align: center; padding: 14px; border-radius: 10px; background: rgba(230,57,70,0.06); border: 1px dashed rgba(230,57,70,0.25); margin-bottom: 16px; letter-spacing: 3px; }
+        .mid-label { font-size: 11px; color: var(--muted); text-align: center; margin-top: -10px; margin-bottom: 16px; letter-spacing: 1.5px; text-transform: uppercase; }
+
+        /* Nav buttons */
+        .nav-btns { position: fixed; bottom: 0; left: 0; right: 0; padding: 14px 18px; background: rgba(13,13,15,0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; gap: 12px; z-index: 100; max-width: 560px; margin: 0 auto; left: 50%; transform: translateX(-50%); width: 100%; }
+        .btn-back { flex: 0 0 auto; width: 48px; height: 48px; border-radius: 12px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--dim); font-size: 16px; transition: color .2s; }
+        .btn-back:hover { color: var(--text); }
+        .btn-back:disabled { opacity: .3; cursor: not-allowed; }
+        .btn-next { flex: 1; padding: 14px; background: linear-gradient(135deg, var(--red), var(--red-dark)); color: #fff; border: none; border-radius: 12px; font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 20px rgba(230,57,70,0.3); transition: opacity .2s; }
+        .btn-next:disabled { opacity: .4; cursor: not-allowed; }
+        .btn-next.gold-btn { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #1a1200; box-shadow: 0 4px 20px rgba(245,197,24,0.3); }
+
+        /* Toast */
+        .toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-20px); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px; font-size: 14px; z-index: 999; opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { border-color: rgba(230,57,70,.4); color: #ff8a91; }
+        .toast.success { border-color: rgba(34,197,94,.4); color: #4ade80; }
+
+        /* Success screen */
+        .success-screen { display: none; text-align: center; padding: 40px 20px; animation: fadeUp .5s ease both; }
+        .success-ring { width: 90px; height: 90px; border-radius: 50%; background: rgba(34,197,94,.1); border: 2px solid rgba(34,197,94,.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        .success-ring i { color: #4ade80; font-size: 36px; }
+        .success-id { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; color: var(--red); letter-spacing: 4px; margin: 10px 0 4px; }
+        .success-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+        .success-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .s-btn { padding: 12px 24px; border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .s-btn-primary { background: linear-gradient(135deg, var(--red), var(--red-dark)); color: #fff; }
+        .s-btn-outline { background: var(--surface2); color: var(--dim); border: 1px solid var(--border); }
+
+        @media (max-width: 380px) {
+            .type-grid { grid-template-columns: 1fr 1fr 1fr; }
+            .type-name { font-size: 14px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Create New Match</h1>
-            <button class="logout-btn" id="logoutBtn">Logout</button>
+
+<!-- Header -->
+<div class="header">
+    <a href="hoster-dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+    <div class="header-logo"><i class="fas fa-bolt"></i></div>
+    <div class="header-title">Aura <span>Battle</span> &nbsp;—&nbsp; Create Match</div>
+</div>
+
+<!-- Progress -->
+<div class="progress-wrap" id="progressWrap">
+    <div class="progress-steps">
+        <div class="step-dot active" id="dot1">1</div>
+        <div class="step-line" id="line1"></div>
+        <div class="step-dot" id="dot2">2</div>
+        <div class="step-line" id="line2"></div>
+        <div class="step-dot" id="dot3">3</div>
+        <div class="step-line" id="line3"></div>
+        <div class="step-dot" id="dot4">4</div>
+    </div>
+    <div class="step-labels">
+        <span class="step-lbl active" id="lbl1">Type</span>
+        <span class="step-lbl" id="lbl2">Setup</span>
+        <span class="step-lbl" id="lbl3">Details</span>
+        <span class="step-lbl" id="lbl4">Review</span>
+    </div>
+</div>
+
+<div class="main">
+
+    <!-- ── STEP 1: Match Type ── -->
+    <div class="step-panel active" id="step1">
+        <div class="panel-title">Select <span>Match Type</span></div>
+        <div class="panel-sub">Choose the game mode for this tournament match.</div>
+
+        <div class="type-grid">
+            <div class="type-card" onclick="selectType('BR',this)">
+                <div class="type-check"><i class="fas fa-check"></i></div>
+                <div class="type-icon">🔫</div>
+                <div class="type-name">BR</div>
+                <div class="type-desc">Battle Royale</div>
+            </div>
+            <div class="type-card" onclick="selectType('CS',this)">
+                <div class="type-check"><i class="fas fa-check"></i></div>
+                <div class="type-icon">🎯</div>
+                <div class="type-name">CS</div>
+                <div class="type-desc">Classic Squad</div>
+            </div>
+            <div class="type-card" onclick="selectType('LW',this)">
+                <div class="type-check"><i class="fas fa-check"></i></div>
+                <div class="type-icon">⚔️</div>
+                <div class="type-name">LW</div>
+                <div class="type-desc">Last War</div>
+            </div>
         </div>
-        
-        <div class="form-container">
-            <h2>Match Details</h2>
-            
-            <div id="message" class="message"></div>
-            
-            <form id="matchForm">
-                <div class="form-section">
-                    <div class="section-title"><i class="fas fa-info-circle"></i> Basic Information</div>
-                    
-                    <div class="input-group">
-                        <label for="matchTitle">Match Title</label>
-                        <input type="text" id="matchTitle" placeholder="Enter match title" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="slots">Number of Slots</label>
-                        <input type="number" id="slots" min="2" max="100" placeholder="Enter number of slots" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="matchType">Match Type</label>
-                        <select id="matchType" required>
-                            <option value="">Select match type</option>
-                            <option value="CS">Clash Squad (CS)</option>
-                            <option value="LW">Lonewolf (LW)</option>
-                            <option value="BR">Battle Royal (BR)</option>
-                            <option value="CF">Crewfight Race (CF)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="matchMode">Match Mode</label>
-                        <select id="matchMode" required>
-                            <option value="">Select match mode</option>
-                            <option value="solo">Solo</option>
-                            <option value="duo">Duo</option>
-                            <option value="squad">Squad</option>
-                            <option value="6v6">6 vs 6</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-section">
-                    <div class="section-title"><i class="fas fa-money-bill-wave"></i> Entry Fee</div>
-                    
-                    <div class="input-group">
-                        <label>Match Fee Type</label>
-                        <div class="radio-group">
-                            <div class="radio-option">
-                                <input type="radio" id="free" name="feeType" value="free" checked>
-                                <label for="free">Free</label>
-                            </div>
-                            <div class="radio-option">
-                                <input type="radio" id="paid" name="feeType" value="paid">
-                                <label for="paid">Paid</label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="paidOptions" class="hidden">
-                        <div class="input-group">
-                            <label for="premiumCategory">Premium Category</label>
-                            <select id="premiumCategory">
-                                <option value="">Select premium category</option>
-                                <!-- Categories will be loaded from Firebase -->
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-section">
-                    <div class="section-title"><i class="fas fa-calendar-alt"></i> Schedule</div>
-                    
-                    <div class="input-group">
-                        <label for="matchDate">Match Date</label>
-                        <input type="date" id="matchDate" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="matchTime">Match Time</label>
-                        <input type="time" id="matchTime" required>
-                    </div>
-                </div>
-                
-                <div class="form-section">
-                    <div class="section-title"><i class="fas fa-trophy"></i> Prize Distribution</div>
-                    
-                    <div class="input-group">
-                        <label for="prizeType">Prize Distribution Type</label>
-                        <select id="prizeType" required>
-                            <option value="">Select distribution type</option>
-                            <option value="kill">Kill Wise</option>
-                            <option value="winner">Winner Only</option>
-                            <option value="rank">Rank Wise</option>
-                        </select>
-                    </div>
-                    
-                    <div id="killPrize" class="input-group hidden">
-                        <label for="perKillPrize">Prize Per Kill</label>
-                        <input type="number" id="perKillPrize" min="0" placeholder="Enter prize amount per kill">
-                    </div>
-                    
-                    <div id="rankPrizes" class="hidden">
-                        <label>Rank Prizes (Max 20 ranks)</label>
-                        <div id="prizeContainer">
-                            <div class="prize-row">
-                                <input type="number" placeholder="Rank" class="rank-input" min="1" max="20" disabled value="1">
-                                <input type="number" placeholder="Prize amount" class="prize-amount" min="0">
-                                <button type="button" class="remove-prize">-</button>
-                            </div>
-                        </div>
-                        <button type="button" class="add-prize" id="addPrizeRow">Add Rank</button>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="totalPrize">Total Prize Pool</label>
-                        <input type="number" id="totalPrize" min="0" placeholder="Enter total prize pool" required>
-                    </div>
-                </div>
-                
-                <div class="form-section">
-                    <div class="section-title"><i class="fas fa-map-marked-alt"></i> Additional Details</div>
-                    
-                    <div class="input-group">
-                        <label for="mapName">Map Name</label>
-                        <input type="text" id="mapName" placeholder="Enter map name" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="matchRules">Match Rules (Optional)</label>
-                        <textarea id="matchRules" placeholder="Enter any special rules for the match" rows="3"></textarea>
-                    </div>
-                </div>
-                
-                <button type="submit" id="createMatchBtn">Create Match</button>
-            </form>
-        </div>
-        
-        <div class="footer">
-            &copy; 2023 Aura Battle. All rights reserved.
+
+        <div class="sec-div"></div>
+        <div class="sec-label">Entry Type</div>
+        <div class="opt-grid-4">
+            <div class="opt-card" onclick="selectEntryType('Solo',this)">
+                <div class="opt-check"><i class="fas fa-check"></i></div>
+                <div class="opt-icon">🧍</div>
+                <div class="opt-name">Solo</div>
+            </div>
+            <div class="opt-card" onclick="selectEntryType('Duo',this)">
+                <div class="opt-check"><i class="fas fa-check"></i></div>
+                <div class="opt-icon">👥</div>
+                <div class="opt-name">Duo</div>
+            </div>
+            <div class="opt-card" onclick="selectEntryType('Squad',this)">
+                <div class="opt-check"><i class="fas fa-check"></i></div>
+                <div class="opt-icon">👨‍👩‍👧‍👦</div>
+                <div class="opt-name">Squad</div>
+            </div>
+            <div class="opt-card" onclick="selectEntryType('6v6',this)">
+                <div class="opt-check"><i class="fas fa-check"></i></div>
+                <div class="opt-icon">⚔️</div>
+                <div class="opt-name">6 vs 6</div>
+            </div>
         </div>
     </div>
 
-    <!-- Firebase App (core Firebase SDK) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <!-- Firebase Database -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- ── STEP 2: Fee & Prize ── -->
+    <div class="step-panel" id="step2">
+        <div class="panel-title">Entry <span>Fee & Prize</span></div>
+        <div class="panel-sub">Set the entry cost and how winners are rewarded.</div>
 
-    <script>
-        // Firebase configuration (same as login page)
-        const firebaseConfig = {
-            apiKey: "AIzaSyD7pAsdYqkJzDbSsi8xbLsy2X5s0bgP040",
-            authDomain: "aura-battle-main.firebaseapp.com",
-            databaseURL: "https://aura-battle-main-default-rtdb.firebaseio.com",
-            projectId: "aura-battle-main",
-            storageBucket: "aura-battle-main.firebasestorage.app",
-            messagingSenderId: "763779990289",
-            appId: "1:763779990289:web:5caa7bc861e80b6f0b02b0",
-            measurementId: "G-ZZXZ00HK07"
+        <div class="sec-label">Entry Fee</div>
+        <label class="free-toggle">
+            <input type="checkbox" id="freeToggle" onchange="toggleFree(this)">
+            <span>Free Entry (No entry fee)</span>
+        </label>
+        <div class="field" id="feeField">
+            <label>Entry Fee Amount</label>
+            <div class="gold-wrap">
+                <img src="gold.png" class="gold-icon" alt="gold">
+                <input type="number" id="entryFee" placeholder="e.g. 50" min="1" oninput="updateFeeLabel()">
+            </div>
+            <div class="gold-badge" id="feeBadge" style="display:none;">
+                <img src="gold.png" alt=""> <span id="feeBadgeText">0 Gold Coins</span>
+            </div>
+        </div>
+
+        <div class="sec-div"></div>
+        <div class="sec-label">Prize Distribution</div>
+        <div class="opt-grid-2">
+            <div class="opt-card" onclick="selectPrizeType('rank',this)">
+                <div class="opt-check"><i class="fas fa-check"></i></div>
+                <div class="opt-icon">🏆</div>
+                <div class="opt-name">By Rank</div>
+                <div class="opt-desc">Top ranks win prizes</div>
+            </div>
+            <div class="opt-card" onclick="selectPrizeType('kill',this)">
+                <div class="opt-check"><i class="fas fa-check"></i></div>
+                <div class="opt-icon">💀</div>
+                <div class="opt-name">Per Kill</div>
+                <div class="opt-desc">Gold per elimination</div>
+            </div>
+        </div>
+
+        <!-- Kill prize section -->
+        <div id="killSection" style="display:none; margin-top:18px;">
+            <div class="kill-box">
+                <div class="kill-box-title"><i class="fas fa-skull-crossbones"></i> Kill Reward</div>
+                <div class="field" style="margin-bottom:0;">
+                    <label>Gold Coins Per Kill</label>
+                    <div class="gold-wrap">
+                        <img src="gold.png" class="gold-icon" alt="gold">
+                        <input type="number" id="perKillGold" placeholder="e.g. 10" min="1">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rank prize section -->
+        <div id="rankSection" style="display:none; margin-top:18px;">
+            <div class="rank-header">
+                <div class="sec-label" style="margin:0;">Rank Prizes</div>
+                <button class="add-rank-btn" onclick="addRankRow()" id="addRankBtn">
+                    <i class="fas fa-plus"></i> Add Rank
+                </button>
+            </div>
+            <div class="rank-rows" id="rankRows"></div>
+        </div>
+    </div>
+
+    <!-- ── STEP 3: Match Details ── -->
+    <div class="step-panel" id="step3">
+        <div class="panel-title">Match <span>Details</span></div>
+        <div class="panel-sub">Fill in the tournament information.</div>
+
+        <div class="field">
+            <label>Match Title</label>
+            <input type="text" id="matchTitle" placeholder="e.g. Grand BR Championship">
+        </div>
+
+        <div class="field">
+            <label>Description</label>
+            <textarea id="matchDesc" placeholder="Describe the match rules, requirements, etc."></textarea>
+        </div>
+
+        <div class="dt-row">
+            <div class="field">
+                <label>Date</label>
+                <input type="date" id="matchDate">
+            </div>
+            <div class="field">
+                <label>Time</label>
+                <input type="time" id="matchTime">
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Map Name</label>
+            <input type="text" id="mapName" placeholder="e.g. Erangel, Bermuda, Kalahari">
+        </div>
+
+        <div class="field">
+            <label>Total Spots</label>
+            <input type="number" id="matchSpots" placeholder="e.g. 100" min="2">
+        </div>
+    </div>
+
+    <!-- ── STEP 4: Review ── -->
+    <div class="step-panel" id="step4">
+        <div class="panel-title">Review & <span>Create</span></div>
+        <div class="panel-sub">Confirm all match details before publishing.</div>
+
+        <div class="match-id-preview" id="previewMatchId">----</div>
+        <div class="mid-label">Match ID (auto-assigned)</div>
+
+        <div class="review-card">
+            <div class="review-stripe"></div>
+            <div class="review-body">
+                <div class="review-row">
+                    <span class="rv-key">Match Type</span>
+                    <span class="rv-val" id="rv-type">—</span>
+                </div>
+                <div class="review-row">
+                    <span class="rv-key">Entry Type</span>
+                    <span class="rv-val" id="rv-entry">—</span>
+                </div>
+                <div class="review-row">
+                    <span class="rv-key">Entry Fee</span>
+                    <span class="rv-val" id="rv-fee">—</span>
+                </div>
+                <div class="review-row">
+                    <span class="rv-key">Prize Type</span>
+                    <span class="rv-val" id="rv-prize">—</span>
+                </div>
+                <div class="review-row">
+                    <span class="rv-key">Title</span>
+                    <span class="rv-val" id="rv-title">—</span>
+                </div>
+                <div class="review-row">
+                    <span class="rv-key">Date & Time</span>
+                    <span class="rv-val" id="rv-dt">—</span>
+                </div>
+                <div class="review-row">
+                    <span class="rv-key">Map</span>
+                    <span class="rv-val" id="rv-map">—</span>
+                </div>
+                <div class="review-row">
+                    <span class="rv-key">Spots</span>
+                    <span class="rv-val" id="rv-spots">—</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Screen -->
+    <div class="success-screen" id="successScreen">
+        <div class="success-ring"><i class="fas fa-check"></i></div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--text);">Match Created!</div>
+        <div class="success-id" id="successId">0001</div>
+        <div class="success-sub">Your match has been published and is now live.</div>
+        <div class="success-btns">
+            <button class="s-btn s-btn-primary" onclick="createAnother()"><i class="fas fa-plus"></i> New Match</button>
+            <a href="hoster-dashboard.html" class="s-btn s-btn-outline"><i class="fas fa-home"></i> Dashboard</a>
+        </div>
+    </div>
+
+</div>
+
+<!-- Bottom Nav Buttons -->
+<div class="nav-btns" id="navBtns">
+    <button class="btn-back" id="btnBack" onclick="prevStep()" disabled><i class="fas fa-arrow-left"></i></button>
+    <button class="btn-next" id="btnNext" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+(function(){
+'use strict';
+
+// ── Firebase ────────────────────────────────────────────────────────────────
+const _cfg = JSON.parse(atob('eyJhcGlLZXkiOiJBSXphU3lEN3BBc2RZcWtKekRiU3NpOHhiTHN5Mlg1czBiZ1AwNDAiLCJhdXRoRG9tYWluIjoiYXVyYS1iYXR0bGUtbWFpbi5maXJlYmFzZWFwcC5jb20iLCJkYXRhYmFzZVVSTCI6Imh0dHBzOi8vYXVyYS1iYXR0bGUtbWFpbi1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb20iLCJwcm9qZWN0SWQiOiJhdXJhLWJhdHRsZS1tYWluIiwic3RvcmFnZUJ1Y2tldCI6ImF1cmEtYmF0dGxlLW1haW4uZmlyZWJhc2VzdG9yYWdlLmFwcCIsIm1lc3NhZ2luZ1NlbmRlcklkIjoiNzYzNzc5OTkwMjg5IiwiYXBwSWQiOiIxOjc2Mzc3OTk5MDI4OTp3ZWI6NWNhYTdiYzg2MWU4MGI2ZjBiMDJiMCIsIm1lYXN1cmVtZW50SWQiOiJHLVpaWFowMEhLMDcifQ=='));
+firebase.initializeApp(_cfg);
+const db = firebase.database();
+
+// ── Session check ───────────────────────────────────────────────────────────
+const SESS = 'h_sess', TTL = 90*60*1000;
+let hosterId = null, hosterUsername = null;
+try {
+    const s = JSON.parse(atob(localStorage.getItem(SESS)||''));
+    if(Date.now()-s.t < TTL){ hosterId=s.id; hosterUsername=s.username; }
+    else { window.location.href='hoster-login.html'; }
+} catch(_){ window.location.href='hoster-login.html'; }
+
+// ── State ───────────────────────────────────────────────────────────────────
+let currentStep = 1;
+const TOTAL_STEPS = 4;
+const data = {
+    matchType: '', entryType: '', isFree: false, entryFee: 0,
+    prizeType: '', perKillGold: 0, rankPrizes: [],
+    title: '', description: '', date: '', time: '', map: '', spots: 0
+};
+
+// ── Step navigation ─────────────────────────────────────────────────────────
+window.nextStep = function(){
+    if(!validateStep(currentStep)) return;
+    if(currentStep === TOTAL_STEPS){ submitMatch(); return; }
+    currentStep++;
+    renderStep();
+};
+
+window.prevStep = function(){
+    if(currentStep <= 1) return;
+    currentStep--;
+    renderStep();
+};
+
+function renderStep(){
+    document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('step'+currentStep).classList.add('active');
+
+    // Update progress dots
+    for(let i=1;i<=TOTAL_STEPS;i++){
+        const dot = document.getElementById('dot'+i);
+        dot.classList.remove('active','done');
+        if(i < currentStep) dot.classList.add('done'), dot.innerHTML='<i class="fas fa-check" style="font-size:10px;"></i>';
+        else if(i === currentStep) dot.classList.add('active'), dot.textContent=i;
+        else dot.textContent=i;
+
+        const lbl = document.getElementById('lbl'+i);
+        lbl.classList.toggle('active', i===currentStep);
+
+        if(i < TOTAL_STEPS){
+            document.getElementById('line'+i).classList.toggle('done', i < currentStep);
+        }
+    }
+
+    document.getElementById('btnBack').disabled = currentStep===1;
+
+    const btnNext = document.getElementById('btnNext');
+    if(currentStep===TOTAL_STEPS){
+        btnNext.innerHTML='<i class="fas fa-bolt"></i> Create Match';
+        btnNext.classList.add('gold-btn');
+        buildReview();
+    } else {
+        btnNext.innerHTML='Next <i class="fas fa-arrow-right"></i>';
+        btnNext.classList.remove('gold-btn');
+    }
+}
+
+// ── Validate each step ──────────────────────────────────────────────────────
+function validateStep(step){
+    if(step===1){
+        if(!data.matchType){ toast('Select a match type.','error'); return false; }
+        if(!data.entryType){ toast('Select an entry type.','error'); return false; }
+    }
+    if(step===2){
+        if(!data.isFree && (!data.entryFee || data.entryFee<1)){ toast('Enter entry fee or mark as free.','error'); return false; }
+        if(!data.prizeType){ toast('Select a prize distribution type.','error'); return false; }
+        if(data.prizeType==='kill'){
+            const v=parseInt(document.getElementById('perKillGold').value);
+            if(!v||v<1){ toast('Enter gold coins per kill.','error'); return false; }
+            data.perKillGold=v;
+        }
+        if(data.prizeType==='rank'){
+            const rows=document.querySelectorAll('.rank-row');
+            if(rows.length===0){ toast('Add at least one rank prize.','error'); return false; }
+            data.rankPrizes=[];
+            let valid=true;
+            rows.forEach((r,i)=>{
+                const v=parseInt(r.querySelector('input').value);
+                if(!v||v<1){ valid=false; return; }
+                data.rankPrizes.push({rank:i+1, gold:v});
+            });
+            if(!valid){ toast('Fill all rank prize amounts.','error'); return false; }
+        }
+    }
+    if(step===3){
+        data.title=document.getElementById('matchTitle').value.trim();
+        data.description=document.getElementById('matchDesc').value.trim();
+        data.date=document.getElementById('matchDate').value;
+        data.time=document.getElementById('matchTime').value;
+        data.map=document.getElementById('mapName').value.trim();
+        data.spots=parseInt(document.getElementById('matchSpots').value);
+        if(!data.title){ toast('Enter a match title.','error'); return false; }
+        if(!data.date){ toast('Select a match date.','error'); return false; }
+        if(!data.time){ toast('Select a match time.','error'); return false; }
+        if(!data.map){ toast('Enter a map name.','error'); return false; }
+        if(!data.spots||data.spots<2){ toast('Enter valid number of spots (min 2).','error'); return false; }
+    }
+    return true;
+}
+
+// ── Type / option selectors ─────────────────────────────────────────────────
+window.selectType = function(type, el){
+    data.matchType=type;
+    document.querySelectorAll('#step1 .type-card').forEach(c=>c.classList.remove('selected'));
+    el.classList.add('selected');
+};
+
+window.selectEntryType = function(type, el){
+    data.entryType=type;
+    document.querySelectorAll('#step1 .opt-card').forEach(c=>c.classList.remove('selected'));
+    el.classList.add('selected');
+};
+
+window.selectPrizeType = function(type, el){
+    data.prizeType=type;
+    document.querySelectorAll('#step2 .opt-card').forEach(c=>c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('killSection').style.display = type==='kill'?'block':'none';
+    document.getElementById('rankSection').style.display = type==='rank'?'block':'none';
+    if(type==='rank' && document.querySelectorAll('.rank-row').length===0) addRankRow();
+};
+
+// ── Free toggle ─────────────────────────────────────────────────────────────
+window.toggleFree = function(cb){
+    data.isFree = cb.checked;
+    document.getElementById('feeField').style.display = cb.checked?'none':'block';
+    if(cb.checked){ data.entryFee=0; }
+};
+
+window.updateFeeLabel = function(){
+    const v=parseInt(document.getElementById('entryFee').value)||0;
+    data.entryFee=v;
+    const badge=document.getElementById('feeBadge');
+    if(v>0){ badge.style.display='inline-flex'; document.getElementById('feeBadgeText').textContent=v+' Gold Coins'; }
+    else badge.style.display='none';
+};
+
+// ── Rank rows ───────────────────────────────────────────────────────────────
+let rankCount=0;
+window.addRankRow = function(){
+    if(rankCount>=20){ toast('Maximum 20 rank prizes allowed.','error'); return; }
+    rankCount++;
+    const n=document.querySelectorAll('.rank-row').length+1;
+    const medals=['🥇','🥈','🥉'];
+    const badgeClass = n===1?'gold-r':n===2?'silver-r':n===3?'bronze-r':'';
+    const label = n<=3 ? medals[n-1] : '#'+n;
+    const row=document.createElement('div');
+    row.className='rank-row';
+    row.innerHTML=`
+        <div class="rank-badge ${badgeClass}">${label}</div>
+        <div class="rank-input-wrap">
+            <img src="gold.png" alt="gold">
+            <input type="number" placeholder="Gold coins" min="1">
+        </div>
+        <div class="rank-del" onclick="removeRankRow(this)"><i class="fas fa-times"></i></div>
+    `;
+    document.getElementById('rankRows').appendChild(row);
+    if(rankCount>=20) document.getElementById('addRankBtn').style.opacity='.4';
+};
+
+window.removeRankRow = function(el){
+    el.closest('.rank-row').remove();
+    rankCount--;
+    // Re-label all rows
+    document.querySelectorAll('.rank-row').forEach((r,i)=>{
+        const medals=['🥇','🥈','🥉'];
+        const n=i+1;
+        const badge=r.querySelector('.rank-badge');
+        badge.textContent = n<=3?medals[n-1]:'#'+n;
+        badge.className='rank-badge '+(n===1?'gold-r':n===2?'silver-r':n===3?'bronze-r':'');
+    });
+    document.getElementById('addRankBtn').style.opacity='1';
+};
+
+// ── Build review ─────────────────────────────────────────────────────────────
+async function buildReview(){
+    // Get next match ID for preview
+    const nextId = await getNextMatchId();
+    document.getElementById('previewMatchId').textContent = nextId;
+
+    const typeBadgeClass = {BR:'br',CS:'cs',LW:'lw'}[data.matchType]||'';
+    document.getElementById('rv-type').innerHTML=`<span class="rv-badge ${typeBadgeClass}">${data.matchType}</span>`;
+    document.getElementById('rv-entry').textContent=data.entryType;
+    document.getElementById('rv-fee').innerHTML = data.isFree
+        ? '<span style="color:#4ade80">FREE</span>'
+        : `<img src="gold.png" width="18"> ${data.entryFee} Gold`;
+    document.getElementById('rv-prize').textContent = data.prizeType==='kill'
+        ? `Per Kill — ${data.perKillGold} Gold` : `By Rank (${data.rankPrizes.length} ranks)`;
+    document.getElementById('rv-title').textContent=data.title;
+    const dateStr = data.date ? new Date(data.date+'T'+data.time).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}) : '—';
+    document.getElementById('rv-dt').textContent=dateStr;
+    document.getElementById('rv-map').textContent=data.map;
+    document.getElementById('rv-spots').textContent=data.spots;
+}
+
+// ── Serial Match ID ──────────────────────────────────────────────────────────
+async function getNextMatchId(){
+    const snap = await db.ref('matchCounter').once('value');
+    const current = snap.val()||0;
+    return String(current+1).padStart(4,'0');
+}
+
+// ── Submit ───────────────────────────────────────────────────────────────────
+async function submitMatch(){
+    const btnNext=document.getElementById('btnNext');
+    btnNext.disabled=true;
+    btnNext.innerHTML='<i class="fas fa-spinner fa-spin"></i> Creating...';
+
+    try {
+        // Get and increment counter atomically
+        const counterRef=db.ref('matchCounter');
+        const snap=await counterRef.once('value');
+        const current=snap.val()||0;
+        const newCount=current+1;
+        const matchId=String(newCount).padStart(4,'0');
+
+        await counterRef.set(newCount);
+
+        const matchData = {
+            matchId,
+            matchType: data.matchType,
+            entryType: data.entryType,
+            isFree: data.isFree,
+            entryFee: data.isFree?0:data.entryFee,
+            prizeType: data.prizeType,
+            title: data.title,
+            description: data.description,
+            date: data.date,
+            time: data.time,
+            map: data.map,
+            spots: data.spots,
+            hosterId: hosterId,
+            hosterUsername: hosterUsername,
+            status: 'upcoming',
+            createdAt: Date.now()
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        if(data.prizeType==='kill') matchData.perKillGold=data.perKillGold;
+        if(data.prizeType==='rank') matchData.rankPrizes=data.rankPrizes;
 
-        // DOM elements
-        const matchForm = document.getElementById('matchForm');
-        const messageDiv = document.getElementById('message');
-        const createMatchBtn = document.getElementById('createMatchBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const feeTypeRadios = document.querySelectorAll('input[name="feeType"]');
-        const paidOptions = document.getElementById('paidOptions');
-        const prizeTypeSelect = document.getElementById('prizeType');
-        const killPrize = document.getElementById('killPrize');
-        const rankPrizes = document.getElementById('rankPrizes');
-        const prizeContainer = document.getElementById('prizeContainer');
-        const addPrizeRowBtn = document.getElementById('addPrizeRow');
-        const premiumCategorySelect = document.getElementById('premiumCategory');
-        
-        // Hoster info from localStorage
-        let hosterId, hosterUsername, hosterEmail;
+        await db.ref('matches/'+matchId).set(matchData);
 
-        // Check authentication on page load
-        window.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            hosterId = localStorage.getItem('hosterId');
-            hosterUsername = localStorage.getItem('hosterUsername');
-            hosterEmail = localStorage.getItem('hosterEmail');
-            const loginTime = localStorage.getItem('loginTime');
-            
-            if (!hosterId || !loginTime) {
-                // Redirect to login if not logged in
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            // Check if login is still valid (within 30 minutes)
-            if (new Date().getTime() - parseInt(loginTime) > 30 * 60 * 1000) {
-                // Clear expired login
-                localStorage.removeItem('hosterId');
-                localStorage.removeItem('hosterUsername');
-                localStorage.removeItem('hosterEmail');
-                localStorage.removeItem('hosterData');
-                localStorage.removeItem('loginTime');
-                
-                // Redirect to login
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            // Load premium categories from Firebase
-            loadPremiumCategories();
-        });
+        // Show success
+        document.getElementById('progressWrap').style.display='none';
+        document.querySelectorAll('.step-panel').forEach(p=>p.style.display='none');
+        document.getElementById('navBtns').style.display='none';
+        document.getElementById('successScreen').style.display='block';
+        document.getElementById('successId').textContent=matchId;
 
-        // Load premium categories from Firebase
-        function loadPremiumCategories() {
-            const categoriesRef = database.ref('categories');
-            categoriesRef.once('value')
-                .then((snapshot) => {
-                    premiumCategorySelect.innerHTML = '<option value="">Select premium category</option>';
-                    
-                    snapshot.forEach((childSnapshot) => {
-                        const category = childSnapshot.val();
-                        const option = document.createElement('option');
-                        option.value = childSnapshot.key;
-                        option.textContent = category.name;
-                        premiumCategorySelect.appendChild(option);
-                    });
-                })
-                .catch((error) => {
-                    console.error('Error loading categories:', error);
-                    showMessage('Error loading categories. Please refresh the page.', 'error');
-                });
-        }
+    } catch(e){
+        toast('Error creating match: '+e.message,'error');
+        btnNext.disabled=false;
+        btnNext.innerHTML='<i class="fas fa-bolt"></i> Create Match';
+        btnNext.classList.add('gold-btn');
+    }
+}
 
-        // Handle fee type change
-        feeTypeRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                if (this.value === 'paid') {
-                    paidOptions.classList.remove('hidden');
-                    premiumCategorySelect.setAttribute('required', 'required');
-                } else {
-                    paidOptions.classList.add('hidden');
-                    premiumCategorySelect.removeAttribute('required');
-                }
-            });
-        });
+window.createAnother = function(){
+    window.location.reload();
+};
 
-        // Handle prize type change
-        prizeTypeSelect.addEventListener('change', function() {
-            const value = this.value;
-            
-            // Hide all prize options first
-            killPrize.classList.add('hidden');
-            rankPrizes.classList.add('hidden');
-            
-            // Show relevant options
-            if (value === 'kill') {
-                killPrize.classList.remove('hidden');
-            } else if (value === 'rank') {
-                rankPrizes.classList.remove('hidden');
-            }
-        });
+// ── Toast ────────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg,type){
+    clearTimeout(toastTimer);
+    const el=document.getElementById('toast');
+    el.textContent=msg;
+    el.className='toast '+type+' show';
+    toastTimer=setTimeout(()=>el.classList.remove('show'),3000);
+}
 
-        // Add prize row
-        addPrizeRowBtn.addEventListener('click', function() {
-            if (prizeContainer.children.length >= 20) {
-                showMessage('Maximum 20 ranks allowed', 'warning');
-                return;
-            }
-            
-            const newRow = document.createElement('div');
-            newRow.className = 'prize-row';
-            newRow.innerHTML = `
-                <input type="number" placeholder="Rank" class="rank-input" min="1" max="20" value="${prizeContainer.children.length + 1}">
-                <input type="number" placeholder="Prize amount" class="prize-amount" min="0">
-                <button type="button" class="remove-prize">-</button>
-            `;
-            
-            prizeContainer.appendChild(newRow);
-            
-            // Add event listener to remove button
-            newRow.querySelector('.remove-prize').addEventListener('click', function() {
-                prizeContainer.removeChild(newRow);
-                updateRankNumbers();
-            });
-        });
-
-        // Update rank numbers when rows are removed
-        function updateRankNumbers() {
-            const rows = prizeContainer.children;
-            for (let i = 0; i < rows.length; i++) {
-                rows[i].querySelector('.rank-input').value = i + 1;
-            }
-        }
-
-        // Generate a 6-digit alphanumeric match ID
-        function generateMatchId() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let result = '';
-            for (let i = 0; i < 6; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
-
-        // Form submission
-        matchForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Validate form
-            if (!validateForm()) {
-                return;
-            }
-            
-            // Get form values
-            const matchTitle = document.getElementById('matchTitle').value;
-            const slots = parseInt(document.getElementById('slots').value);
-            const matchType = document.getElementById('matchType').value;
-            const matchMode = document.getElementById('matchMode').value;
-            const feeType = document.querySelector('input[name="feeType"]:checked').value;
-            const premiumCategory = feeType === 'paid' ? document.getElementById('premiumCategory').value : '';
-            const matchDate = document.getElementById('matchDate').value;
-            const matchTime = document.getElementById('matchTime').value;
-            const prizeType = document.getElementById('prizeType').value;
-            const perKillPrize = prizeType === 'kill' ? parseFloat(document.getElementById('perKillPrize').value) : 0;
-            const totalPrize = parseFloat(document.getElementById('totalPrize').value);
-            const mapName = document.getElementById('mapName').value;
-            const matchRules = document.getElementById('matchRules').value;
-            
-            // Get rank prizes if applicable
-            const rankPrizes = {};
-            if (prizeType === 'rank') {
-                const prizeRows = prizeContainer.children;
-                for (let i = 0; i < prizeRows.length; i++) {
-                    const rank = prizeRows[i].querySelector('.rank-input').value;
-                    const amount = parseFloat(prizeRows[i].querySelector('.prize-amount').value);
-                    if (!isNaN(amount) && amount > 0) {
-                        rankPrizes[rank] = amount;
-                    }
-                }
-            }
-            
-            // Generate match ID
-            const matchId = generateMatchId();
-            
-            // Create match data object
-            const matchData = {
-                matchId: matchId,
-                title: matchTitle,
-                slots: slots,
-                type: matchType,
-                mode: matchMode,
-                feeType: feeType,
-                premiumCategory: premiumCategory,
-                date: matchDate,
-                time: matchTime,
-                prizeType: prizeType,
-                perKillPrize: perKillPrize,
-                rankPrizes: rankPrizes,
-                totalPrize: totalPrize,
-                mapName: mapName,
-                rules: matchRules,
-                hostedBy: hosterUsername,
-                hosterId: hosterId,
-                status: 'upcoming',
-                createdAt: new Date().toISOString(),
-                participants: {}
-            };
-            
-            // Show loading state
-            createMatchBtn.innerHTML = '<span class="loader"></span> Creating Match...';
-            createMatchBtn.disabled = true;
-            
-            // Save to Firebase
-            const matchesRef = database.ref('matches');
-            const newMatchRef = matchesRef.push();
-            
-            newMatchRef.set(matchData)
-                .then(() => {
-                    showMessage('Match created successfully! Match ID: ' + matchId, 'success');
-                    matchForm.reset();
-                    
-                    // Reset UI state
-                    paidOptions.classList.add('hidden');
-                    killPrize.classList.add('hidden');
-                    rankPrizes.classList.add('hidden');
-                    prizeContainer.innerHTML = `
-                        <div class="prize-row">
-                            <input type="number" placeholder="Rank" class="rank-input" min="1" max="20" disabled value="1">
-                            <input type="number" placeholder="Prize amount" class="prize-amount" min="0">
-                            <button type="button" class="remove-prize">-</button>
-                        </div>
-                    `;
-                    
-                    // Add event listener to the new remove button
-                    prizeContainer.querySelector('.remove-prize').addEventListener('click', function() {
-                        // Don't remove the first row
-                        showMessage('At least one rank is required', 'warning');
-                    });
-                })
-                .catch((error) => {
-                    showMessage('Error creating match: ' + error.message, 'error');
-                })
-                .finally(() => {
-                    createMatchBtn.innerHTML = 'Create Match';
-                    createMatchBtn.disabled = false;
-                });
-        });
-
-        // Form validation
-        function validateForm() {
-            const matchTitle = document.getElementById('matchTitle').value;
-            const slots = document.getElementById('slots').value;
-            const matchType = document.getElementById('matchType').value;
-            const matchMode = document.getElementById('matchMode').value;
-            const matchDate = document.getElementById('matchDate').value;
-            const matchTime = document.getElementById('matchTime').value;
-            const prizeType = document.getElementById('prizeType').value;
-            const totalPrize = document.getElementById('totalPrize').value;
-            const mapName = document.getElementById('mapName').value;
-            
-            if (!matchTitle || !slots || !matchType || !matchMode || !matchDate || !matchTime || !prizeType || !totalPrize || !mapName) {
-                showMessage('Please fill all required fields', 'error');
-                return false;
-            }
-            
-            if (prizeType === 'kill') {
-                const perKillPrize = document.getElementById('perKillPrize').value;
-                if (!perKillPrize || parseFloat(perKillPrize) <= 0) {
-                    showMessage('Please enter a valid prize per kill amount', 'error');
-                    return false;
-                }
-            }
-            
-            if (prizeType === 'rank') {
-                let valid = true;
-                const prizeRows = prizeContainer.children;
-                
-                if (prizeRows.length === 0) {
-                    showMessage('Please add at least one rank prize', 'error');
-                    return false;
-                }
-                
-                for (let i = 0; i < prizeRows.length; i++) {
-                    const amount = prizeRows[i].querySelector('.prize-amount').value;
-                    if (!amount || parseFloat(amount) <= 0) {
-                        showMessage('Please enter a valid prize amount for all ranks', 'error');
-                        valid = false;
-                        break;
-                    }
-                }
-                
-                if (!valid) return false;
-            }
-            
-            return true;
-        }
-
-        // Show message
-        function showMessage(message, type) {
-            messageDiv.textContent = message;
-            messageDiv.className = 'message ' + type;
-            messageDiv.style.display = 'block';
-            
-            // Hide message after 5 seconds
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 5000);
-        }
-
-        // Logout handler
-        logoutBtn.addEventListener('click', function() {
-            // Clear login data
-            localStorage.removeItem('hosterId');
-            localStorage.removeItem('hosterUsername');
-            localStorage.removeItem('hosterEmail');
-            localStorage.removeItem('hosterData');
-            localStorage.removeItem('loginTime');
-            
-            // Redirect to login page
-            window.location.href = 'index.html';
-        });
-
-        // Add event listener to the first remove button (prevent removal)
-        prizeContainer.querySelector('.remove-prize').addEventListener('click', function() {
-            showMessage('At least one rank is required', 'warning');
-        });
-
-        // Set minimum date to today
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('matchDate').setAttribute('min', today);
-    </script>
+})();
+</script>
 </body>
 </html>
