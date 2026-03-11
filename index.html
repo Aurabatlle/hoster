@@ -519,12 +519,12 @@
 <script>
 (function () {
     'use strict';
- const _a = atob, _j = JSON.parse;
-const _cfg = _j(_a('eyJhcGlLZXkiOiJBSXphU3lEN3BBc2RZcWtKekRiU3NpOHhiTHN5Mlg1czBiZ1AwNDAiLCJhdXRoRG9tYWluIjoiYXVyYS1iYXR0bGUtbWFpbi5maXJlYmFzZWFwcC5jb20iLCJkYXRhYmFzZVVSTCI6Imh0dHBzOi8vYXVyYS1iYXR0bGUtbWFpbi1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb20iLCJwcm9qZWN0SWQiOiJhdXJhLWJhdHRsZS1tYWluIiwic3RvcmFnZUJ1Y2tldCI6ImF1cmEtYmF0dGxlLW1haW4uZmlyZWJhc2VzdG9yYWdlLmFwcCIsIm1lc3NhZ2luZ1NlbmRlcklkIjoiNzYzNzc5OTkwMjg5IiwiYXBwSWQiOiIxOjc2Mzc3OTk5MDI4OTp3ZWI6NWNhYTdiYzg2MWU4MGI2ZjBiMDJiMCIsIm1lYXN1cmVtZW50SWQiOiJHLVpaWFowMEhLMDcifQ=='));
- firebase.initializeApp(_cfg);
+    const _a = atob, _j = JSON.parse;
+    const _cfg = _j(_a('eyJhcGlLZXkiOiJBSXphU3lEN3BBc2RZcWtKekRiU3NpOHhiTHN5Mlg1czBiZ1AwNDAiLCJhdXRoRG9tYWluIjoiYXVyYS1iYXR0bGUtbWFpbi5maXJlYmFzZWFwcC5jb20iLCJkYXRhYmFzZVVSTCI6Imh0dHBzOi8vYXVyYS1iYXR0bGUtbWFpbi1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb20iLCJwcm9qZWN0SWQiOiJhdXJhLWJhdHRsZS1tYWluIiwic3RvcmFnZUJ1Y2tldCI6ImF1cmEtYmF0dGxlLW1haW4uZmlyZWJhc2VzdG9yYWdlLmFwcCIsIm1lc3NhZ2luZ1NlbmRlcklkIjoiNzYzNzc5OTkwMjg5IiwiYXBwSWQiOiIxOjc2Mzc3OTk5MDI4OTp3ZWI6NWNhYTdiYzg2MWU4MGI2ZjBiMDJiMCIsIm1lYXN1cmVtZW50SWQiOiJHLVpaWFowMEhLMDcifQ=='));
+firebase.initializeApp(_cfg);
     const db = firebase.database();
 
-    
+    // ── DOM refs ────────────────────────────────────────────────────────────────
     const $id  = id => document.getElementById(id);
     const elUsername = $id('loginId');
     const elPassword = $id('password');
@@ -534,7 +534,7 @@ const _cfg = _j(_a('eyJhcGlLZXkiOiJBSXphU3lEN3BBc2RZcWtKekRiU3NpOHhiTHN5Mlg1czBi
     const elTogglePw = $id('togglePw');
     const elEyeIcon  = $id('eyeIcon');
     const SESSION_KEY = 'h_sess';
-    const SESSION_TTL = 30 * 60 * 1000; // 30 min
+    const SESSION_TTL = 90 * 60 * 1000; // 1.5 hours
 
     // ── Password toggle ─────────────────────────────────────────────────────────
     elTogglePw.addEventListener('click', () => {
