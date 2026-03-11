@@ -1,150 +1,162 @@
 // netlify/functions/notify.js
-// Deploy this file to your Netlify project at: netlify/functions/notify.js
 //
-// Set these environment variables in Netlify Dashboard → Site Settings → Environment Variables:
-//   FIREBASE_PROJECT_ID       = aura-battle-main
-//   FIREBASE_CLIENT_EMAIL     = firebase-adminsdk-fbsvc@aura-battle-main.iam.gserviceaccount.com
-//   FIREBASE_PRIVATE_KEY      = (paste the full private key including -----BEGIN/END PRIVATE KEY-----)
-//   FIREBASE_DATABASE_URL     = https://aura-battle-main-default-rtdb.firebaseio.com
+// Uses google-auth-library (same as your working send-push.js — no firebase-admin needed)
+//
+// Netlify Environment Variable needed (just ONE):
+//   FIREBASE_SERVICE_ACCOUNT  =  paste the entire JSON content of your service account key file
+//
+// Data structure expected in Firebase:
+//   matches/{matchId}/players/{playerKey}/userId   → used to look up FCM token
+//   users/{userId}/fcmToken                        → FCM token for notification
 
-const admin = require('firebase-admin');
-
-// Initialize only once (Netlify functions can be warm)
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert({
-            projectId:   process.env.FIREBASE_PROJECT_ID,
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-            // Netlify stores newlines as literal \n — replace them back
-            privateKey:  process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        }),
-        databaseURL: process.env.FIREBASE_DATABASE_URL,
-    });
-}
+const { GoogleAuth } = require('google-auth-library');
 
 exports.handler = async (event) => {
-    // Only allow POST
-    if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
-    }
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json'
+  };
 
-    let body;
-    try {
-        body = JSON.parse(event.body);
-    } catch (_) {
-        return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON' }) };
-    }
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
+  if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
 
-    const { matchId, type } = body;
-    // type: 'room_details' | 'match_started' | 'match_cancelled'
+  try {
+    const { matchId, type, matchTitle } = JSON.parse(event.body);
 
     if (!matchId || !type) {
-        return { statusCode: 400, body: JSON.stringify({ error: 'matchId and type required' }) };
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'matchId and type are required' }) };
     }
 
-    try {
-        const db = admin.database();
+    // ── Service account from env var ─────────────────────────────────────────
+    const SERVICE_ACCOUNT = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    const projectId = SERVICE_ACCOUNT.project_id;
+    const databaseURL = `https://${projectId}-default-rtdb.firebaseio.com`;
 
-        // 1. Get match data
-        const matchSnap = await db.ref('matches/' + matchId).once('value');
-        if (!matchSnap.exists()) {
-            return { statusCode: 404, body: JSON.stringify({ error: 'Match not found' }) };
-        }
-        const match = matchSnap.val();
+    // ── Get OAuth2 access token ──────────────────────────────────────────────
+    const auth = new GoogleAuth({
+      credentials: SERVICE_ACCOUNT,
+      scopes: [
+        'https://www.googleapis.com/auth/firebase.messaging',
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/firebase.database',
+        'https://www.googleapis.com/auth/cloud-platform'
+      ]
+    });
+    const client = await auth.getClient();
+    const tokenData = await client.getAccessToken();
+    const accessToken = tokenData.token;
 
-        // 2. Get all joined players for this match
-        const registrationsSnap = await db.ref('registrations')
-            .orderByChild('matchId').equalTo(matchId).once('value');
+    // ── Read match players from Firebase Database REST API ───────────────────
+    const matchRes = await fetch(
+      `${databaseURL}/matches/${matchId}/players.json?access_token=${accessToken}`
+    );
+    const playersData = await matchRes.json();
 
-        if (!registrationsSnap.exists()) {
-            return { statusCode: 200, body: JSON.stringify({ success: true, sent: 0, message: 'No players joined' }) };
-        }
+    if (!playersData || typeof playersData !== 'object') {
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true, sent: 0, message: 'No players in match' }) };
+    }
 
-        // 3. Collect user IDs
-        const userIds = [];
-        registrationsSnap.forEach(child => {
-            const uid = child.val().userId;
-            if (uid) userIds.push(uid);
-        });
+    // ── Collect unique userIds from players ──────────────────────────────────
+    const userIds = [...new Set(
+      Object.values(playersData)
+        .map(p => p.userId)
+        .filter(Boolean)
+    )];
 
-        if (userIds.length === 0) {
-            return { statusCode: 200, body: JSON.stringify({ success: true, sent: 0 }) };
-        }
+    if (!userIds.length) {
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true, sent: 0, message: 'No userIds found' }) };
+    }
 
-        // 4. Fetch FCM tokens for each user
-        const tokens = [];
-        for (const uid of userIds) {
-            const userSnap = await db.ref('users/' + uid).once('value');
-            if (userSnap.exists()) {
-                const fcmToken = userSnap.val().fcmToken;
-                if (fcmToken) tokens.push(fcmToken);
-            }
-        }
+    // ── Fetch FCM tokens from users table ────────────────────────────────────
+    const tokens = [];
+    for (const uid of userIds) {
+      const userRes = await fetch(
+        `${databaseURL}/users/${uid}/fcmToken.json?access_token=${accessToken}`
+      );
+      const token = await userRes.json();
+      if (token && typeof token === 'string' && token.length > 10) {
+        tokens.push(token);
+      }
+    }
 
-        if (tokens.length === 0) {
-            return { statusCode: 200, body: JSON.stringify({ success: true, sent: 0, message: 'No FCM tokens found' }) };
-        }
+    if (!tokens.length) {
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true, sent: 0, message: 'No FCM tokens found' }) };
+    }
 
-        // 5. Build notification message
-        const messages = {
-            room_details: {
-                title: '🔑 Room Details Added!',
-                body: `Match #${matchId} — ${match.title}. Room ID & Password are ready. Get in now!`,
-            },
-            match_started: {
-                title: '🔥 Match Started!',
-                body: `#${matchId} ${match.title} is now LIVE! Join the room immediately.`,
-            },
-            match_cancelled: {
-                title: '❌ Match Cancelled',
-                body: `Match #${matchId} — ${match.title} has been cancelled by the host.`,
-            },
-        };
+    // ── Build notification content ────────────────────────────────────────────
+    const title_text = matchTitle || `Match #${matchId}`;
+    const messages = {
+      room_details: {
+        title: '🔑 Room Details Added!',
+        body: `${title_text} — Room ID & Password are ready. Get in now!`
+      },
+      match_started: {
+        title: '🔥 Match Started!',
+        body: `${title_text} is now LIVE! Join the room immediately.`
+      },
+      match_cancelled: {
+        title: '❌ Match Cancelled',
+        body: `${title_text} has been cancelled by the host.`
+      }
+    };
 
-        const notif = messages[type];
-        if (!notif) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Unknown notification type' }) };
-        }
+    const notif = messages[type];
+    if (!notif) {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Unknown type. Use: room_details, match_started, match_cancelled' }) };
+    }
 
-        // 6. Send multicast
-        const message = {
-            tokens,
+    // ── Send one FCM message per token (FCM v1 API) ───────────────────────────
+    let successCount = 0, failCount = 0;
+
+    for (const token of tokens) {
+      const message = {
+        message: {
+          token,
+          notification: {
+            title: notif.title,
+            body: notif.body
+          },
+          data: {
+            matchId: String(matchId),
+            type: String(type),
+            click_action: 'FLUTTER_NOTIFICATION_CLICK'
+          },
+          android: {
+            priority: 'high',
             notification: {
-                title: notif.title,
-                body:  notif.body,
-            },
-            data: {
-                matchId,
-                type,
-                matchTitle: match.title || '',
-                click_action: 'FLUTTER_NOTIFICATION_CLICK',
-            },
-            android: {
-                priority: 'high',
-                notification: {
-                    sound: 'default',
-                    channelId: 'match_alerts',
-                },
-            },
-        };
+              sound: 'default',
+              click_action: 'FLUTTER_NOTIFICATION_CLICK'
+            }
+          }
+        }
+      };
 
-        const response = await admin.messaging().sendEachForMulticast(message);
+      const fcmRes = await fetch(
+        `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(message)
+        }
+      );
 
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                success: true,
-                sent: response.successCount,
-                failed: response.failureCount,
-                total: tokens.length,
-            }),
-        };
-
-    } catch (err) {
-        console.error('notify function error:', err);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: err.message }),
-        };
+      const result = await fcmRes.json();
+      if (fcmRes.ok) successCount++;
+      else { failCount++; console.error('FCM error for token:', result); }
     }
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ success: true, sent: successCount, failed: failCount, total: tokens.length })
+    };
+
+  } catch (err) {
+    console.error('notify error:', err);
+    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
+  }
 };
