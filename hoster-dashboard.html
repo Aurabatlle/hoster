@@ -270,7 +270,7 @@
     firebase.initializeApp(_cfg);
     const db = firebase.database();
 
-    const SESS = 'h_sess', TTL = 30*60*1000;
+    const SESS = 'h_sess', TTL = 90*60*1000; // 1.5 hours
 
     function getSession(){
         try{
