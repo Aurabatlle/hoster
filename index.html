@@ -519,15 +519,12 @@
 <script>
 (function () {
     'use strict';
-
-    // ── Obfuscated config ──────────────────────────────────────────────────────
-    const _a = atob, _j = JSON.parse;
-    const _cfg = _j(_a('eyJhcGlLZXkiOiJBSXphU3lEN3BBc2RZcWtKekRiU3NpOHhiTHN5Mlg1czBiZ1AwNDAiLCJhdXRoRG9tYWluIjoiYXVyYS1iYXR0bGUtbWFpbi5maXJlYmFzZWFwcC5jb20iLCJkYXRhYmFzZVVSTCI6Imh0dHBzOi8vYXVyYS1iYXR0bGUtbWFpbi1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb20iLCJwcm9qZWN0SWQiOiJhdXJhLWJhdHRsZS1tYWluIiwic3RvcmFnZUJ1Y2tldCI6ImF1cmEtYmF0dGxlLW1haW4uZmlyZWJhc2VzdG9yYWdlLmFwcCIsIm1lc3NhZ2luZ1NlbmRlcklkIjoiNzYzNzc5OTkwMjg5IiwiYXBwSWQiOiIxOjc2Mzc3OTk5MDI4OTp3ZWI6NWNhYTdiYzg2MWU4MGI2ZjBiMDJiMCIsIm1lYXN1cmVtZW50SWQiOiJHLVpaWFowMEhLMDcifQ=='));
-
-    firebase.initializeApp(_cfg);
+ const _a = atob, _j = JSON.parse;
+const _cfg = _j(_a('eyJhcGlLZXkiOiJBSXphU3lEN3BBc2RZcWtKekRiU3NpOHhiTHN5Mlg1czBiZ1AwNDAiLCJhdXRoRG9tYWluIjoiYXVyYS1iYXR0bGUtbWFpbi5maXJlYmFzZWFwcC5jb20iLCJkYXRhYmFzZVVSTCI6Imh0dHBzOi8vYXVyYS1iYXR0bGUtbWFpbi1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb20iLCJwcm9qZWN0SWQiOiJhdXJhLWJhdHRsZS1tYWluIiwic3RvcmFnZUJ1Y2tldCI6ImF1cmEtYmF0dGxlLW1haW4uZmlyZWJhc2VzdG9yYWdlLmFwcCIsIm1lc3NhZ2luZ1NlbmRlcklkIjoiNzYzNzc5OTkwMjg5IiwiYXBwSWQiOiIxOjc2Mzc3OTk5MDI4OTp3ZWI6NWNhYTdiYzg2MWU4MGI2ZjBiMDJiMCIsIm1lYXN1cmVtZW50SWQiOiJHLVpaWFowMEhLMDcifQ=='));
+ firebase.initializeApp(_cfg);
     const db = firebase.database();
 
-    // ── DOM refs ────────────────────────────────────────────────────────────────
+    
     const $id  = id => document.getElementById(id);
     const elUsername = $id('loginId');
     const elPassword = $id('password');
@@ -584,21 +581,19 @@
 
             snap.forEach(child => {
                 const d = child.val();
+                // Only check username and password — no other fields
                 if (d.username === username) {
+                    found = true;
                     if (d.password !== password) {
                         showMsg('Incorrect password. Please try again.', 'error');
-                        found = true; return true;
+                        return true;
                     }
-                    if (d.status === 'banned') {
-                        showMsg('Your account has been banned. Contact an administrator.', 'error');
-                        found = true; return true;
-                    }
-                    // Save session
+                    // Save session with only username
                     const sess = { id: child.key, username: d.username, t: Date.now() };
                     localStorage.setItem(SESSION_KEY, btoa(JSON.stringify(sess)));
                     showMsg('Login successful! Redirecting…', 'success');
                     setTimeout(() => { window.location.href = 'hoster-dashboard.html'; }, 1400);
-                    found = true; return true;
+                    return true;
                 }
             });
 
