@@ -197,12 +197,7 @@
         </div>
     </div>
 
-    <div class="wall" id="loginWall">
-        <div class="wall-ico"><i class="fas fa-lock"></i></div>
-        <h2>Access Restricted</h2>
-        <p>Please login to access the hoster dashboard.</p>
-        <button class="wall-btn" onclick="window.location.href='hoster-login.html'">Go to Login</button>
-    </div>
+
 
     <nav class="bnav">
         <button class="nb active"><i class="fas fa-home"></i><span>Home</span></button>
@@ -285,10 +280,10 @@
 
     const sess=getSession();
     if(!sess){
-        document.getElementById('loginWall').style.display='flex';
+        window.location.href='index.html';
     } else {
         db.ref('hosters').child(sess.id).once('value').then(snap=>{
-            if(!snap.exists()){clearSession();document.getElementById('loginWall').style.display='flex';return;}
+            if(!snap.exists()){clearSession();window.location.href='index.html';return;}
             const d=snap.val();
             setSession(sess.id,d.username);
             render(sess.id,d.username);
@@ -367,9 +362,9 @@
         finally{setLoading(btn,false,'Update Password');}
     };
 
-    window.doLogout=function(){clearSession();window.location.href='hoster-login.html';};
+    window.doLogout=function(){clearSession();window.location.href='index.html';};
 
-    setInterval(()=>{if(!getSession()){clearSession();window.location.href='hoster-login.html';}},60000);
+    setInterval(()=>{if(!getSession()){clearSession();window.location.href='index.html';}},60000);
 
     let _t={};
     function msg(id,text,type){
