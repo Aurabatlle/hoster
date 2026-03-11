@@ -2,485 +2,643 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hoster Login - Aura Battle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        *, *::before, *::after {
+            margin: 0; padding: 0; box-sizing: border-box;
         }
-        
+
         :root {
-            --primary: #e63946;
-            --secondary: #d00000;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --white: #ffffff;
+            --red: #e63946;
+            --red-dark: #b5202d;
+            --red-glow: rgba(230, 57, 70, 0.25);
+            --bg: #0d0d0f;
+            --card: #141418;
+            --border: rgba(230, 57, 70, 0.18);
+            --text: #f0f0f2;
+            --muted: #6b6b78;
+            --input-bg: #0a0a0c;
         }
-        
+
         body {
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)),
-                        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect fill='%23f5f5f5' width='100' height='100'/%3E%3Cpath d='M0,0 L100,100 M100,0 L0,100' stroke='%23e63946' stroke-width='1' stroke-opacity='0.1'/%3E%3C/svg%3E");
+            background: var(--bg);
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            padding: 20px;
+            justify-content: center;
+            padding: 16px;
+            font-family: 'DM Sans', sans-serif;
+            overflow-x: hidden;
         }
-        
-        .login-container {
+
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(230,57,70,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(230,57,70,0.04) 1px, transparent 1px);
+            background-size: 44px 44px;
+            z-index: 0;
+            animation: gridPulse 6s ease-in-out infinite;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(230,57,70,0.12) 0%, transparent 70%);
+            z-index: 0;
+            animation: glowDrift 8s ease-in-out infinite;
+        }
+
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes glowDrift {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(40px); }
+        }
+
+        .card {
+            position: relative;
+            z-index: 1;
             width: 100%;
-            max-width: 400px;
-            background: var(--white);
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            max-width: 420px;
+            background: var(--card);
+            border-radius: 20px;
+            border: 1px solid var(--border);
             overflow: hidden;
-            border-top: 5px solid var(--primary);
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.04),
+                0 20px 60px rgba(0,0,0,0.6),
+                0 0 80px var(--red-glow);
+            animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
         }
-        
-        .header {
-            background: var(--primary);
-            padding: 25px 20px;
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(32px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Top accent bar */
+        .card-top {
+            height: 4px;
+            background: linear-gradient(90deg, var(--red-dark), var(--red), #ff6b7a, var(--red));
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 0%; }
+        }
+
+        .card-header {
+            padding: 32px 36px 20px;
             text-align: center;
-        }
-        
-        .header h1 {
-            color: var(--white);
-            font-size: 24px;
-            font-weight: 600;
-        }
-        
-        .form-container {
-            padding: 25px 30px;
-        }
-        
-        h2 {
-            color: var(--primary);
-            text-align: center;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-        
-        .input-group {
-            margin-bottom: 20px;
             position: relative;
         }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--primary);
-            font-weight: 500;
-        }
-        
-        input {
-            width: 100%;
-            padding: 14px 14px 14px 45px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        input:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
-        }
-        
-        .input-icon {
-            position: absolute;
-            left: 12px;
-            top: 55px;
-            color: var(--primary);
-        }
-        
-        button {
-            width: 100%;
-            padding: 14px;
-            background: var(--primary);
-            color: var(--white);
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        button:hover {
-            background: var(--secondary);
-        }
-        
-        .forgot-password {
-            text-align: center;
-            margin-top: 15px;
-        }
-        
-        .forgot-password a {
-            color: var(--primary);
-            text-decoration: none;
-            font-size: 14px;
-        }
-        
-        .forgot-password a:hover {
-            text-decoration: underline;
-        }
-        
-        .message {
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 8px;
-            text-align: center;
-            display: none;
-        }
-        
-        .error {
-            background-color: #ffebee;
-            color: var(--primary);
-            border: 1px solid var(--primary);
-        }
-        
-        .success {
-            background-color: #e8f5e9;
-            color: #388e3c;
-            border: 1px solid #4caf50;
-        }
-        
-        .info {
-            background-color: #e3f2fd;
-            color: #1565c0;
-            border: 1px solid #2196f3;
-        }
-        
-        .warning {
-            background-color: #fff8e1;
-            color: #f57c00;
-            border: 1px solid #ffa000;
-        }
-        
-        .footer {
-            text-align: center;
-            padding: 15px;
-            color: var(--gray);
-            font-size: 12px;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
+
+        .logo-ring {
+            display: inline-flex;
             align-items: center;
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background-color: var(--white);
-            padding: 25px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            border-top: 5px solid var(--primary);
-        }
-        
-        .modal h3 {
-            color: var(--primary);
-            margin-bottom: 15px;
-        }
-        
-        .modal p {
-            margin-bottom: 20px;
-            color: #555;
-        }
-        
-        .modal-close {
-            padding: 10px 20px;
-            background: var(--primary);
-            color: var(--white);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        
-        .loader {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            justify-content: center;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            border-top-color: var(--white);
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
+            background: rgba(230,57,70,0.1);
+            border: 2px solid rgba(230,57,70,0.3);
+            margin-bottom: 16px;
+            position: relative;
         }
-        
-        @keyframes spin {
+
+        .logo-ring::before {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 1px dashed rgba(230,57,70,0.2);
+            animation: rotateSlow 12s linear infinite;
+        }
+
+        @keyframes rotateSlow {
             to { transform: rotate(360deg); }
         }
-        
+
+        .logo-ring i {
+            color: var(--red);
+            font-size: 22px;
+        }
+
+        .brand-name {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .brand-name span {
+            color: var(--red);
+        }
+
+        .brand-sub {
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 0 36px;
+        }
+
+        .card-body {
+            padding: 28px 36px 32px;
+        }
+
+        .form-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap i.icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 14px;
+            transition: color 0.2s;
+            pointer-events: none;
+        }
+
+        .input-wrap input {
+            width: 100%;
+            padding: 14px 44px 14px 42px;
+            background: var(--input-bg);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 15px;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none;
+        }
+
+        .input-wrap input::placeholder {
+            color: rgba(107,107,120,0.6);
+            font-size: 14px;
+        }
+
+        .input-wrap input:focus {
+            outline: none;
+            border-color: rgba(230,57,70,0.5);
+            box-shadow: 0 0 0 3px rgba(230,57,70,0.1);
+        }
+
+        .input-wrap input:focus ~ .icon,
+        .input-wrap:focus-within i.icon {
+            color: var(--red);
+        }
+
+        .toggle-pw {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px;
+            width: auto;
+            transition: color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .toggle-pw:hover { color: var(--red); background: none; }
+
+        .forgot-row {
+            text-align: right;
+            margin-top: -12px;
+            margin-bottom: 24px;
+        }
+
+        .forgot-row a {
+            font-size: 12px;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .forgot-row a:hover { color: var(--red); }
+
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--red), var(--red-dark));
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(230,57,70,0.3);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-login::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .btn-login:hover::after { opacity: 1; }
+        .btn-login:active { transform: scale(0.98); }
+        .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-login .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .btn-login.loading .spinner { display: inline-block; }
+        .btn-login.loading .btn-text { display: none; }
+
+        .msg-box {
+            margin-top: 18px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .msg-box.error   { background: rgba(230,57,70,0.1); color: #ff8a91; border: 1px solid rgba(230,57,70,0.25); }
+        .msg-box.success { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+        .msg-box.warning { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+
+        .card-footer {
+            padding: 14px 36px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .card-footer p {
+            font-size: 11px;
+            color: rgba(107,107,120,0.6);
+            letter-spacing: 0.5px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px 28px;
+            max-width: 320px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: cardIn 0.3s cubic-bezier(0.22,1,0.36,1) both;
+        }
+
+        .modal-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: rgba(230,57,70,0.1);
+            border: 1px solid rgba(230,57,70,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .modal-icon i { color: var(--red); font-size: 20px; }
+
+        .modal-box h3 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .modal-box p {
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .modal-btn {
+            padding: 10px 28px;
+            background: rgba(230,57,70,0.15);
+            color: var(--red);
+            border: 1px solid rgba(230,57,70,0.3);
+            border-radius: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            width: auto;
+            transition: background 0.2s;
+        }
+
+        .modal-btn:hover { background: rgba(230,57,70,0.25); }
+
+        /* Mobile tweaks */
         @media (max-width: 480px) {
-            .login-container {
-                border-radius: 10px;
-            }
-            
-            .header {
-                padding: 20px 15px;
-            }
-            
-            .form-container {
-                padding: 20px 15px;
-            }
-            
-            input {
-                padding: 12px 12px 12px 40px;
-            }
+            .card-header { padding: 28px 24px 16px; }
+            .card-body { padding: 24px 24px 28px; }
+            .card-footer { padding: 12px 24px 18px; }
+            .divider { margin: 0 24px; }
+            .brand-name { font-size: 22px; }
+        }
+
+        @media (max-width: 360px) {
+            .card-header { padding: 24px 18px 14px; }
+            .card-body { padding: 20px 18px 24px; }
+            .card-footer { padding: 10px 18px 16px; }
+            .divider { margin: 0 18px; }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="header">
-            <h1>Aura Battle Hoster</h1>
+
+<div class="card">
+    <div class="card-top"></div>
+
+    <div class="card-header">
+        <div class="logo-ring">
+            <i class="fas fa-bolt"></i>
         </div>
-        
-        <div class="form-container">
-            <h2>Hoster Login</h2>
-            
-            <div class="input-group">
-                <label for="loginId">Email, Phone or Username</label>
-                <i class="fas fa-user input-icon"></i>
-                <input type="text" id="loginId" placeholder="Enter your email, phone or username" required>
-            </div>
-            
-            <div class="input-group">
-                <label for="password">Password</label>
-                <i class="fas fa-lock input-icon"></i>
-                <input type="password" id="password" placeholder="Enter your password" required>
-            </div>
-            
-            <button id="loginBtn">Login</button>
-            
-            <div class="forgot-password">
-                <a href="#" id="forgotLink">Forgot Password?</a>
-            </div>
-            
-            <div id="message" class="message"></div>
-        </div>
-        
-        <div class="footer">
-            &copy; 2023 Aura Battle. All rights reserved.
-        </div>
+        <div class="brand-name">Aura <span>Battle</span></div>
+        <div class="brand-sub">Hoster Portal</div>
     </div>
 
-    <!-- Forgot Password Modal -->
-    <div class="modal" id="forgotModal">
-        <div class="modal-content">
-            <h3>Forgot Password?</h3>
-            <p>Please contact your administrator to reset your password.</p>
-            <button class="modal-close" id="closeModal">OK</button>
+    <div class="divider"></div>
+
+    <div class="card-body">
+        <div class="form-title">Sign In</div>
+
+        <div class="field">
+            <label for="loginId">Username</label>
+            <div class="input-wrap">
+                <input type="text" id="loginId" placeholder="Enter your username" autocomplete="username" autocapitalize="none" spellcheck="false">
+                <i class="fas fa-user icon"></i>
+            </div>
         </div>
+
+        <div class="field">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+                <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+                <i class="fas fa-lock icon"></i>
+                <button class="toggle-pw" id="togglePw" type="button" tabindex="-1" aria-label="Toggle password">
+                    <i class="fas fa-eye" id="eyeIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="forgot-row">
+            <a href="#" id="forgotLink">Forgot password?</a>
+        </div>
+
+        <button class="btn-login" id="loginBtn" type="button">
+            <span class="spinner"></span>
+            <span class="btn-text">Login</span>
+        </button>
+
+        <div class="msg-box" id="msgBox"></div>
     </div>
 
-    <!-- Firebase App (core Firebase SDK) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <!-- Firebase Database -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <div class="card-footer">
+        <p>&copy; 2025 Aura Battle &mdash; All rights reserved</p>
+    </div>
+</div>
 
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD7pAsdYqkJzDbSsi8xbLsy2X5s0bgP040",
-            authDomain: "aura-battle-main.firebaseapp.com",
-            databaseURL: "https://aura-battle-main-default-rtdb.firebaseio.com",
-            projectId: "aura-battle-main",
-            storageBucket: "aura-battle-main.firebasestorage.app",
-            messagingSenderId: "763779990289",
-            appId: "1:763779990289:web:5caa7bc861e80b6f0b02b0",
-            measurementId: "G-ZZXZ00HK07"
-        };
+<!-- Forgot Password Modal -->
+<div class="modal-overlay" id="forgotModal">
+    <div class="modal-box">
+        <div class="modal-icon"><i class="fas fa-lock"></i></div>
+        <h3>Reset Password</h3>
+        <p>Please contact your administrator to reset your password.</p>
+        <button class="modal-btn" id="closeModal">Got it</button>
+    </div>
+</div>
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-        // DOM elements
-        const loginBtn = document.getElementById('loginBtn');
-        const loginIdInput = document.getElementById('loginId');
-        const passwordInput = document.getElementById('password');
-        const forgotLink = document.getElementById('forgotLink');
-        const messageDiv = document.getElementById('message');
-        const forgotModal = document.getElementById('forgotModal');
-        const closeModal = document.getElementById('closeModal');
+<script>
+(function () {
+    'use strict';
 
-        // Login function
-        loginBtn.addEventListener('click', function() {
-            const loginId = loginIdInput.value.trim();
-            const password = passwordInput.value;
-            
-            // Validate inputs
-            if (!loginId || !validatePassword(password)) {
-                showMessage('Please enter your login ID and password (min 6 characters)', 'error');
-                return;
-            }
-            
-            // Show loading state
-            loginBtn.innerHTML = '<span class="loader"></span> Authenticating...';
-            loginBtn.disabled = true;
-            
-            // Check credentials against hosters in database
-            const hostersRef = database.ref('hosters');
-            hostersRef.once('value')
-                .then((snapshot) => {
-                    let hosterFound = false;
-                    let hosterData = null;
-                    let hosterId = null;
-                    
-                    // Search for hoster by email, phone, or username
-                    snapshot.forEach((childSnapshot) => {
-                        const data = childSnapshot.val();
-                        
-                        // Check if login ID matches email, phone, or username
-                        if (data.email === loginId || data.phone === loginId || data.username === loginId) {
-                            if (data.password === password) {
-                                // Check if account is banned
-                                if (data.status === 'banned') {
-                                    showMessage('Your account has been banned. Please contact administrator.', 'error');
-                                    loginBtn.innerHTML = 'Login';
-                                    loginBtn.disabled = false;
-                                    return true;
-                                }
-                                
-                                hosterFound = true;
-                                hosterData = data;
-                                hosterId = childSnapshot.key;
-                                return true; // Break out of forEach
-                            } else {
-                                showMessage('Invalid password. Please try again.', 'error');
-                                loginBtn.innerHTML = 'Login';
-                                loginBtn.disabled = false;
-                                return true;
-                            }
-                        }
-                    });
-                    
-                    if (hosterFound) {
-                        // Store hoster info in local storage
-                        localStorage.setItem('hosterId', hosterId);
-                        localStorage.setItem('hosterUsername', hosterData.username);
-                        localStorage.setItem('hosterEmail', hosterData.email);
-                        localStorage.setItem('hosterData', JSON.stringify(hosterData));
-                        
-                        // Set login time
-                        const loginTime = new Date().getTime();
-                        localStorage.setItem('loginTime', loginTime);
-                        
-                        showMessage('Login successful! Redirecting to dashboard...', 'success');
-                        
-                        // Redirect to dashboard
-                        setTimeout(() => {
-                            window.location.href = 'dashboard.html';
-                        }, 1500);
-                    } else if (!hosterFound && loginBtn.disabled) {
-                        // Only show error if not already shown
-                        showMessage('Invalid login credentials. Please try again.', 'error');
-                        loginBtn.innerHTML = 'Login';
-                        loginBtn.disabled = false;
+    // ── Obfuscated config ──────────────────────────────────────────────────────
+    const _a = atob, _j = JSON.parse;
+    const _cfg = _j(_a('eyJhcGlLZXkiOiJBSXphU3lEN3BBc2RZcWtKekRiU3NpOHhiTHN5Mlg1czBiZ1AwNDAiLCJhdXRoRG9tYWluIjoiYXVyYS1iYXR0bGUtbWFpbi5maXJlYmFzZWFwcC5jb20iLCJkYXRhYmFzZVVSTCI6Imh0dHBzOi8vYXVyYS1iYXR0bGUtbWFpbi1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb20iLCJwcm9qZWN0SWQiOiJhdXJhLWJhdHRsZS1tYWluIiwic3RvcmFnZUJ1Y2tldCI6ImF1cmEtYmF0dGxlLW1haW4uZmlyZWJhc2VzdG9yYWdlLmFwcCIsIm1lc3NhZ2luZ1NlbmRlcklkIjoiNzYzNzc5OTkwMjg5IiwiYXBwSWQiOiIxOjc2Mzc3OTk5MDI4OTp3ZWI6NWNhYTdiYzg2MWU4MGI2ZjBiMDJiMCIsIm1lYXN1cmVtZW50SWQiOiJHLVpaWFowMEhLMDcifQ=='));
+
+    firebase.initializeApp(_cfg);
+    const db = firebase.database();
+
+    // ── DOM refs ────────────────────────────────────────────────────────────────
+    const $id  = id => document.getElementById(id);
+    const elUsername = $id('loginId');
+    const elPassword = $id('password');
+    const elLoginBtn = $id('loginBtn');
+    const elMsg      = $id('msgBox');
+    const elModal    = $id('forgotModal');
+    const elTogglePw = $id('togglePw');
+    const elEyeIcon  = $id('eyeIcon');
+    const SESSION_KEY = 'h_sess';
+    const SESSION_TTL = 30 * 60 * 1000; // 30 min
+
+    // ── Password toggle ─────────────────────────────────────────────────────────
+    elTogglePw.addEventListener('click', () => {
+        const isHidden = elPassword.type === 'password';
+        elPassword.type = isHidden ? 'text' : 'password';
+        elEyeIcon.className = isHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
+    });
+
+    // ── Message helper ──────────────────────────────────────────────────────────
+    let msgTimer;
+    function showMsg(text, type) {
+        clearTimeout(msgTimer);
+        elMsg.textContent = text;
+        elMsg.className = 'msg-box ' + type;
+        elMsg.style.display = 'block';
+        msgTimer = setTimeout(() => { elMsg.style.display = 'none'; }, 5000);
+    }
+
+    // ── Set loading state ───────────────────────────────────────────────────────
+    function setLoading(on) {
+        elLoginBtn.disabled = on;
+        elLoginBtn.classList.toggle('loading', on);
+    }
+
+    // ── Login ───────────────────────────────────────────────────────────────────
+    async function doLogin() {
+        const username = elUsername.value.trim();
+        const password = elPassword.value;
+
+        if (!username || !password) {
+            showMsg('Please enter your username and password.', 'error');
+            return;
+        }
+        if (password.length < 6) {
+            showMsg('Password must be at least 6 characters.', 'error');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const snap = await db.ref('hosters').once('value');
+            let found = false;
+
+            snap.forEach(child => {
+                const d = child.val();
+                if (d.username === username) {
+                    if (d.password !== password) {
+                        showMsg('Incorrect password. Please try again.', 'error');
+                        found = true; return true;
                     }
-                })
-                .catch((error) => {
-                    showMessage('Error: ' + error.message, 'error');
-                    loginBtn.innerHTML = 'Login';
-                    loginBtn.disabled = false;
-                });
-        });
-
-        // Check if login has expired
-        function checkLoginExpiration() {
-            const loginTime = localStorage.getItem('loginTime');
-            if (loginTime && new Date().getTime() - parseInt(loginTime) > 30 * 60 * 1000) {
-                // Clear login data if expired
-                localStorage.removeItem('hosterId');
-                localStorage.removeItem('hosterUsername');
-                localStorage.removeItem('hosterEmail');
-                localStorage.removeItem('hosterData');
-                localStorage.removeItem('loginTime');
-                showMessage('Your login session has expired. Please login again.', 'warning');
-            }
-        }
-
-        // Forgot password handler
-        forgotLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            forgotModal.style.display = 'flex';
-        });
-
-        // Close modal
-        closeModal.addEventListener('click', function() {
-            forgotModal.style.display = 'none';
-        });
-
-        // Close modal if clicked outside
-        window.addEventListener('click', function(e) {
-            if (e.target === forgotModal) {
-                forgotModal.style.display = 'none';
-            }
-        });
-
-        // Helper functions
-        function validatePassword(password) {
-            return password.length >= 6;
-        }
-
-        function showMessage(message, type) {
-            messageDiv.textContent = message;
-            messageDiv.className = 'message ' + type;
-            messageDiv.style.display = 'block';
-            
-            // Hide message after 5 seconds
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 5000);
-        }
-
-        // Check if already logged in but not expired
-        window.addEventListener('DOMContentLoaded', function() {
-            const hosterId = localStorage.getItem('hosterId');
-            const loginTime = localStorage.getItem('loginTime');
-            
-            if (hosterId && loginTime) {
-                // Check if login is still valid (within 30 minutes)
-                if (new Date().getTime() - parseInt(loginTime) < 30 * 60 * 1000) {
-                    // If already logged in, redirect to dashboard
-                    window.location.href = 'hoster-dashboard.html';
-                } else {
-                    // Clear expired login
-                    localStorage.removeItem('hosterId');
-                    localStorage.removeItem('hosterUsername');
-                    localStorage.removeItem('hosterEmail');
-                    localStorage.removeItem('hosterData');
-                    localStorage.removeItem('loginTime');
+                    if (d.status === 'banned') {
+                        showMsg('Your account has been banned. Contact an administrator.', 'error');
+                        found = true; return true;
+                    }
+                    // Save session
+                    const sess = { id: child.key, username: d.username, t: Date.now() };
+                    localStorage.setItem(SESSION_KEY, btoa(JSON.stringify(sess)));
+                    showMsg('Login successful! Redirecting…', 'success');
+                    setTimeout(() => { window.location.href = 'hoster-dashboard.html'; }, 1400);
+                    found = true; return true;
                 }
-            }
-        });
+            });
 
-        // Allow form submission with Enter key
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                loginBtn.click();
+            if (!found) showMsg('Username not found. Please try again.', 'error');
+        } catch (err) {
+            showMsg('Connection error. Please try again.', 'error');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    elLoginBtn.addEventListener('click', doLogin);
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+    // ── Forgot password modal ───────────────────────────────────────────────────
+    $id('forgotLink').addEventListener('click', e => {
+        e.preventDefault();
+        elModal.classList.add('show');
+    });
+
+    $id('closeModal').addEventListener('click', () => elModal.classList.remove('show'));
+    elModal.addEventListener('click', e => { if (e.target === elModal) elModal.classList.remove('show'); });
+
+    // ── Auto-redirect if session valid ──────────────────────────────────────────
+    (function checkSession() {
+        try {
+            const raw = localStorage.getItem(SESSION_KEY);
+            if (!raw) return;
+            const sess = JSON.parse(atob(raw));
+            if (Date.now() - sess.t < SESSION_TTL) {
+                window.location.href = 'hoster-dashboard.html';
+            } else {
+                localStorage.removeItem(SESSION_KEY);
             }
-        });
-    </script>
+        } catch (_) {
+            localStorage.removeItem(SESSION_KEY);
+        }
+    })();
+
+})();
+</script>
 </body>
 </html>
