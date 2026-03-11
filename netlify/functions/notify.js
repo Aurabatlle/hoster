@@ -31,7 +31,7 @@ exports.handler = async (event) => {
     // ── Service account from env var ─────────────────────────────────────────
     const SERVICE_ACCOUNT = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
     const projectId = SERVICE_ACCOUNT.project_id;
-    const databaseURL = `https://${projectId}-default-rtdb.firebaseio.com`;
+    const databaseURL = `const databaseURL = 'https://aura-battle-main-default-rtdb.firebaseio.com';`;
 
     // ── Get OAuth2 access token ──────────────────────────────────────────────
     const auth = new GoogleAuth({
