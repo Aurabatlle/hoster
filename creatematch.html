@@ -670,7 +670,7 @@ async function submitMatch(){
             entryMode:D.entryMode, entryFee:D.entryFee,
             prizeType:D.prizeType, title:D.title, description:D.description,
             date:D.date, time:D.time, map:D.map, spots:D.spots,
-            hosterId, hosterUsername, status:'upcoming', createdAt:Date.now()
+            hosterUsername, status:'upcoming'
         };
         if(D.prizeType==='kill') md.perKillGold=D.perKillGold;
         if(D.prizeType==='rank') md.rankPrizes=D.rankPrizes;
