@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Player Adder</title>
+</head>
+<body>
+
+<h2>Add Test Player to Match</h2>
+
+<label>Match ID:</label><br>
+<input type="text" id="matchId" placeholder="e.g. 0004"><br><br>
+
+<label>User ID (from users table):</label><br>
+<input type="text" id="userId" placeholder="e.g. 6E6MSM"><br><br>
+
+<label>In-Game Name:</label><br>
+<input type="text" id="inGameName" placeholder="e.g. SniperKing"><br><br>
+
+<button onclick="addPlayer()">Add Player to Match</button>
+<button onclick="removePlayers()">Remove All Players from Match</button>
+
+<br><br>
+<div id="msg"></div>
+
+<hr>
+<h3>Players currently in match:</h3>
+<div id="playerList">Enter a Match ID and click Refresh</div>
+<br>
+<button onclick="refreshPlayers()">Refresh Player List</button>
+
+<hr>
+<h2>Send Test Notification</h2>
+
+<label>Match ID:</label><br>
+<input type="text" id="notifMatchId" placeholder="e.g. 0004"><br><br>
+
+<label>Notification Type:</label><br>
+<select id="notifType">
+  <option value="room_details">Room Details Updated</option>
+  <option value="match_started">Match Started</option>
+  <option value="match_cancelled">Match Cancelled</option>
+</select><br><br>
+
+<div id="reasonField">
+  <label>Cancel Reason (only for cancelled):</label><br>
+  <input type="text" id="cancelReason" placeholder="e.g. Low player count"><br><br>
+</div>
+
+<button onclick="sendTestNotif()">Send Test Notification</button>
+<br><br>
+<div id="notifMsg"></div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+  // ── Firebase config (same as hostmatch.html) ────────────────────────────────
+  const _cfg = JSON.parse(atob('eyJhcGlLZXkiOiJBSXphU3lEN3BBc2RZcWtKekRiU3NpOHhiTHN5Mlg1czBiZ1AwNDAiLCJhdXRoRG9tYWluIjoiYXVyYS1iYXR0bGUtbWFpbi5maXJlYmFzZWFwcC5jb20iLCJkYXRhYmFzZVVSTCI6Imh0dHBzOi8vYXVyYS1iYXR0bGUtbWFpbi1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb20iLCJwcm9qZWN0SWQiOiJhdXJhLWJhdHRsZS1tYWluIiwic3RvcmFnZUJ1Y2tldCI6ImF1cmEtYmF0dGxlLW1haW4uZmlyZWJhc2VzdG9yYWdlLmFwcCIsIm1lc3NhZ2luZ1NlbmRlcklkIjoiNzYzNzc5OTkwMjg5IiwiYXBwSWQiOiIxOjc2Mzc3OTk5MDI4OTp3ZWI6NWNhYTdiYzg2MWU4MGI2ZjBiMDJiMCIsIm1lYXN1cmVtZW50SWQiOiJHLVpaWFowMEhLMDcifQ=='));
+  firebase.initializeApp(_cfg);
+  const db = firebase.database();
+
+  // Show/hide reason field based on type
+  document.getElementById('notifType').addEventListener('change', function() {
+    document.getElementById('reasonField').style.display =
+      this.value === 'match_cancelled' ? 'block' : 'none';
+  });
+  document.getElementById('reasonField').style.display = 'none';
+
+  // ── Add player ──────────────────────────────────────────────────────────────
+  async function addPlayer() {
+    const matchId    = document.getElementById('matchId').value.trim();
+    const userId     = document.getElementById('userId').value.trim();
+    const inGameName = document.getElementById('inGameName').value.trim();
+    const msg        = document.getElementById('msg');
+
+    if (!matchId || !userId || !inGameName) {
+      msg.textContent = 'ERROR: Fill in all fields.'; return;
+    }
+
+    // Check user exists in users table
+    const userSnap = await db.ref('users/' + userId).once('value');
+    if (!userSnap.exists()) {
+      msg.textContent = 'ERROR: User ID "' + userId + '" not found in users table.'; return;
+    }
+    const user = userSnap.val();
+    if (!user.fcmToken) {
+      msg.textContent = 'WARNING: User found but has NO fcmToken. Notification will not reach them.'; 
+    }
+
+    // Add player to match
+    await db.ref('matches/' + matchId + '/players/' + userId).set({
+      userId,
+      inGameName,
+      username: user.name || userId,
+      profileImage: user.profileImage || '',
+      joinedAt: Date.now()
+    });
+
+    msg.textContent = 'SUCCESS: ' + (user.name || userId) + ' added to match ' + matchId +
+      (user.fcmToken ? ' — FCM token found ✅' : ' — NO fcmToken ⚠️');
+    refreshPlayers();
+  }
+
+  // ── Remove all players ──────────────────────────────────────────────────────
+  async function removePlayers() {
+    const matchId = document.getElementById('matchId').value.trim();
+    if (!matchId) { document.getElementById('msg').textContent = 'Enter a Match ID first.'; return; }
+    if (!confirm('Remove ALL players from match ' + matchId + '?')) return;
+    await db.ref('matches/' + matchId + '/players').remove();
+    document.getElementById('msg').textContent = 'All players removed from match ' + matchId;
+    document.getElementById('playerList').textContent = 'No players.';
+  }
+
+  // ── Refresh player list ─────────────────────────────────────────────────────
+  async function refreshPlayers() {
+    const matchId = document.getElementById('matchId').value.trim();
+    if (!matchId) { document.getElementById('playerList').textContent = 'Enter a Match ID first.'; return; }
+
+    const snap = await db.ref('matches/' + matchId + '/players').once('value');
+    const el = document.getElementById('playerList');
+    if (!snap.exists()) { el.textContent = 'No players in this match yet.'; return; }
+
+    let html = '<table border="1" cellpadding="6"><tr><th>#</th><th>User ID</th><th>Username</th><th>In-Game Name</th><th>FCM Token</th></tr>';
+    let i = 1;
+
+    // For each player, also fetch their FCM token to confirm
+    const players = [];
+    snap.forEach(c => players.push(c.val()));
+
+    for (const p of players) {
+      const userSnap = await db.ref('users/' + p.userId + '/fcmToken').once('value');
+      const token = userSnap.val();
+      const shortToken = token ? token.substring(0, 30) + '...' : 'NO TOKEN ⚠️';
+      html += `<tr>
+        <td>${i++}</td>
+        <td>${p.userId}</td>
+        <td>${p.username || '—'}</td>
+        <td>${p.inGameName}</td>
+        <td>${shortToken}</td>
+      </tr>`;
+    }
+    html += '</table>';
+    el.innerHTML = html;
+  }
+
+  // ── Send test notification ──────────────────────────────────────────────────
+  async function sendTestNotif() {
+    const matchId = document.getElementById('notifMatchId').value.trim();
+    const type    = document.getElementById('notifType').value;
+    const reason  = document.getElementById('cancelReason').value.trim();
+    const msg     = document.getElementById('notifMsg');
+
+    if (!matchId) { msg.textContent = 'Enter a Match ID.'; return; }
+    if (type === 'match_cancelled' && !reason) { msg.textContent = 'Enter a cancel reason.'; return; }
+
+    msg.textContent = 'Sending...';
+
+    try {
+      const res = await fetch('/.netlify/functions/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ matchId, type, ...(reason ? { reason } : {}) })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        msg.textContent = 'RESULT: sent=' + data.sent + ', failed=' + data.failed +
+          ', total tokens=' + data.total + (data.message ? ' — ' + data.message : '');
+      } else {
+        msg.textContent = 'ERROR: ' + (data.error || JSON.stringify(data));
+      }
+    } catch(e) {
+      msg.textContent = 'NETWORK ERROR: ' + e.message;
+    }
+  }
+</script>
+</body>
+</html>
