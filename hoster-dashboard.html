@@ -300,7 +300,15 @@
     }
 
     function loadStats(hid){
-        db.ref('matches').orderByChild('hosterId').equalTo(hid).once('value').then(snap=>{
+        // matches use hosterUsername not hosterId
+        const sess=getSession();
+        const username=sess?sess.username:null;
+        if(!username){
+            document.getElementById('statTotal').textContent='—';
+            document.getElementById('statCancelled').textContent='—';
+            return;
+        }
+        db.ref('matches').orderByChild('hosterUsername').equalTo(username).once('value').then(snap=>{
             let t=0,c=0;
             snap.forEach(s=>{t++;const st=s.val().status;if(st==='canceled'||st==='cancelled')c++;});
             const te=document.getElementById('statTotal'),ce=document.getElementById('statCancelled');
