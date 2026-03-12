@@ -21,7 +21,6 @@
         html, body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(230,57,70,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(230,57,70,0.025) 1px, transparent 1px); background-size: 44px 44px; pointer-events: none; z-index: 0; }
 
-        /* ── Header ── */
         .header { position: sticky; top: 0; z-index: 200; display: flex; align-items: center; gap: 12px; padding: 13px 18px; background: rgba(13,13,15,0.94); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
         .back-btn { width: 34px; height: 34px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--dim); font-size: 14px; flex-shrink: 0; transition: color .2s; }
         .h-logo { width: 30px; height: 30px; border-radius: 8px; background: rgba(230,57,70,0.12); border: 1px solid rgba(230,57,70,0.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -29,13 +28,11 @@
         .h-title { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
         .h-title span { color: var(--red); }
 
-        /* ── Tab Bar ── */
         .tab-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 57px; z-index: 190; }
         .tab { flex: 1; padding: 13px 8px; text-align: center; font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; position: relative; }
         .tab.active { color: var(--red); border-bottom-color: var(--red); }
         .tab-badge { position: absolute; top: 8px; right: 18px; background: var(--red); color: #fff; font-size: 9px; font-family: 'DM Sans', sans-serif; font-weight: 600; padding: 1px 5px; border-radius: 10px; min-width: 16px; text-align: center; }
 
-        /* ── Main ── */
         .main { padding: 16px; max-width: 600px; margin: 0 auto; position: relative; z-index: 1; padding-bottom: 30px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeUp .3s ease both; }
@@ -46,24 +43,24 @@
         .empty-title { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--dim); margin-bottom: 6px; }
         .empty-sub { font-size: 13px; color: var(--muted); }
 
-        /* ── Match Card ── */
         .match-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 14px; transition: border-color .2s; }
         .match-card:hover { border-color: rgba(230,57,70,0.25); }
-
         .mc-stripe { height: 3px; }
         .mc-stripe.upcoming { background: linear-gradient(90deg, #f97316, #f5c518); }
         .mc-stripe.ongoing  { background: linear-gradient(90deg, var(--green-dark), var(--green)); animation: stripePulse 2s ease-in-out infinite; }
         @keyframes stripePulse { 0%,100%{opacity:.7} 50%{opacity:1} }
 
         .mc-head { padding: 14px 16px 10px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-        .mc-id-wrap { display: flex; align-items: center; gap: 8px; }
         .mc-id { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; color: var(--red); letter-spacing: 2px; }
         .mc-status { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
         .mc-status.upcoming { background: rgba(249,115,22,.12); color: #f97316; border: 1px solid rgba(249,115,22,.25); }
         .mc-status.ongoing  { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.25); display: flex; align-items: center; gap: 5px; }
         .mc-status.ongoing::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 1s ease-in-out infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-        .mc-title { font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: .5px; color: var(--text); padding: 0 16px; margin-bottom: 10px; line-height: 1.3; }
+
+        .mc-title { font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: .5px; color: var(--text); padding: 0 16px; margin-bottom: 6px; line-height: 1.3; }
+        .mc-host { padding: 0 16px 10px; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+        .mc-host i { color: var(--red); font-size: 10px; }
 
         .mc-tags { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 12px; }
         .mc-tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
@@ -72,20 +69,16 @@
         .tag-type.CS { background: rgba(120,167,245,.1); color: #78a7f5; border-color: rgba(120,167,245,.2); }
         .tag-type.LW { background: rgba(245,165,80,.1); color: #f5a550; border-color: rgba(245,165,80,.2); }
         .tag-entry { background: rgba(255,255,255,.05); color: var(--dim); border: 1px solid var(--border); }
-        .tag-fee { background: rgba(245,197,24,.1); color: var(--gold); border: 1px solid rgba(245,197,24,.2); display: flex; align-items: center; gap: 4px; }
-        .tag-fee img { width: 13px; height: 13px; }
+        .tag-fee { background: rgba(245,197,24,.1); color: var(--gold); border: 1px solid rgba(245,197,24,.2); }
         .tag-map { background: rgba(168,85,247,.1); color: #c084fc; border: 1px solid rgba(168,85,247,.2); }
         .tag-spots { background: rgba(255,255,255,.05); color: var(--dim); border: 1px solid var(--border); }
-        .tag-prize { background: rgba(245,197,24,.08); color: var(--gold); border: 1px solid rgba(245,197,24,.15); display: flex; align-items: center; gap: 4px; }
-        .tag-prize img { width: 13px; height: 13px; }
+        .tag-prize { background: rgba(245,197,24,.08); color: var(--gold); border: 1px solid rgba(245,197,24,.15); }
 
         .mc-divider { height: 1px; background: var(--border); margin: 0 16px; }
 
-        /* Date/time row */
         .mc-dt { display: flex; align-items: center; gap: 6px; padding: 10px 16px; font-size: 12px; color: var(--dim); }
         .mc-dt i { color: var(--muted); font-size: 11px; }
 
-        /* Room details box */
         .room-box { margin: 10px 16px 12px; background: var(--surface2); border: 1px solid rgba(245,197,24,.15); border-radius: 12px; padding: 12px 14px; }
         .room-box-head { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 600; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
         .room-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
@@ -99,17 +92,14 @@
         .players-head span { color: var(--red); }
         .player-list { display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; }
         .player-list::-webkit-scrollbar { width: 3px; }
-        .player-list::-webkit-scrollbar-track { background: transparent; }
         .player-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
         .player-item { display: flex; align-items: center; gap: 10px; background: var(--surface3); border-radius: 8px; padding: 8px 10px; }
-        .player-avatar { width: 30px; height: 30px; border-radius: 50%; background: rgba(230,57,70,0.1); border: 1px solid rgba(230,57,70,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--red); flex-shrink: 0; overflow: hidden; }
-        .player-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .player-avatar { width: 30px; height: 30px; border-radius: 50%; background: rgba(230,57,70,0.1); border: 1px solid rgba(230,57,70,0.2); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--red); flex-shrink: 0; font-family: 'Rajdhani', sans-serif; font-weight: 700; }
         .player-info { flex: 1; min-width: 0; }
         .player-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .player-game { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-uid { font-size: 10px; color: var(--muted); font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; }
         .player-num { font-family: 'Rajdhani', sans-serif; font-size: 12px; color: var(--muted); }
 
-        /* Card actions */
         .mc-actions { padding: 12px 16px 16px; display: flex; flex-wrap: wrap; gap: 8px; }
         .mc-btn { flex: 1; min-width: 120px; padding: 11px 10px; border-radius: 10px; border: none; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: opacity .2s, transform .1s; }
         .mc-btn:active { transform: scale(.97); }
@@ -119,7 +109,7 @@
         .btn-cancel { background: rgba(230,57,70,.1); color: var(--red); border: 1px solid rgba(230,57,70,.2); }
         .btn-players { background: rgba(255,255,255,.05); color: var(--dim); border: 1px solid var(--border); }
 
-        /* ── Sheets ── */
+        /* Sheets */
         .sh-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.72); backdrop-filter: blur(4px); z-index: 400; align-items: flex-end; justify-content: center; padding: 0; }
         .sh-overlay.show { display: flex; }
         .sheet { background: var(--surface); border-radius: 20px 20px 0 0; border-top: 1px solid var(--border); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; animation: slideUp .3s cubic-bezier(.22,1,.36,1) both; }
@@ -131,7 +121,6 @@
         .sh-x { width: 30px; height: 30px; border-radius: 8px; background: var(--surface2); border: none; color: var(--dim); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; }
         .sh-body { padding: 22px; }
 
-        /* Form */
         .field { margin-bottom: 16px; }
         .field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
         .field input { width: 100%; padding: 13px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 15px; font-family: 'DM Sans', sans-serif; transition: border-color .2s, box-shadow .2s; letter-spacing: 1px; }
@@ -141,15 +130,13 @@
         .sh-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; margin-top: 8px; transition: opacity .2s; }
         .sh-btn:disabled { opacity: .5; cursor: not-allowed; }
         .sh-btn.gold { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #1a1200; box-shadow: 0 4px 16px rgba(245,197,24,.25); }
-        .sh-btn.green { background: linear-gradient(135deg, var(--green), var(--green-dark)); color: #fff; box-shadow: 0 4px 16px rgba(34,197,94,.25); }
-        .sh-btn.red-btn { background: linear-gradient(135deg, var(--red), var(--red-dark)); color: #fff; box-shadow: 0 4px 16px rgba(230,57,70,.25); }
+        .sh-btn.green { background: linear-gradient(135deg, var(--green), var(--green-dark)); color: #fff; }
+        .sh-btn.red-btn { background: linear-gradient(135deg, var(--red), var(--red-dark)); color: #fff; }
 
         .sh-msg { margin-top: 12px; padding: 11px 14px; border-radius: 8px; font-size: 13px; display: none; line-height: 1.5; }
         .sh-msg.error   { background: rgba(230,57,70,.1);  color: #ff8a91; border: 1px solid rgba(230,57,70,.2); }
         .sh-msg.success { background: rgba(34,197,94,.1);  color: #4ade80; border: 1px solid rgba(34,197,94,.2); }
-        .sh-msg.info    { background: rgba(120,167,245,.1); color: #78a7f5; border: 1px solid rgba(120,167,245,.2); }
 
-        /* Confirm sheet */
         .conf-body { padding: 26px 22px 32px; text-align: center; }
         .conf-icon { font-size: 40px; margin-bottom: 12px; }
         .conf-title { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
@@ -157,24 +144,21 @@
         .conf-btns { display: flex; gap: 12px; }
         .conf-btns button { flex: 1; padding: 13px; border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: none; }
         .conf-cancel-btn { background: var(--surface2); color: var(--dim); }
-        .conf-red-btn { background: var(--red); color: #fff; }
         .conf-green-btn { background: var(--green); color: #fff; }
+        .conf-red-btn { background: var(--red); color: #fff; }
 
-        /* Players sheet list */
+        /* Full players sheet list */
         .full-player-list { display: flex; flex-direction: column; gap: 8px; }
         .full-player-item { display: flex; align-items: center; gap: 12px; background: var(--surface2); border-radius: 10px; padding: 10px 14px; }
         .fp-num { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; color: var(--muted); width: 24px; text-align: center; flex-shrink: 0; }
-        .fp-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(230,57,70,0.1); border: 1px solid rgba(230,57,70,0.2); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--red); flex-shrink: 0; overflow: hidden; }
-        .fp-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .fp-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(230,57,70,0.1); border: 1px solid rgba(230,57,70,0.2); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--red); flex-shrink: 0; font-family: 'Rajdhani', sans-serif; font-weight: 700; }
         .fp-info { flex: 1; min-width: 0; }
-        .fp-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .fp-game { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .fp-name { font-size: 14px; font-weight: 500; color: var(--text); }
+        .fp-uid { font-size: 11px; color: var(--muted); font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; margin-top: 2px; }
 
-        /* Loading skeleton */
-        .skeleton { background: var(--surface2); border-radius: 18px; height: 200px; margin-bottom: 14px; animation: pulse 1.5s ease infinite; }
-        @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:.7} }
+        .skeleton { background: var(--surface2); border-radius: 18px; height: 200px; margin-bottom: 14px; animation: skpulse 1.5s ease infinite; }
+        @keyframes skpulse { 0%,100%{opacity:.4} 50%{opacity:.7} }
 
-        /* Toast */
         .toast { position: fixed; top: 68px; left: 50%; transform: translateX(-50%) translateY(-16px); background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 11px 18px; font-size: 13px; z-index: 999; opacity: 0; transition: all .28s; pointer-events: none; white-space: nowrap; max-width: 88vw; text-align: center; }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         .toast.error   { border-color: rgba(230,57,70,.45); color: #ff8a91; }
@@ -190,7 +174,6 @@
     <div class="h-title">Aura <span>Battle</span> — Host Match</div>
 </div>
 
-<!-- Tab Bar -->
 <div class="tab-bar">
     <div class="tab active" id="tab-upcoming" onclick="switchTab('upcoming')">
         ⏳ Upcoming
@@ -203,15 +186,12 @@
 </div>
 
 <div class="main">
-    <!-- Upcoming Tab -->
     <div class="tab-content active" id="content-upcoming">
         <div id="list-upcoming">
             <div class="skeleton"></div>
             <div class="skeleton"></div>
         </div>
     </div>
-
-    <!-- Ongoing Tab -->
     <div class="tab-content" id="content-ongoing">
         <div id="list-ongoing">
             <div class="skeleton"></div>
@@ -263,7 +243,7 @@
     </div>
 </div>
 
-<!-- Start Match Confirm Sheet -->
+<!-- Start Match Sheet -->
 <div class="sh-overlay" id="startSheet">
     <div class="sheet">
         <div class="sh-stripe"></div>
@@ -272,7 +252,7 @@
             <input type="hidden" id="startMatchId">
             <div class="conf-icon">🔥</div>
             <div class="conf-title">Start Match?</div>
-            <div class="conf-sub">This will set the match to <strong>Ongoing</strong> and notify all joined players that the match has started.</div>
+            <div class="conf-sub">This will set the match to <strong>Ongoing</strong> and notify all joined players.</div>
             <div class="conf-btns">
                 <button class="conf-cancel-btn" onclick="closeSheet('startSheet')">Cancel</button>
                 <button class="conf-green-btn" id="confirmStartBtn" onclick="confirmStart()">Start Now</button>
@@ -281,7 +261,7 @@
     </div>
 </div>
 
-<!-- Cancel Match Confirm Sheet -->
+<!-- Cancel Match Sheet -->
 <div class="sh-overlay" id="cancelSheet">
     <div class="sheet">
         <div class="sh-stripe"></div>
@@ -293,15 +273,15 @@
         <div class="sh-body">
             <input type="hidden" id="cancelMatchId">
             <div style="text-align:center;margin-bottom:20px;">
-                <div style="font-size:40px;margin-bottom:10px;">❌</div>
+                <div style="font-size:38px;margin-bottom:10px;">❌</div>
                 <div style="font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700;margin-bottom:6px;">Cancel Match?</div>
-                <div style="font-size:13px;color:var(--muted);line-height:1.5;">This will permanently cancel the match and notify all joined players. This action cannot be undone.</div>
+                <div style="font-size:13px;color:var(--muted);line-height:1.5;">This will permanently cancel the match and notify all joined players.</div>
             </div>
             <div class="field">
-                <label>Cancellation Reason <span style="color:var(--red);font-size:10px;letter-spacing:0;text-transform:none;">(required — sent to players)</span></label>
+                <label>Cancellation Reason <span style="color:var(--red);font-size:10px;text-transform:none;letter-spacing:0;">(required)</span></label>
                 <input type="text" id="cancelReason" placeholder="e.g. Low player count, Technical issue..." autocomplete="off" maxlength="120">
             </div>
-            <div class="conf-btns" style="margin-top:8px;">
+            <div class="conf-btns">
                 <button class="conf-cancel-btn" onclick="closeSheet('cancelSheet')">Go Back</button>
                 <button class="conf-red-btn" id="confirmCancelBtn" onclick="confirmCancel()">Cancel Match</button>
             </div>
@@ -318,36 +298,33 @@
 (function(){
 'use strict';
 
-// ── Firebase ────────────────────────────────────────────────────────────────
 const _cfg = JSON.parse(atob('eyJhcGlLZXkiOiJBSXphU3lEN3BBc2RZcWtKekRiU3NpOHhiTHN5Mlg1czBiZ1AwNDAiLCJhdXRoRG9tYWluIjoiYXVyYS1iYXR0bGUtbWFpbi5maXJlYmFzZWFwcC5jb20iLCJkYXRhYmFzZVVSTCI6Imh0dHBzOi8vYXVyYS1iYXR0bGUtbWFpbi1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb20iLCJwcm9qZWN0SWQiOiJhdXJhLWJhdHRsZS1tYWluIiwic3RvcmFnZUJ1Y2tldCI6ImF1cmEtYmF0dGxlLW1haW4uZmlyZWJhc2VzdG9yYWdlLmFwcCIsIm1lc3NhZ2luZ1NlbmRlcklkIjoiNzYzNzc5OTkwMjg5IiwiYXBwSWQiOiIxOjc2Mzc3OTk5MDI4OTp3ZWI6NWNhYTdiYzg2MWU4MGI2ZjBiMDJiMCIsIm1lYXN1cmVtZW50SWQiOiJHLVpaWFowMEhLMDcifQ=='));
 firebase.initializeApp(_cfg);
 const db = firebase.database();
 
-// ── Session check ────────────────────────────────────────────────────────────
+// ── Session ───────────────────────────────────────────────────────────────────
 const SESS='h_sess', TTL=90*60*1000;
-let hosterId=null;
+let hosterId=null, hosterUsername=null;
 try {
     const s=JSON.parse(atob(localStorage.getItem(SESS)||''));
-    if(Date.now()-s.t<TTL) hosterId=s.id;
+    if(Date.now()-s.t<TTL){ hosterId=s.id; hosterUsername=s.username; }
     else { localStorage.removeItem(SESS); window.location.href='index.html'; }
 } catch(_){ window.location.href='index.html'; }
 
-// ── State ────────────────────────────────────────────────────────────────────
+// ── State ─────────────────────────────────────────────────────────────────────
 let upcomingMatches=[], ongoingMatches=[];
-let currentTab='upcoming';
 
-// ── Tab switch ───────────────────────────────────────────────────────────────
+// ── Tab ───────────────────────────────────────────────────────────────────────
 window.switchTab=function(tab){
-    currentTab=tab;
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
     document.getElementById('tab-'+tab).classList.add('active');
     document.getElementById('content-'+tab).classList.add('active');
 };
 
-// ── Load matches (real-time) ─────────────────────────────────────────────────
+// ── Load matches ──────────────────────────────────────────────────────────────
 function loadMatches(){
-    db.ref('matches').orderByChild('hosterId').equalTo(hosterId).on('value', snap=>{
+    db.ref('matches').orderByChild('hosterUsername').equalTo(hosterUsername).on('value', snap=>{
         upcomingMatches=[]; ongoingMatches=[];
         if(snap.exists()){
             snap.forEach(child=>{
@@ -356,13 +333,8 @@ function loadMatches(){
                 else if(m.status==='ongoing') ongoingMatches.push(m);
             });
         }
-        // Sort by createdAt desc
-        upcomingMatches.sort((a,b)=>b.createdAt-a.createdAt);
-        ongoingMatches.sort((a,b)=>b.createdAt-a.createdAt);
-
         renderList('upcoming', upcomingMatches);
         renderList('ongoing', ongoingMatches);
-
         document.getElementById('badge-upcoming').textContent=upcomingMatches.length;
         document.getElementById('badge-ongoing').textContent=ongoingMatches.length;
     });
@@ -382,51 +354,57 @@ function renderList(type, matches){
     container.innerHTML=matches.map(m=>buildCard(m)).join('');
 }
 
+// ── Build card ────────────────────────────────────────────────────────────────
 function buildCard(m){
     const isOngoing=m.status==='ongoing';
-    const dt=m.date?new Date(m.date+'T'+m.time).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'—';
-    const feeHtml=m.entryMode==='free'
-        ? `<span class="mc-tag tag-entry">🆓 Free</span>`
-        : `<span class="mc-tag tag-fee"><img src="gold.png" alt=""> ${m.entryFee} Gold</span>`;
-    const prizeHtml=m.prizeType==='kill'
-        ? `<span class="mc-tag tag-prize"><img src="gold.png" alt=""> ${m.perKillGold}/kill</span>`
-        : `<span class="mc-tag tag-prize"><img src="gold.png" alt=""> By Rank</span>`;
-    const typeClass=m.matchType||'';
 
-    const roomSection=m.roomId?`
+    // date/time row — only show if date exists
+    const dtRow = m.date ? `
+        <div class="mc-dt"><i class="far fa-calendar-alt"></i>
+            ${new Date(m.date+'T'+(m.time||'00:00')).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})}
+        </div>` : '';
+
+    const feeHtml = m.entryMode==='free'
+        ? `<span class="mc-tag tag-entry">🆓 Free</span>`
+        : `<span class="mc-tag tag-fee">💰 ${m.entryFee} Gold</span>`;
+
+    const prizeHtml = m.prizeType==='kill'
+        ? `<span class="mc-tag tag-prize">💀 ${m.perKillGold}/kill</span>`
+        : `<span class="mc-tag tag-prize">🏆 By Rank</span>`;
+
+    const roomSection = m.roomId ? `
         <div class="room-box">
             <div class="room-box-head"><i class="fas fa-key"></i> Room Details</div>
-            <div class="room-row"><span class="room-key">Room ID</span><span class="room-val">${m.roomId}</span></div>
-            <div class="room-row"><span class="room-key">Password</span><span class="room-val">${m.roomPassword||'—'}</span></div>
-        </div>`:'';
+            <div class="room-row"><span class="room-key">Room ID</span><span class="room-val">${escHtml(m.roomId)}</span></div>
+            <div class="room-row"><span class="room-key">Password</span><span class="room-val">${escHtml(m.roomPassword||'—')}</span></div>
+        </div>` : '';
 
-    const startDisabled=m.roomId?'':'disabled title="Add room details first"';
+    const startDisabled = m.roomId ? '' : 'disabled title="Add room details first"';
 
     return `
     <div class="match-card" id="card-${m.matchId}">
         <div class="mc-stripe ${m.status}"></div>
         <div class="mc-head">
-            <div class="mc-id-wrap">
-                <div class="mc-id">#${m.matchId}</div>
-            </div>
+            <div class="mc-id">#${escHtml(m.matchId)}</div>
             <span class="mc-status ${m.status}">${isOngoing?'LIVE':'UPCOMING'}</span>
         </div>
         <div class="mc-title">${escHtml(m.title)}</div>
+        <div class="mc-host"><i class="fas fa-user-shield"></i> ${escHtml(m.hosterUsername||'—')}</div>
         <div class="mc-tags">
-            <span class="mc-tag tag-type ${typeClass}">${m.matchType}</span>
-            <span class="mc-tag tag-entry">🪖 ${m.entryType}</span>
+            <span class="mc-tag tag-type ${escHtml(m.matchType||'')}">${escHtml(m.matchType||'—')}</span>
+            <span class="mc-tag tag-entry">🪖 ${escHtml(m.entryType||'—')}</span>
             ${feeHtml}
-            <span class="mc-tag tag-map">🗺️ ${escHtml(m.map)}</span>
-            <span class="mc-tag tag-spots">👥 ${m.spots} Spots</span>
+            <span class="mc-tag tag-map">🗺️ ${escHtml(m.map||'—')}</span>
+            <span class="mc-tag tag-spots">👥 ${m.spots||0} Spots</span>
             ${prizeHtml}
         </div>
         <div class="mc-divider"></div>
-        <div class="mc-dt"><i class="far fa-calendar-alt"></i> ${dt}</div>
+        ${dtRow}
         ${roomSection}
         <div class="players-section" id="players-preview-${m.matchId}">
             <div class="players-head">Joined Players <span id="player-count-${m.matchId}">—</span></div>
             <div class="player-list" id="player-mini-${m.matchId}">
-                <div style="font-size:12px;color:var(--muted);padding:6px 0;">Loading...</div>
+                <div style="font-size:12px;color:var(--muted);padding:4px 0;">Loading...</div>
             </div>
         </div>
         <div class="mc-divider"></div>
@@ -451,32 +429,27 @@ function buildCard(m){
     </div>`;
 }
 
-// ── Load players for each visible card ───────────────────────────────────────
-// Reads from matches/{matchId}/players — each entry has userId + inGameName
+// ── Load players for card preview ─────────────────────────────────────────────
+// Data: matches/{matchId}/players/{userId} = { userId, inGameName }
 function loadPlayersForCard(matchId){
     db.ref('matches/'+matchId+'/players').on('value', snap=>{
         const players=[];
         if(snap.exists()) snap.forEach(c=>players.push(c.val()));
-
         const countEl=document.getElementById('player-count-'+matchId);
         const miniEl=document.getElementById('player-mini-'+matchId);
         if(!countEl||!miniEl) return;
-
         countEl.textContent=players.length;
         if(players.length===0){
             miniEl.innerHTML='<div style="font-size:12px;color:var(--muted);padding:4px 0;">No players joined yet.</div>';
             return;
         }
-        // Show up to 3 in mini preview
         const preview=players.slice(0,3);
         miniEl.innerHTML=preview.map((p,i)=>`
             <div class="player-item">
-                <div class="player-avatar">
-                    ${p.profileImage?`<img src="${p.profileImage}" alt="">`:`<i class="fas fa-user"></i>`}
-                </div>
+                <div class="player-avatar">${(p.inGameName||p.userId||'?').charAt(0).toUpperCase()}</div>
                 <div class="player-info">
-                    <div class="player-name">${escHtml(p.username||p.name||p.userId||'Player')}</div>
-                    <div class="player-game">🎮 ${escHtml(p.inGameName||p.gameId||'—')}</div>
+                    <div class="player-name">🎮 ${escHtml(p.inGameName||'—')}</div>
+                    <div class="player-uid">UID: ${escHtml(p.userId||'—')}</div>
                 </div>
                 <div class="player-num">#${i+1}</div>
             </div>`).join('')+
@@ -484,20 +457,19 @@ function loadPlayersForCard(matchId){
     });
 }
 
-// Watch for new cards rendered and load players
+// Watch for card renders
 const cardObserver=new MutationObserver(()=>{
     [...upcomingMatches,...ongoingMatches].forEach(m=>loadPlayersForCard(m.matchId));
 });
 cardObserver.observe(document.getElementById('list-upcoming'),{childList:true});
 cardObserver.observe(document.getElementById('list-ongoing'),{childList:true});
 
-// ── Players sheet ────────────────────────────────────────────────────────────
+// ── Players sheet ─────────────────────────────────────────────────────────────
 window.openPlayersSheet=function(matchId, title){
     document.getElementById('playersSheetTitle').textContent='👥 '+title;
     document.getElementById('fullPlayerList').innerHTML='<div style="text-align:center;padding:30px;color:var(--muted);">Loading players...</div>';
     document.getElementById('playersSheet').classList.add('show');
-
-    db.ref('matches/'+matchId+'/players').once('value',snap=>{
+    db.ref('matches/'+matchId+'/players').once('value', snap=>{
         const players=[];
         if(snap.exists()) snap.forEach(c=>players.push(c.val()));
         const el=document.getElementById('fullPlayerList');
@@ -508,21 +480,18 @@ window.openPlayersSheet=function(matchId, title){
         el.innerHTML=players.map((p,i)=>`
             <div class="full-player-item">
                 <div class="fp-num">${i+1}</div>
-                <div class="fp-avatar">
-                    ${p.profileImage?`<img src="${p.profileImage}" alt="">`:`<i class="fas fa-user"></i>`}
-                </div>
+                <div class="fp-avatar">${(p.inGameName||p.userId||'?').charAt(0).toUpperCase()}</div>
                 <div class="fp-info">
-                    <div class="fp-name">${escHtml(p.username||p.name||p.userId||'Player')}</div>
-                    <div class="fp-game">🎮 In-Game: ${escHtml(p.inGameName||p.gameId||'—')}</div>
+                    <div class="fp-name">🎮 ${escHtml(p.inGameName||'—')}</div>
+                    <div class="fp-uid">UID: ${escHtml(p.userId||'—')}</div>
                 </div>
             </div>`).join('');
     });
 };
 
-// ── Room sheet ───────────────────────────────────────────────────────────────
+// ── Room sheet ────────────────────────────────────────────────────────────────
 window.openRoomSheet=function(matchId){
     document.getElementById('roomMatchId').value=matchId;
-    // Pre-fill existing details
     const m=[...upcomingMatches,...ongoingMatches].find(x=>x.matchId===matchId);
     document.getElementById('roomId').value=m?.roomId||'';
     document.getElementById('roomPassword').value=m?.roomPassword||'';
@@ -541,7 +510,6 @@ window.saveRoomDetails=async function(){
     try {
         await db.ref('matches/'+matchId).update({roomId, roomPassword});
         sheetMsg('roomMsg','Room details saved!','success');
-        // Send push notification
         await sendNotification(matchId,'room_details');
         sheetMsg('roomMsg','✅ Saved & Players notified!','success');
         setTimeout(()=>closeSheet('roomSheet'),1800);
@@ -600,19 +568,19 @@ window.confirmCancel=async function(){
     }
 };
 
-// ── Send push notification via Netlify function ───────────────────────────────
+// ── Push notification ─────────────────────────────────────────────────────────
 async function sendNotification(matchId, type, reason){
     try {
         const res=await fetch('/.netlify/functions/notify',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({matchId, type, ...(reason ? {reason} : {})})
+            body:JSON.stringify({matchId, type, ...(reason?{reason}:{})})
         });
         const data=await res.json();
         if(data.sent>0) console.log(`Notified ${data.sent} players`);
         else console.warn('Notify result:', data);
     } catch(e){
-        console.warn('Push notification failed (non-critical):', e.message);
+        console.warn('Push failed (non-critical):', e.message);
     }
 }
 
