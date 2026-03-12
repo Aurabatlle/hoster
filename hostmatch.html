@@ -286,15 +286,26 @@
     <div class="sheet">
         <div class="sh-stripe"></div>
         <div class="sh-handle"></div>
-        <div class="conf-body">
+        <div class="sh-head">
+            <div class="sh-title">❌ Cancel Match</div>
+            <button class="sh-x" onclick="closeSheet('cancelSheet')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="sh-body">
             <input type="hidden" id="cancelMatchId">
-            <div class="conf-icon">❌</div>
-            <div class="conf-title">Cancel Match?</div>
-            <div class="conf-sub">This will permanently cancel the match and notify all joined players. This action cannot be undone.</div>
-            <div class="conf-btns">
+            <div style="text-align:center;margin-bottom:20px;">
+                <div style="font-size:40px;margin-bottom:10px;">❌</div>
+                <div style="font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700;margin-bottom:6px;">Cancel Match?</div>
+                <div style="font-size:13px;color:var(--muted);line-height:1.5;">This will permanently cancel the match and notify all joined players. This action cannot be undone.</div>
+            </div>
+            <div class="field">
+                <label>Cancellation Reason <span style="color:var(--red);font-size:10px;letter-spacing:0;text-transform:none;">(required — sent to players)</span></label>
+                <input type="text" id="cancelReason" placeholder="e.g. Low player count, Technical issue..." autocomplete="off" maxlength="120">
+            </div>
+            <div class="conf-btns" style="margin-top:8px;">
                 <button class="conf-cancel-btn" onclick="closeSheet('cancelSheet')">Go Back</button>
                 <button class="conf-red-btn" id="confirmCancelBtn" onclick="confirmCancel()">Cancel Match</button>
             </div>
+            <div class="sh-msg" id="cancelMsg"></div>
         </div>
     </div>
 </div>
@@ -566,16 +577,20 @@ window.confirmStart=async function(){
 // ── Cancel sheet ──────────────────────────────────────────────────────────────
 window.openCancelSheet=function(matchId){
     document.getElementById('cancelMatchId').value=matchId;
+    document.getElementById('cancelReason').value='';
+    sheetMsg('cancelMsg','','');
     document.getElementById('cancelSheet').classList.add('show');
 };
 
 window.confirmCancel=async function(){
     const matchId=document.getElementById('cancelMatchId').value;
+    const reason=document.getElementById('cancelReason').value.trim();
+    if(!reason){ sheetMsg('cancelMsg','Please enter a cancellation reason.','error'); return; }
     const btn=document.getElementById('confirmCancelBtn');
     btn.disabled=true; btn.textContent='Cancelling...';
     try {
         await db.ref('matches/'+matchId).update({status:'cancelled'});
-        await sendNotification(matchId,'match_cancelled');
+        await sendNotification(matchId,'match_cancelled', reason);
         closeSheet('cancelSheet');
         toast('Match cancelled. Players notified.','info');
     } catch(e){
@@ -586,15 +601,12 @@ window.confirmCancel=async function(){
 };
 
 // ── Send push notification via Netlify function ───────────────────────────────
-async function sendNotification(matchId, type){
+async function sendNotification(matchId, type, reason){
     try {
-        // Get match title for notification message
-        const m=[...upcomingMatches,...ongoingMatches].find(x=>x.matchId===matchId);
-        const matchTitle=m?`#${m.matchId} ${m.title}`:`Match #${matchId}`;
         const res=await fetch('/.netlify/functions/notify',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({matchId, type, matchTitle})
+            body:JSON.stringify({matchId, type, ...(reason ? {reason} : {})})
         });
         const data=await res.json();
         if(data.sent>0) console.log(`Notified ${data.sent} players`);
