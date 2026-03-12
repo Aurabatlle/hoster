@@ -46,6 +46,17 @@ exports.handler = async (event) => {
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
 
   try {
+
+    // ── Check env vars first ──────────────────────────────────────────────────
+    if (!process.env.FIREBASE_SERVICE_ACCOUNT)
+      return { statusCode: 500, headers, body: JSON.stringify({ error: 'Missing env: FIREBASE_SERVICE_ACCOUNT' }) };
+    if (!process.env.FIREBASE_DB_URL)
+      return { statusCode: 500, headers, body: JSON.stringify({ error: 'Missing env: FIREBASE_DB_URL' }) };
+
+    // ── Parse body ────────────────────────────────────────────────────────────
+    if (!event.body)
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Request body is empty.' }) };
+
     const { matchId, type, reason } = JSON.parse(event.body);
 
     if (!matchId || !type)
@@ -53,35 +64,32 @@ exports.handler = async (event) => {
 
     // ── Firebase config from env ──────────────────────────────────────────────
     const SERVICE_ACCOUNT = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    const DB_URL = process.env.FIREBASE_DB_URL; // e.g. https://aura-battle-main-default-rtdb.firebaseio.com
+    const DB_URL = process.env.FIREBASE_DB_URL;
 
     // ── Get match details ─────────────────────────────────────────────────────
     const match = await firebaseGet(`matches/${matchId}`, DB_URL);
-    if (!match) return { statusCode: 404, headers, body: JSON.stringify({ error: 'Match not found.' }) };
+    if (!match) return { statusCode: 404, headers, body: JSON.stringify({ error: 'Match not found: ' + matchId }) };
 
-    // ── Build notification content ────────────────────────────────────────────
+    // ── Build notification message ────────────────────────────────────────────
     let title, body;
 
     if (type === 'room_details') {
       title = `Room Details Updated of Match #${matchId}`;
-      body  = `Join now the match #${matchId}  Room ID: ${match.roomId || '—'}  Password: ${match.roomPassword || '—'}`;
+      body  = `Join now the match #${matchId}\nRoom ID: ${match.roomId || '-'}  Password: ${match.roomPassword || '-'}`;
     } else if (type === 'match_started') {
       title = `#${matchId}`;
       body  = 'Match was started';
     } else if (type === 'match_cancelled') {
-      const cancelReason = reason || 'unknown reason';
       title = 'Match Canceled';
-      body  = `#${matchId} match was canceled due to ${cancelReason}`;
+      body  = `#${matchId} match was canceled due to ${reason || 'unknown reason'}`;
     } else {
-      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Unknown notification type.' }) };
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Unknown type: ' + type }) };
     }
 
-    // ── Get joined players from match table ───────────────────────────────────
-    // Structure: matches/{matchId}/players/{uid} = { userId, inGameName, ... }
+    // ── Get joined players from match ─────────────────────────────────────────
     const playersSnap = match.players;
-    if (!playersSnap || typeof playersSnap !== 'object') {
+    if (!playersSnap || typeof playersSnap !== 'object')
       return { statusCode: 200, headers, body: JSON.stringify({ sent: 0, message: 'No players joined yet.' }) };
-    }
 
     const playerEntries = Object.values(playersSnap);
     const userIds = [...new Set(playerEntries.map(p => p.userId).filter(Boolean))];
@@ -90,7 +98,6 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify({ sent: 0, message: 'No valid userIds found.' }) };
 
     // ── Fetch FCM tokens from users table ─────────────────────────────────────
-    // users/{userId}/fcmToken
     const fcmTokens = [];
     await Promise.all(
       userIds.map(async (uid) => {
@@ -99,12 +106,12 @@ exports.handler = async (event) => {
           if (user && user.fcmToken && user.status !== 'banned') {
             fcmTokens.push(user.fcmToken);
           }
-        } catch (_) { /* skip missing users */ }
+        } catch (_) {}
       })
     );
 
     if (fcmTokens.length === 0)
-      return { statusCode: 200, headers, body: JSON.stringify({ sent: 0, message: 'No FCM tokens found.' }) };
+      return { statusCode: 200, headers, body: JSON.stringify({ sent: 0, message: 'No FCM tokens found for any player.' }) };
 
     // ── Get FCM access token ──────────────────────────────────────────────────
     const auth = new GoogleAuth({
@@ -124,8 +131,6 @@ exports.handler = async (event) => {
 
     const sent = results.filter(r => r.status === 'fulfilled' && r.value === true).length;
     const failed = results.length - sent;
-
-    console.log(`[notify] matchId=${matchId} type=${type} sent=${sent} failed=${failed}`);
 
     return {
       statusCode: 200,
