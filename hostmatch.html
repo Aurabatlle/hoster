@@ -13,6 +13,7 @@
             --red: #e63946; --red-dark: #b5202d;
             --gold: #f5c518; --gold-dark: #c9a000;
             --green: #22c55e; --green-dark: #16a34a;
+            --yt: #ff0000;
             --orange: #f97316;
             --bg: #0d0d0f; --surface: #141418; --surface2: #1a1a1f; --surface3: #1f1f25;
             --border: rgba(255,255,255,0.07); --border-red: rgba(230,57,70,0.2);
@@ -22,7 +23,7 @@
         body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(230,57,70,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(230,57,70,0.025) 1px, transparent 1px); background-size: 44px 44px; pointer-events: none; z-index: 0; }
 
         .header { position: sticky; top: 0; z-index: 200; display: flex; align-items: center; gap: 12px; padding: 13px 18px; background: rgba(13,13,15,0.94); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
-        .back-btn { width: 34px; height: 34px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--dim); font-size: 14px; flex-shrink: 0; transition: color .2s; }
+        .back-btn { width: 34px; height: 34px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--dim); font-size: 14px; flex-shrink: 0; }
         .h-logo { width: 30px; height: 30px; border-radius: 8px; background: rgba(230,57,70,0.12); border: 1px solid rgba(230,57,70,0.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .h-logo i { color: var(--red); font-size: 13px; }
         .h-title { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
@@ -43,74 +44,93 @@
         .empty-title { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--dim); margin-bottom: 6px; }
         .empty-sub { font-size: 13px; color: var(--muted); }
 
-        .match-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 14px; transition: border-color .2s; }
+        /* ── Match Card ── */
+        .match-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 18px; transition: border-color .2s; }
         .match-card:hover { border-color: rgba(230,57,70,0.25); }
         .mc-stripe { height: 3px; }
         .mc-stripe.upcoming { background: linear-gradient(90deg, #f97316, #f5c518); }
         .mc-stripe.ongoing  { background: linear-gradient(90deg, var(--green-dark), var(--green)); animation: stripePulse 2s ease-in-out infinite; }
         @keyframes stripePulse { 0%,100%{opacity:.7} 50%{opacity:1} }
 
-        .mc-head { padding: 14px 16px 10px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-        .mc-id { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; color: var(--red); letter-spacing: 2px; }
-        .mc-status { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+        /* Card header — match number + status */
+        .mc-head { padding: 14px 16px 4px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .mc-id { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; color: var(--red); letter-spacing: 2px; }
+        .mc-status { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
         .mc-status.upcoming { background: rgba(249,115,22,.12); color: #f97316; border: 1px solid rgba(249,115,22,.25); }
-        .mc-status.ongoing  { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.25); display: flex; align-items: center; gap: 5px; }
+        .mc-status.ongoing  { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.25); }
         .mc-status.ongoing::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 1s ease-in-out infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-        .mc-title { font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: .5px; color: var(--text); padding: 0 16px; margin-bottom: 6px; line-height: 1.3; }
-        .mc-host { padding: 0 16px 10px; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 5px; }
-        .mc-host i { color: var(--red); font-size: 10px; }
+        /* Card title block */
+        .mc-title-block { padding: 6px 16px 10px; }
+        .mc-title { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: .5px; color: var(--text); line-height: 1.3; margin-bottom: 4px; }
 
-        .mc-tags { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 12px; }
-        .mc-tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
-        .tag-type { background: rgba(120,167,245,.1); color: #78a7f5; border: 1px solid rgba(120,167,245,.2); }
-        .tag-type.BR { background: rgba(100,200,100,.1); color: #6dc86d; border-color: rgba(100,200,100,.2); }
-        .tag-type.CS { background: rgba(120,167,245,.1); color: #78a7f5; border-color: rgba(120,167,245,.2); }
-        .tag-type.LW { background: rgba(245,165,80,.1); color: #f5a550; border-color: rgba(245,165,80,.2); }
-        .tag-entry { background: rgba(255,255,255,.05); color: var(--dim); border: 1px solid var(--border); }
-        .tag-fee { background: rgba(245,197,24,.1); color: var(--gold); border: 1px solid rgba(245,197,24,.2); }
-        .tag-map { background: rgba(168,85,247,.1); color: #c084fc; border: 1px solid rgba(168,85,247,.2); }
-        .tag-spots { background: rgba(255,255,255,.05); color: var(--dim); border: 1px solid var(--border); }
-        .tag-prize { background: rgba(245,197,24,.08); color: var(--gold); border: 1px solid rgba(245,197,24,.15); }
+        /* Info grid — replaces tag soup */
+        .mc-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; padding: 0 16px 12px; }
+        .mc-info-row { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+        .mc-info-label { color: var(--muted); min-width: 48px; font-size: 10px; text-transform: uppercase; letter-spacing: .8px; }
+        .mc-info-val { color: var(--text); font-weight: 500; }
+        .mc-info-val.gold { color: var(--gold); }
+        .mc-info-val.green { color: var(--green); }
+        .mc-info-val.red { color: var(--red); }
 
-        .mc-divider { height: 1px; background: var(--border); margin: 0 16px; }
-
-        .mc-dt { display: flex; align-items: center; gap: 6px; padding: 10px 16px; font-size: 12px; color: var(--dim); }
+        /* Datetime row */
+        .mc-dt { display: flex; align-items: center; gap: 6px; padding: 0 16px 10px; font-size: 12px; color: var(--dim); }
         .mc-dt i { color: var(--muted); font-size: 11px; }
 
-        .room-box { margin: 10px 16px 12px; background: var(--surface2); border: 1px solid rgba(245,197,24,.15); border-radius: 12px; padding: 12px 14px; }
+        /* Dividers */
+        .mc-divider { height: 1px; background: var(--border); margin: 0 16px; }
+
+        /* Room box */
+        .room-box { margin: 10px 16px 0; background: var(--surface2); border: 1px solid rgba(245,197,24,.15); border-radius: 12px; padding: 10px 14px; }
         .room-box-head { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 600; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
         .room-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
         .room-row:last-child { margin-bottom: 0; }
         .room-key { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
         .room-val { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: 1px; }
 
-        /* Players section */
-        .players-section { margin: 0 16px 12px; }
+        /* Stream link box */
+        .stream-box { margin: 10px 16px 0; background: rgba(255,0,0,0.06); border: 1px solid rgba(255,0,0,0.2); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+        .stream-box i { color: #ff0000; font-size: 18px; flex-shrink: 0; }
+        .stream-box-text { flex: 1; min-width: 0; }
+        .stream-box-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+        .stream-box-url { font-size: 12px; color: #ff8888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Joined players mini */
+        .players-section { margin: 10px 16px 0; }
         .players-head { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
-        .players-head span { color: var(--red); }
-        .player-list { display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; }
+        .players-head span.cnt { color: var(--red); }
+        .player-list { display: flex; flex-direction: column; gap: 5px; max-height: 150px; overflow-y: auto; }
         .player-list::-webkit-scrollbar { width: 3px; }
         .player-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-        .player-item { display: flex; align-items: center; gap: 10px; background: var(--surface3); border-radius: 8px; padding: 8px 10px; }
-        .player-avatar { width: 30px; height: 30px; border-radius: 50%; background: rgba(230,57,70,0.1); border: 1px solid rgba(230,57,70,0.2); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--red); flex-shrink: 0; font-family: 'Rajdhani', sans-serif; font-weight: 700; }
-        .player-info { flex: 1; min-width: 0; }
-        .player-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .player-item { display: flex; align-items: center; gap: 8px; background: var(--surface3); border-radius: 8px; padding: 7px 10px; }
+        .player-avatar { width: 28px; height: 28px; border-radius: 50%; background: rgba(230,57,70,0.1); border: 1px solid rgba(230,57,70,0.2); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--red); flex-shrink: 0; font-family: 'Rajdhani', sans-serif; font-weight: 700; }
+        .player-name { font-size: 13px; font-weight: 500; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .player-uid { font-size: 10px; color: var(--muted); font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; }
         .player-num { font-family: 'Rajdhani', sans-serif; font-size: 12px; color: var(--muted); }
 
+        /* Team card in mini preview */
+        .team-preview-card { background: var(--surface3); border-radius: 8px; overflow: hidden; margin-bottom: 5px; }
+        .team-preview-header { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: rgba(230,57,70,0.08); border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .team-preview-num { font-family: 'Rajdhani', sans-serif; font-size: 12px; color: var(--muted); }
+        .team-preview-name { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
+        .team-preview-count { font-size: 10px; color: var(--muted); }
+        .team-preview-members { padding: 5px 10px 7px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .member-chip { font-size: 11px; color: var(--dim); background: var(--surface2); border-radius: 12px; padding: 3px 9px; border: 1px solid var(--border); }
+
+        /* Actions */
         .mc-actions { padding: 12px 16px 16px; display: flex; flex-wrap: wrap; gap: 8px; }
-        .mc-btn { flex: 1; min-width: 120px; padding: 11px 10px; border-radius: 10px; border: none; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: opacity .2s, transform .1s; }
+        .mc-btn { flex: 1; min-width: 110px; padding: 11px 10px; border-radius: 10px; border: none; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: opacity .2s, transform .1s; }
         .mc-btn:active { transform: scale(.97); }
         .mc-btn:disabled { opacity: .4; cursor: not-allowed; }
         .btn-room   { background: rgba(245,197,24,.12); color: var(--gold); border: 1px solid rgba(245,197,24,.25); }
+        .btn-stream { background: rgba(255,0,0,.1); color: #ff4444; border: 1px solid rgba(255,0,0,.25); }
         .btn-start  { background: linear-gradient(135deg, var(--green), var(--green-dark)); color: #fff; box-shadow: 0 3px 14px rgba(34,197,94,.25); }
         .btn-cancel { background: rgba(230,57,70,.1); color: var(--red); border: 1px solid rgba(230,57,70,.2); }
         .btn-players { background: rgba(255,255,255,.05); color: var(--dim); border: 1px solid var(--border); }
 
-        /* Sheets */
-        .sh-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.72); backdrop-filter: blur(4px); z-index: 400; align-items: flex-end; justify-content: center; padding: 0; }
+        /* ── Sheets ── */
+        .sh-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.72); backdrop-filter: blur(4px); z-index: 400; align-items: flex-end; justify-content: center; }
         .sh-overlay.show { display: flex; }
         .sheet { background: var(--surface); border-radius: 20px 20px 0 0; border-top: 1px solid var(--border); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; animation: slideUp .3s cubic-bezier(.22,1,.36,1) both; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -118,20 +138,22 @@
         .sh-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 0; }
         .sh-head { padding: 16px 22px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
         .sh-title { font-family: 'Rajdhani', sans-serif; font-size: 19px; font-weight: 700; letter-spacing: 1px; }
+        .sh-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
         .sh-x { width: 30px; height: 30px; border-radius: 8px; background: var(--surface2); border: none; color: var(--dim); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; }
         .sh-body { padding: 22px; }
 
         .field { margin-bottom: 16px; }
         .field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .field-hint { font-size: 11px; color: var(--muted); margin-bottom: 8px; font-size: 11px; }
         .field input { width: 100%; padding: 13px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 15px; font-family: 'DM Sans', sans-serif; transition: border-color .2s, box-shadow .2s; letter-spacing: 1px; }
         .field input:focus { outline: none; border-color: rgba(245,197,24,.5); box-shadow: 0 0 0 3px rgba(245,197,24,.08); }
         .field input::placeholder { color: var(--muted); font-size: 14px; letter-spacing: 0; }
 
         .sh-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; margin-top: 8px; transition: opacity .2s; }
         .sh-btn:disabled { opacity: .5; cursor: not-allowed; }
-        .sh-btn.gold { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #1a1200; box-shadow: 0 4px 16px rgba(245,197,24,.25); }
+        .sh-btn.gold  { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #1a1200; box-shadow: 0 4px 16px rgba(245,197,24,.25); }
         .sh-btn.green { background: linear-gradient(135deg, var(--green), var(--green-dark)); color: #fff; }
-        .sh-btn.red-btn { background: linear-gradient(135deg, var(--red), var(--red-dark)); color: #fff; }
+        .sh-btn.yt    { background: linear-gradient(135deg, #ff2222, #cc0000); color: #fff; }
 
         .sh-msg { margin-top: 12px; padding: 11px 14px; border-radius: 8px; font-size: 13px; display: none; line-height: 1.5; }
         .sh-msg.error   { background: rgba(230,57,70,.1);  color: #ff8a91; border: 1px solid rgba(230,57,70,.2); }
@@ -144,19 +166,34 @@
         .conf-btns { display: flex; gap: 12px; }
         .conf-btns button { flex: 1; padding: 13px; border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: none; }
         .conf-cancel-btn { background: var(--surface2); color: var(--dim); }
-        .conf-green-btn { background: var(--green); color: #fff; }
-        .conf-red-btn { background: var(--red); color: #fff; }
+        .conf-green-btn  { background: var(--green); color: #fff; }
+        .conf-red-btn    { background: var(--red); color: #fff; }
 
-        /* Full players sheet list */
-        .full-player-list { display: flex; flex-direction: column; gap: 8px; }
-        .full-player-item { display: flex; align-items: center; gap: 12px; background: var(--surface2); border-radius: 10px; padding: 10px 14px; }
+        /* ── Full Players Sheet ── */
+        .players-sheet-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+        .ps-tab { flex: 1; padding: 10px; text-align: center; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; }
+        .ps-tab.active { color: var(--red); border-bottom-color: var(--red); }
+
+        /* Solo player row in full sheet */
+        .full-player-item { display: flex; align-items: center; gap: 12px; background: var(--surface2); border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; }
         .fp-num { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; color: var(--muted); width: 24px; text-align: center; flex-shrink: 0; }
         .fp-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(230,57,70,0.1); border: 1px solid rgba(230,57,70,0.2); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--red); flex-shrink: 0; font-family: 'Rajdhani', sans-serif; font-weight: 700; }
         .fp-info { flex: 1; min-width: 0; }
-        .fp-name { font-size: 14px; font-weight: 500; color: var(--text); }
+        .fp-name { font-size: 14px; font-weight: 600; color: var(--text); }
         .fp-uid { font-size: 11px; color: var(--muted); font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; margin-top: 2px; }
 
-        .skeleton { background: var(--surface2); border-radius: 18px; height: 200px; margin-bottom: 14px; animation: skpulse 1.5s ease infinite; }
+        /* Team card in full sheet */
+        .team-full-card { background: var(--surface2); border-radius: 14px; overflow: hidden; margin-bottom: 12px; border: 1px solid var(--border); }
+        .team-full-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: rgba(230,57,70,0.06); border-bottom: 1px solid var(--border); }
+        .tfc-num { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; color: var(--red); min-width: 28px; }
+        .tfc-name { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); flex: 1; }
+        .tfc-count { font-size: 11px; color: var(--muted); background: var(--surface3); padding: 3px 8px; border-radius: 12px; }
+        .team-full-members { padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 7px; }
+        .tfm-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--surface3); border-radius: 9px; }
+        .tfm-name { font-size: 13px; font-weight: 500; color: var(--text); flex: 1; }
+        .tfm-uid { font-size: 10px; color: var(--muted); font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; }
+
+        .skeleton { background: var(--surface2); border-radius: 18px; height: 240px; margin-bottom: 14px; animation: skpulse 1.5s ease infinite; }
         @keyframes skpulse { 0%,100%{opacity:.4} 50%{opacity:.7} }
 
         .toast { position: fixed; top: 68px; left: 50%; transform: translateX(-50%) translateY(-16px); background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 11px 18px; font-size: 13px; z-index: 999; opacity: 0; transition: all .28s; pointer-events: none; white-space: nowrap; max-width: 88vw; text-align: center; }
@@ -171,7 +208,7 @@
 <div class="header">
     <a href="hoster-dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
     <div class="h-logo"><i class="fas fa-bolt"></i></div>
-    <div class="h-title">Aura <span>Battle</span> — Host Match</div>
+    <div class="h-title">Aura <span>Battle</span> — Host</div>
 </div>
 
 <div class="tab-bar">
@@ -187,36 +224,34 @@
 
 <div class="main">
     <div class="tab-content active" id="content-upcoming">
-        <div id="list-upcoming">
-            <div class="skeleton"></div>
-            <div class="skeleton"></div>
-        </div>
+        <div id="list-upcoming"><div class="skeleton"></div><div class="skeleton"></div></div>
     </div>
     <div class="tab-content" id="content-ongoing">
-        <div id="list-ongoing">
-            <div class="skeleton"></div>
-        </div>
+        <div id="list-ongoing"><div class="skeleton"></div></div>
     </div>
 </div>
 
-<!-- Room Details Sheet -->
+<!-- ══ Room Details Sheet ══ -->
 <div class="sh-overlay" id="roomSheet">
     <div class="sheet">
         <div class="sh-stripe"></div>
         <div class="sh-handle"></div>
         <div class="sh-head">
-            <div class="sh-title">🔑 Room Details</div>
+            <div>
+                <div class="sh-title">🔑 Room Details</div>
+                <div class="sh-subtitle">Players see this after match starts</div>
+            </div>
             <button class="sh-x" onclick="closeSheet('roomSheet')"><i class="fas fa-times"></i></button>
         </div>
         <div class="sh-body">
             <input type="hidden" id="roomMatchId">
             <div class="field">
                 <label>Room ID</label>
-                <input type="text" id="roomId" placeholder="Enter room ID" autocomplete="off">
+                <input type="text" id="roomId" placeholder="e.g. 123456" autocomplete="off">
             </div>
             <div class="field">
                 <label>Room Password</label>
-                <input type="text" id="roomPassword" placeholder="Enter room password" autocomplete="off">
+                <input type="text" id="roomPassword" placeholder="e.g. abc123" autocomplete="off">
             </div>
             <button class="sh-btn gold" id="saveRoomBtn" onclick="saveRoomDetails()">
                 <i class="fas fa-save"></i> Save & Notify Players
@@ -226,24 +261,55 @@
     </div>
 </div>
 
-<!-- Players Sheet -->
+<!-- ══ Stream Link Sheet ══ -->
+<div class="sh-overlay" id="streamSheet">
+    <div class="sheet">
+        <div class="sh-stripe"></div>
+        <div class="sh-handle"></div>
+        <div class="sh-head">
+            <div>
+                <div class="sh-title">📺 YouTube Stream</div>
+                <div class="sh-subtitle">Link will show a Watch Live button to players</div>
+            </div>
+            <button class="sh-x" onclick="closeSheet('streamSheet')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="sh-body">
+            <input type="hidden" id="streamMatchId">
+            <div class="field">
+                <label>YouTube Live Link</label>
+                <div class="field-hint">Paste the full YouTube live stream or video URL</div>
+                <input type="url" id="streamUrl" placeholder="https://youtube.com/live/..." autocomplete="off" inputmode="url">
+            </div>
+            <button class="sh-btn yt" id="saveStreamBtn" onclick="saveStreamLink()">
+                <i class="fab fa-youtube"></i> Save Stream Link
+            </button>
+            <button class="sh-btn" style="background:var(--surface2);color:var(--muted);margin-top:8px;" onclick="clearStreamLink()">
+                <i class="fas fa-trash-alt"></i> Remove Stream Link
+            </button>
+            <div class="sh-msg" id="streamMsg"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ Players Sheet (full screen) ══ -->
 <div class="sh-overlay" id="playersSheet">
     <div class="sheet">
         <div class="sh-stripe"></div>
         <div class="sh-handle"></div>
         <div class="sh-head">
-            <div class="sh-title" id="playersSheetTitle">👥 Players</div>
+            <div>
+                <div class="sh-title" id="playersSheetTitle">👥 Players</div>
+                <div class="sh-subtitle" id="playersSheetSub"></div>
+            </div>
             <button class="sh-x" onclick="closeSheet('playersSheet')"><i class="fas fa-times"></i></button>
         </div>
-        <div class="sh-body">
-            <div class="full-player-list" id="fullPlayerList">
-                <div style="text-align:center;padding:30px;color:var(--muted);">Loading players...</div>
-            </div>
+        <div class="sh-body" id="playersSheetBody">
+            <div style="text-align:center;padding:30px;color:var(--muted);">Loading...</div>
         </div>
     </div>
 </div>
 
-<!-- Start Match Sheet -->
+<!-- ══ Start Match Sheet ══ -->
 <div class="sh-overlay" id="startSheet">
     <div class="sheet">
         <div class="sh-stripe"></div>
@@ -261,7 +327,7 @@
     </div>
 </div>
 
-<!-- Cancel Match Sheet -->
+<!-- ══ Cancel Match Sheet ══ -->
 <div class="sh-overlay" id="cancelSheet">
     <div class="sheet">
         <div class="sh-stripe"></div>
@@ -302,7 +368,7 @@ const _cfg = JSON.parse(atob('eyJhcGlLZXkiOiJBSXphU3lEN3BBc2RZcWtKekRiU3NpOHhiTH
 firebase.initializeApp(_cfg);
 const db = firebase.database();
 
-// ── Session ───────────────────────────────────────────────────────────────────
+// ── Session ──────────────────────────────────────────────────────────────────
 const SESS='h_sess', TTL=90*60*1000;
 let hosterId=null, hosterUsername=null;
 try {
@@ -311,10 +377,9 @@ try {
     else { localStorage.removeItem(SESS); window.location.href='index.html'; }
 } catch(_){ window.location.href='index.html'; }
 
-// ── State ─────────────────────────────────────────────────────────────────────
 let upcomingMatches=[], ongoingMatches=[];
 
-// ── Tab ───────────────────────────────────────────────────────────────────────
+// ── Tabs ─────────────────────────────────────────────────────────────────────
 window.switchTab=function(tab){
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
@@ -334,49 +399,58 @@ function loadMatches(){
             });
         }
         renderList('upcoming', upcomingMatches);
-        renderList('ongoing', ongoingMatches);
+        renderList('ongoing',  ongoingMatches);
         document.getElementById('badge-upcoming').textContent=upcomingMatches.length;
         document.getElementById('badge-ongoing').textContent=ongoingMatches.length;
     });
 }
 
-// ── Render list ───────────────────────────────────────────────────────────────
 function renderList(type, matches){
-    const container=document.getElementById('list-'+type);
-    if(matches.length===0){
-        container.innerHTML=`<div class="empty-state">
+    const el=document.getElementById('list-'+type);
+    if(!matches.length){
+        el.innerHTML=`<div class="empty-state">
             <div class="empty-icon">${type==='upcoming'?'⏳':'🎮'}</div>
             <div class="empty-title">No ${type} matches</div>
             <div class="empty-sub">${type==='upcoming'?'Create a new match from the dashboard.':'No matches are currently live.'}</div>
         </div>`;
         return;
     }
-    container.innerHTML=matches.map(m=>buildCard(m)).join('');
+    el.innerHTML=matches.map(m=>buildCard(m)).join('');
 }
 
 // ── Build card ────────────────────────────────────────────────────────────────
 function buildCard(m){
-    const isOngoing=m.status==='ongoing';
+    const isOngoing = m.status==='ongoing';
+    const isSolo    = (m.entryType||'').toLowerCase()==='solo';
 
-    // date/time row — only show if date exists
-    const dtRow = m.date ? `
-        <div class="mc-dt"><i class="far fa-calendar-alt"></i>
-            ${new Date(m.date+'T'+(m.time||'00:00')).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})}
-        </div>` : '';
-
-    const feeHtml = m.entryMode==='free'
-        ? `<span class="mc-tag tag-entry">🆓 Free</span>`
-        : `<span class="mc-tag tag-fee">💰 ${m.entryFee} Gold</span>`;
+    const feeHtml = (m.entryMode==='free'||!m.entryFee)
+        ? `<span class="mc-info-val green">🆓 Free</span>`
+        : `<span class="mc-info-val gold">🪙 ${m.entryFee} Gold</span>`;
 
     const prizeHtml = m.prizeType==='kill'
-        ? `<span class="mc-tag tag-prize">💀 ${m.perKillGold}/kill</span>`
-        : `<span class="mc-tag tag-prize">🏆 By Rank</span>`;
+        ? `<span class="mc-info-val gold">💀 ${m.perKillGold}/kill</span>`
+        : `<span class="mc-info-val gold">🏆 By Rank</span>`;
 
-    const roomSection = m.roomId ? `
+    const dtHtml = m.date ? `
+        <div class="mc-dt"><i class="far fa-calendar-alt"></i>
+            ${fmtDate(m.date, m.time)}
+        </div>` : '';
+
+    const roomHtml = m.roomId ? `
+        <div class="mc-divider" style="margin-top:10px;"></div>
         <div class="room-box">
             <div class="room-box-head"><i class="fas fa-key"></i> Room Details</div>
-            <div class="room-row"><span class="room-key">Room ID</span><span class="room-val">${escHtml(m.roomId)}</span></div>
-            <div class="room-row"><span class="room-key">Password</span><span class="room-val">${escHtml(m.roomPassword||'—')}</span></div>
+            <div class="room-row"><span class="room-key">Room ID</span><span class="room-val">${esc(m.roomId)}</span></div>
+            <div class="room-row"><span class="room-key">Password</span><span class="room-val">${esc(m.roomPassword||'—')}</span></div>
+        </div>` : '';
+
+    const streamHtml = m.streamUrl ? `
+        <div class="stream-box">
+            <i class="fab fa-youtube"></i>
+            <div class="stream-box-text">
+                <div class="stream-box-label">YouTube Live</div>
+                <div class="stream-box-url">${esc(m.streamUrl)}</div>
+            </div>
         </div>` : '';
 
     const startDisabled = m.roomId ? '' : 'disabled title="Add room details first"';
@@ -384,36 +458,66 @@ function buildCard(m){
     return `
     <div class="match-card" id="card-${m.matchId}">
         <div class="mc-stripe ${m.status}"></div>
+
         <div class="mc-head">
-            <div class="mc-id">#${escHtml(m.matchId)}</div>
+            <div class="mc-id">#${esc(m.matchId)}</div>
             <span class="mc-status ${m.status}">${isOngoing?'LIVE':'UPCOMING'}</span>
         </div>
-        <div class="mc-title">${escHtml(m.title)}</div>
-        <div class="mc-host"><i class="fas fa-user-shield"></i> ${escHtml(m.hosterUsername||'—')}</div>
-        <div class="mc-tags">
-            <span class="mc-tag tag-type ${escHtml(m.matchType||'')}">${escHtml(m.matchType||'—')}</span>
-            <span class="mc-tag tag-entry">🪖 ${escHtml(m.entryType||'—')}</span>
-            ${feeHtml}
-            <span class="mc-tag tag-map">🗺️ ${escHtml(m.map||'—')}</span>
-            <span class="mc-tag tag-spots">👥 ${m.spots||0} Spots</span>
-            ${prizeHtml}
+
+        <div class="mc-title-block">
+            <div class="mc-title">${esc(m.title)}</div>
         </div>
-        <div class="mc-divider"></div>
-        ${dtRow}
-        ${roomSection}
-        <div class="players-section" id="players-preview-${m.matchId}">
-            <div class="players-head">Joined Players <span id="player-count-${m.matchId}">—</span></div>
+
+        <!-- Info grid: clean 2-col layout easy to scan -->
+        <div class="mc-info-grid">
+            <div class="mc-info-row">
+                <span class="mc-info-label">Type</span>
+                <span class="mc-info-val">${esc(m.matchType||'—')} · ${esc(m.entryType||'—')}</span>
+            </div>
+            <div class="mc-info-row">
+                <span class="mc-info-label">Map</span>
+                <span class="mc-info-val">🗺️ ${esc(m.map||'—')}</span>
+            </div>
+            <div class="mc-info-row">
+                <span class="mc-info-label">Entry</span>
+                ${feeHtml}
+            </div>
+            <div class="mc-info-row">
+                <span class="mc-info-label">Prize</span>
+                ${prizeHtml}
+            </div>
+            <div class="mc-info-row">
+                <span class="mc-info-label">Spots</span>
+                <span class="mc-info-val" id="spots-${m.matchId}">👥 ${m.spots||0}</span>
+            </div>
+        </div>
+
+        ${dtHtml}
+        ${roomHtml}
+        ${streamHtml}
+
+        <!-- Mini players preview -->
+        <div class="mc-divider" style="margin-top:10px;"></div>
+        <div class="players-section">
+            <div class="players-head">
+                ${isSolo ? 'Joined Players' : 'Joined Teams'}
+                <span class="cnt" id="player-count-${m.matchId}">—</span>
+            </div>
             <div class="player-list" id="player-mini-${m.matchId}">
                 <div style="font-size:12px;color:var(--muted);padding:4px 0;">Loading...</div>
             </div>
         </div>
-        <div class="mc-divider"></div>
+
+        <div class="mc-divider" style="margin-top:10px;"></div>
         <div class="mc-actions">
             <button class="mc-btn btn-room" onclick="openRoomSheet('${m.matchId}')">
                 <i class="fas fa-key"></i> ${m.roomId?'Edit Room':'Add Room'}
             </button>
-            <button class="mc-btn btn-players" onclick="openPlayersSheet('${m.matchId}','${escHtml(m.title)}')">
-                <i class="fas fa-users"></i> Players
+            <button class="mc-btn btn-stream" onclick="openStreamSheet('${m.matchId}')">
+                <i class="fab fa-youtube"></i> ${m.streamUrl?'Edit Stream':'Add Stream'}
+            </button>
+            <button class="mc-btn btn-players" onclick="openPlayersSheet('${m.matchId}','${esc(m.title)}','${esc(m.entryType||'')}')">
+                <i class="fas fa-users"></i> ${isSolo?'Players':'Teams'}
             </button>
             ${!isOngoing?`
             <button class="mc-btn btn-start" ${startDisabled} onclick="openStartSheet('${m.matchId}')">
@@ -423,69 +527,123 @@ function buildCard(m){
                 <i class="fas fa-times"></i> Cancel
             </button>`:`
             <button class="mc-btn btn-cancel" onclick="openCancelSheet('${m.matchId}')">
-                <i class="fas fa-stop"></i> End Match
+                <i class="fas fa-stop"></i> End
             </button>`}
         </div>
     </div>`;
 }
 
-// ── Load players for card preview ─────────────────────────────────────────────
-// Data: matches/{matchId}/players/{userId} = { userId, inGameName }
-function loadPlayersForCard(matchId){
-    db.ref('matches/'+matchId+'/players').on('value', snap=>{
-        const players=[];
-        if(snap.exists()) snap.forEach(c=>players.push(c.val()));
-        const countEl=document.getElementById('player-count-'+matchId);
-        const miniEl=document.getElementById('player-mini-'+matchId);
+// ── Mini players / teams preview ──────────────────────────────────────────────
+function loadPlayersForCard(m){
+    const isSolo = (m.entryType||'').toLowerCase()==='solo';
+    const ref    = isSolo ? `matches/${m.matchId}/players` : `matches/${m.matchId}/teams`;
+
+    db.ref(ref).on('value', snap=>{
+        const countEl = document.getElementById('player-count-'+m.matchId);
+        const miniEl  = document.getElementById('player-mini-'+m.matchId);
         if(!countEl||!miniEl) return;
-        countEl.textContent=players.length;
-        if(players.length===0){
-            miniEl.innerHTML='<div style="font-size:12px;color:var(--muted);padding:4px 0;">No players joined yet.</div>';
+
+        if(!snap.exists()){
+            countEl.textContent = '0';
+            miniEl.innerHTML    = `<div style="font-size:12px;color:var(--muted);padding:4px 0;">None yet.</div>`;
             return;
         }
-        const preview=players.slice(0,3);
-        miniEl.innerHTML=preview.map((p,i)=>`
-            <div class="player-item">
-                <div class="player-avatar">${(p.inGameName||p.userId||'?').charAt(0).toUpperCase()}</div>
-                <div class="player-info">
-                    <div class="player-name">🎮 ${escHtml(p.inGameName||'—')}</div>
-                    <div class="player-uid">UID: ${escHtml(p.userId||'—')}</div>
-                </div>
-                <div class="player-num">#${i+1}</div>
-            </div>`).join('')+
-            (players.length>3?`<div style="font-size:12px;color:var(--muted);padding:4px 8px;">+${players.length-3} more — tap Players to see all</div>`:'');
+
+        if(isSolo){
+            const players=[]; snap.forEach(c=>players.push(c.val()));
+            countEl.textContent = players.length;
+            const preview = players.slice(0,3);
+            miniEl.innerHTML = preview.map((p,i)=>`
+                <div class="player-item">
+                    <div class="player-avatar">${(p.inGameName||'?').charAt(0).toUpperCase()}</div>
+                    <div class="player-name">🎮 ${esc(p.inGameName||'—')}</div>
+                    <div class="player-num">#${i+1}</div>
+                </div>`).join('')
+                +(players.length>3?`<div style="font-size:11px;color:var(--muted);padding:4px 6px;">+${players.length-3} more — tap ${esc((m.entryType||'').toLowerCase()==='solo'?'Players':'Teams')} to see all</div>`:'');
+
+        } else {
+            // Team entries
+            let idx=0; const entries=[];
+            snap.forEach(c=>{ entries.push({key:c.key,...c.val()}); idx++; });
+            countEl.textContent = entries.length;
+            const preview = entries.slice(0,2);
+            miniEl.innerHTML = preview.map((t,i)=>{
+                const members = Object.values(t.members||{});
+                const chips   = members.map(ign=>`<span class="member-chip">${esc(ign)}</span>`).join('');
+                return `<div class="team-preview-card">
+                    <div class="team-preview-header">
+                        <span class="team-preview-num">#${i+1}</span>
+                        <span class="team-preview-name">${esc(t.teamName||'Team')}</span>
+                        <span class="team-preview-count">${members.length} members</span>
+                    </div>
+                    <div class="team-preview-members">${chips}</div>
+                </div>`;
+            }).join('')
+            +(entries.length>2?`<div style="font-size:11px;color:var(--muted);padding:4px 6px;">+${entries.length-2} more teams — tap Teams to see all</div>`:'');
+        }
     });
 }
 
-// Watch for card renders
 const cardObserver=new MutationObserver(()=>{
-    [...upcomingMatches,...ongoingMatches].forEach(m=>loadPlayersForCard(m.matchId));
+    [...upcomingMatches,...ongoingMatches].forEach(m=>loadPlayersForCard(m));
 });
 cardObserver.observe(document.getElementById('list-upcoming'),{childList:true});
 cardObserver.observe(document.getElementById('list-ongoing'),{childList:true});
 
-// ── Players sheet ─────────────────────────────────────────────────────────────
-window.openPlayersSheet=function(matchId, title){
-    document.getElementById('playersSheetTitle').textContent='👥 '+title;
-    document.getElementById('fullPlayerList').innerHTML='<div style="text-align:center;padding:30px;color:var(--muted);">Loading players...</div>';
+// ── Full Players / Teams Sheet ─────────────────────────────────────────────────
+window.openPlayersSheet=function(matchId, title, entryType){
+    const isSolo = (entryType||'').toLowerCase()==='solo';
+    document.getElementById('playersSheetTitle').textContent = isSolo ? `👥 ${title}` : `⚔️ ${title}`;
+    document.getElementById('playersSheetSub').textContent   = isSolo ? 'All joined players' : 'All joined teams';
+    document.getElementById('playersSheetBody').innerHTML    = '<div style="text-align:center;padding:30px;color:var(--muted);">Loading...</div>';
     document.getElementById('playersSheet').classList.add('show');
-    db.ref('matches/'+matchId+'/players').once('value', snap=>{
-        const players=[];
-        if(snap.exists()) snap.forEach(c=>players.push(c.val()));
-        const el=document.getElementById('fullPlayerList');
-        if(players.length===0){
-            el.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted);">No players have joined yet.</div>';
+
+    const ref = isSolo ? `matches/${matchId}/players` : `matches/${matchId}/teams`;
+    db.ref(ref).once('value', snap=>{
+        const body = document.getElementById('playersSheetBody');
+        if(!snap.exists()||!snap.hasChildren()){
+            body.innerHTML=`<div style="text-align:center;padding:30px;color:var(--muted);">${isSolo?'No players':'No teams'} yet.</div>`;
             return;
         }
-        el.innerHTML=players.map((p,i)=>`
-            <div class="full-player-item">
-                <div class="fp-num">${i+1}</div>
-                <div class="fp-avatar">${(p.inGameName||p.userId||'?').charAt(0).toUpperCase()}</div>
-                <div class="fp-info">
-                    <div class="fp-name">🎮 ${escHtml(p.inGameName||'—')}</div>
-                    <div class="fp-uid">UID: ${escHtml(p.userId||'—')}</div>
-                </div>
-            </div>`).join('');
+
+        if(isSolo){
+            // ── Solo: serial number + IGN + UID ──
+            const players=[]; snap.forEach(c=>players.push(c.val()));
+            body.innerHTML = players.map((p,i)=>`
+                <div class="full-player-item">
+                    <div class="fp-num">${i+1}</div>
+                    <div class="fp-avatar">${(p.inGameName||'?').charAt(0).toUpperCase()}</div>
+                    <div class="fp-info">
+                        <div class="fp-name">🎮 ${esc(p.inGameName||'—')}</div>
+                        <div class="fp-uid">UID: ${esc(p.userId||'—')}</div>
+                    </div>
+                </div>`).join('');
+
+        } else {
+            // ── Multi: team cards — big highlighted team name, members below ──
+            // Serial number on team. No serial on member rows.
+            let idx=1;
+            let html='';
+            snap.forEach(child=>{
+                const t       = child.val();
+                const members = Object.values(t.members||{});
+                const memberRows = members.map(ign=>`
+                    <div class="tfm-row">
+                        <span class="tfm-name">🎮 ${esc(ign)}</span>
+                    </div>`).join('');
+
+                html+=`<div class="team-full-card">
+                    <div class="team-full-header">
+                        <span class="tfc-num">#${idx}</span>
+                        <span class="tfc-name">${esc(t.teamName||'Unnamed Team')}</span>
+                        <span class="tfc-count">${members.length} player${members.length!==1?'s':''}</span>
+                    </div>
+                    <div class="team-full-members">${memberRows}</div>
+                </div>`;
+                idx++;
+            });
+            body.innerHTML = html;
+        }
     });
 };
 
@@ -502,22 +660,55 @@ window.openRoomSheet=function(matchId){
 window.saveRoomDetails=async function(){
     const matchId=document.getElementById('roomMatchId').value;
     const roomId=document.getElementById('roomId').value.trim();
-    const roomPassword=document.getElementById('roomPassword').value.trim();
+    const roomPwd=document.getElementById('roomPassword').value.trim();
     if(!roomId){ sheetMsg('roomMsg','Please enter a Room ID.','error'); return; }
-    if(!roomPassword){ sheetMsg('roomMsg','Please enter a Room Password.','error'); return; }
+    if(!roomPwd){ sheetMsg('roomMsg','Please enter a Room Password.','error'); return; }
     const btn=document.getElementById('saveRoomBtn');
     btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving...';
     try {
-        await db.ref('matches/'+matchId).update({roomId, roomPassword});
-        sheetMsg('roomMsg','Room details saved!','success');
+        await db.ref('matches/'+matchId).update({roomId, roomPassword:roomPwd});
+        sheetMsg('roomMsg','✅ Saved! Notifying players...','success');
         await sendNotification(matchId,'room_details');
         sheetMsg('roomMsg','✅ Saved & Players notified!','success');
         setTimeout(()=>closeSheet('roomSheet'),1800);
-    } catch(e){
-        sheetMsg('roomMsg','Error: '+e.message,'error');
-    } finally {
-        btn.disabled=false; btn.innerHTML='<i class="fas fa-save"></i> Save & Notify Players';
+    } catch(e){ sheetMsg('roomMsg','Error: '+e.message,'error'); }
+    finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-save"></i> Save & Notify Players'; }
+};
+
+// ── Stream sheet ──────────────────────────────────────────────────────────────
+window.openStreamSheet=function(matchId){
+    document.getElementById('streamMatchId').value=matchId;
+    const m=[...upcomingMatches,...ongoingMatches].find(x=>x.matchId===matchId);
+    document.getElementById('streamUrl').value=m?.streamUrl||'';
+    sheetMsg('streamMsg','','');
+    document.getElementById('streamSheet').classList.add('show');
+};
+
+window.saveStreamLink=async function(){
+    const matchId=document.getElementById('streamMatchId').value;
+    const url=document.getElementById('streamUrl').value.trim();
+    if(!url){ sheetMsg('streamMsg','Please enter a YouTube URL.','error'); return; }
+    if(!url.includes('youtube.com')&&!url.includes('youtu.be')){
+        sheetMsg('streamMsg','Please enter a valid YouTube link.','error'); return;
     }
+    const btn=document.getElementById('saveStreamBtn');
+    btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving...';
+    try {
+        await db.ref('matches/'+matchId).update({streamUrl:url});
+        sheetMsg('streamMsg','✅ Stream link saved! Watch Live button will appear on player cards.','success');
+        setTimeout(()=>closeSheet('streamSheet'),2000);
+    } catch(e){ sheetMsg('streamMsg','Error: '+e.message,'error'); }
+    finally { btn.disabled=false; btn.innerHTML='<i class="fab fa-youtube"></i> Save Stream Link'; }
+};
+
+window.clearStreamLink=async function(){
+    const matchId=document.getElementById('streamMatchId').value;
+    if(!confirm('Remove the stream link? The Watch Live button will disappear for players.')) return;
+    try {
+        await db.ref('matches/'+matchId+'/streamUrl').remove();
+        sheetMsg('streamMsg','Stream link removed.','success');
+        setTimeout(()=>closeSheet('streamSheet'),1500);
+    } catch(e){ sheetMsg('streamMsg','Error: '+e.message,'error'); }
 };
 
 // ── Start sheet ───────────────────────────────────────────────────────────────
@@ -535,11 +726,8 @@ window.confirmStart=async function(){
         await sendNotification(matchId,'match_started');
         closeSheet('startSheet');
         toast('🔥 Match started! Players notified.','success');
-    } catch(e){
-        toast('Error: '+e.message,'error');
-    } finally {
-        btn.disabled=false; btn.textContent='Start Now';
-    }
+    } catch(e){ toast('Error: '+e.message,'error'); }
+    finally { btn.disabled=false; btn.textContent='Start Now'; }
 };
 
 // ── Cancel sheet ──────────────────────────────────────────────────────────────
@@ -558,42 +746,39 @@ window.confirmCancel=async function(){
     btn.disabled=true; btn.textContent='Cancelling...';
     try {
         await db.ref('matches/'+matchId).update({status:'cancelled'});
-        await sendNotification(matchId,'match_cancelled', reason);
+        await sendNotification(matchId,'match_cancelled',reason);
         closeSheet('cancelSheet');
         toast('Match cancelled. Players notified.','info');
-    } catch(e){
-        toast('Error: '+e.message,'error');
-    } finally {
-        btn.disabled=false; btn.textContent='Cancel Match';
-    }
+    } catch(e){ toast('Error: '+e.message,'error'); }
+    finally { btn.disabled=false; btn.textContent='Cancel Match'; }
 };
 
 // ── Push notification ─────────────────────────────────────────────────────────
-async function sendNotification(matchId, type, reason){
+async function sendNotification(matchId,type,reason){
     try {
         const res=await fetch('/.netlify/functions/notify',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({matchId, type, ...(reason?{reason}:{})})
+            method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({matchId,type,...(reason?{reason}:{})})
         });
         const data=await res.json();
-        if(data.sent>0) console.log(`Notified ${data.sent} players`);
-        else console.warn('Notify result:', data);
-    } catch(e){
-        console.warn('Push failed (non-critical):', e.message);
-    }
+        console.log(`Notified ${data.sent??0} players`);
+    } catch(e){ console.warn('Push failed (non-critical):',e.message); }
 }
 
 // ── Sheets ────────────────────────────────────────────────────────────────────
-window.closeSheet=function(id){
-    document.getElementById(id).classList.remove('show');
-};
+window.closeSheet=function(id){ document.getElementById(id).classList.remove('show'); };
 document.querySelectorAll('.sh-overlay').forEach(el=>
     el.addEventListener('click',e=>{ if(e.target===el) el.classList.remove('show'); })
 );
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function escHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function esc(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function fmtDate(date,time){
+    try{
+        return new Date(date+'T'+(time||'00:00')).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
+    }catch(_){ return date+' '+time; }
+}
 
 let _tt;
 function toast(msg,type){
@@ -612,9 +797,7 @@ function sheetMsg(id,text,type){
     _st[id]=setTimeout(()=>el.style.display='none',5000);
 }
 
-// ── Boot ──────────────────────────────────────────────────────────────────────
 loadMatches();
-
 })();
 </script>
 </body>
