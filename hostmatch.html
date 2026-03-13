@@ -50,6 +50,7 @@
         .mc-stripe { height: 3px; }
         .mc-stripe.upcoming { background: linear-gradient(90deg, #f97316, #f5c518); }
         .mc-stripe.ongoing  { background: linear-gradient(90deg, var(--green-dark), var(--green)); animation: stripePulse 2s ease-in-out infinite; }
+        .mc-stripe.result_pending { background: linear-gradient(90deg, #f97316, #f5c518); }
         @keyframes stripePulse { 0%,100%{opacity:.7} 50%{opacity:1} }
 
         /* Card header — match number + status */
@@ -58,6 +59,7 @@
         .mc-status { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
         .mc-status.upcoming { background: rgba(249,115,22,.12); color: #f97316; border: 1px solid rgba(249,115,22,.25); }
         .mc-status.ongoing  { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.25); }
+        .mc-status.result_pending { background: rgba(249,115,22,.12); color: #f97316; border: 1px solid rgba(249,115,22,.3); }
         .mc-status.ongoing::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 1s ease-in-out infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
@@ -327,6 +329,25 @@
     </div>
 </div>
 
+
+<!-- ══ End Match Sheet ══ -->
+<div class="sh-overlay" id="endSheet">
+    <div class="sheet">
+        <div class="sh-stripe" style="background:linear-gradient(90deg,#f97316,#f5c518);"></div>
+        <div class="sh-handle"></div>
+        <div class="conf-body">
+            <input type="hidden" id="endMatchId">
+            <div class="conf-icon">🏁</div>
+            <div class="conf-title">End Match?</div>
+            <div class="conf-sub">This sets the match to <strong>Result Pending</strong>.<br>Players will be notified to wait for results.</div>
+            <div class="conf-btns">
+                <button class="conf-cancel-btn" onclick="closeSheet('endSheet')">Go Back</button>
+                <button style="flex:1;padding:13px;border-radius:10px;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:none;background:linear-gradient(135deg,#f97316,#c2600f);color:#fff;" id="confirmEndBtn" onclick="confirmEndMatch()">End Match</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ══ Cancel Match Sheet ══ -->
 <div class="sh-overlay" id="cancelSheet">
     <div class="sheet">
@@ -395,7 +416,7 @@ function loadMatches(){
             snap.forEach(child=>{
                 const m={...child.val(), _key:child.key};
                 if(m.status==='upcoming') upcomingMatches.push(m);
-                else if(m.status==='ongoing') ongoingMatches.push(m);
+                else if(m.status==='ongoing'||m.status==='result_pending') ongoingMatches.push(m);
             });
         }
         renderList('upcoming', upcomingMatches);
@@ -418,26 +439,17 @@ function renderList(type, matches){
     el.innerHTML=matches.map(m=>buildCard(m)).join('');
 }
 
-// ── Build card ────────────────────────────────────────────────────────────────
+// ── Build card ──────────────────────────────────────────────────────────────
 function buildCard(m){
     const isOngoing = m.status==='ongoing';
     const isSolo    = (m.entryType||'').toLowerCase()==='solo';
 
-    const feeHtml = (m.entryMode==='free'||!m.entryFee)
-        ? `<span class="mc-info-val green">🆓 Free</span>`
-        : `<span class="mc-info-val gold">🪙 ${m.entryFee} Gold</span>`;
-
-    const prizeHtml = m.prizeType==='kill'
-        ? `<span class="mc-info-val gold">💀 ${m.perKillGold}/kill</span>`
-        : `<span class="mc-info-val gold">🏆 By Rank</span>`;
-
-    const dtHtml = m.date ? `
-        <div class="mc-dt"><i class="far fa-calendar-alt"></i>
-            ${fmtDate(m.date, m.time)}
-        </div>` : '';
+    const feeText = (m.entryMode==='free'||!m.entryFee) ? '🆓 Free' : `🪙 ${m.entryFee} Gold`;
+    const feeClass= (m.entryMode==='free'||!m.entryFee) ? 'green' : 'gold';
+    const spotsText = m.spots ? `${m.spots} Spots` : '—';
+    const dtText  = m.date ? fmtDate(m.date, m.time) : '';
 
     const roomHtml = m.roomId ? `
-        <div class="mc-divider" style="margin-top:10px;"></div>
         <div class="room-box">
             <div class="room-box-head"><i class="fas fa-key"></i> Room Details</div>
             <div class="room-row"><span class="room-key">Room ID</span><span class="room-val">${esc(m.roomId)}</span></div>
@@ -448,59 +460,74 @@ function buildCard(m){
         <div class="stream-box">
             <i class="fab fa-youtube"></i>
             <div class="stream-box-text">
-                <div class="stream-box-label">YouTube Live</div>
+                <div class="stream-box-label">Live Stream</div>
                 <div class="stream-box-url">${esc(m.streamUrl)}</div>
             </div>
         </div>` : '';
 
+    // Action buttons
     const startDisabled = m.roomId ? '' : 'disabled title="Add room details first"';
+
+    const actionBtns = isOngoing ? `
+        <button class="mc-btn btn-room" onclick="openRoomSheet('${m.matchId}')"><i class="fas fa-key"></i> Room</button>
+        <button class="mc-btn btn-stream" onclick="openStreamSheet('${m.matchId}')"><i class="fab fa-youtube"></i> Stream</button>
+        <button class="mc-btn btn-players" onclick="openPlayersSheet('${m.matchId}','${esc(m.title||'')}','${esc(m.entryType||'')}')"><i class="fas fa-users"></i> ${isSolo?'Players':'Teams'}</button>
+        <button class="mc-btn" style="background:linear-gradient(135deg,#f97316,#c2600f);color:#fff;border:none;" onclick="openEndSheet('${m.matchId}')"><i class="fas fa-flag-checkered"></i> End Match</button>
+        <button class="mc-btn btn-cancel" onclick="openCancelSheet('${m.matchId}')"><i class="fas fa-times"></i> Cancel</button>
+    ` : `
+        <button class="mc-btn btn-room" onclick="openRoomSheet('${m.matchId}')"><i class="fas fa-key"></i> ${m.roomId?'Edit Room':'Add Room'}</button>
+        <button class="mc-btn btn-stream" onclick="openStreamSheet('${m.matchId}')"><i class="fab fa-youtube"></i> Stream</button>
+        <button class="mc-btn btn-players" onclick="openPlayersSheet('${m.matchId}','${esc(m.title||'')}','${esc(m.entryType||'')}')"><i class="fas fa-users"></i> ${isSolo?'Players':'Teams'}</button>
+        <button class="mc-btn btn-start" ${startDisabled} onclick="openStartSheet('${m.matchId}')"><i class="fas fa-play"></i> Start</button>
+        <button class="mc-btn btn-cancel" onclick="openCancelSheet('${m.matchId}')"><i class="fas fa-times"></i> Cancel</button>
+    `;
 
     return `
     <div class="match-card" id="card-${m.matchId}">
         <div class="mc-stripe ${m.status}"></div>
 
+        <!-- Header: ID + status -->
         <div class="mc-head">
             <div class="mc-id">#${esc(m.matchId)}</div>
-            <span class="mc-status ${m.status}">${isOngoing?'LIVE':'UPCOMING'}</span>
+            <span class="mc-status ${m.status}">${isOngoing?'🔴 LIVE':'⏳ UPCOMING'}</span>
         </div>
 
-        <div class="mc-title-block">
-            <div class="mc-title">${esc(m.title)}</div>
+        <!-- Title -->
+        <div style="padding:0 16px 10px;">
+            <div class="mc-title">${esc(m.title||'Untitled')}</div>
+            ${dtText?`<div class="mc-dt"><i class="far fa-clock"></i> ${dtText}</div>`:''}
         </div>
 
-        <!-- Info grid: clean 2-col layout easy to scan -->
-        <div class="mc-info-grid">
-            <div class="mc-info-row">
-                <span class="mc-info-label">Type</span>
-                <span class="mc-info-val">${esc(m.matchType||'—')} · ${esc(m.entryType||'—')}</span>
+        <!-- Key info: one clean row -->
+        <div style="display:flex;gap:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:12px;">
+            <div style="flex:1;padding:10px 0;text-align:center;border-right:1px solid var(--border);">
+                <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Mode</div>
+                <div style="font-size:13px;font-weight:600;color:var(--text);">${esc(m.matchType||'—')} · ${esc(m.entryType||'—')}</div>
             </div>
-            <div class="mc-info-row">
-                <span class="mc-info-label">Map</span>
-                <span class="mc-info-val">🗺️ ${esc(m.map||'—')}</span>
+            <div style="flex:1;padding:10px 0;text-align:center;border-right:1px solid var(--border);">
+                <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Entry</div>
+                <div style="font-size:13px;font-weight:600;" class="mc-info-val ${feeClass}">${feeText}</div>
             </div>
-            <div class="mc-info-row">
-                <span class="mc-info-label">Entry</span>
-                ${feeHtml}
+            <div style="flex:1;padding:10px 0;text-align:center;border-right:1px solid var(--border);">
+                <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Map</div>
+                <div style="font-size:13px;font-weight:600;color:var(--text);">${esc(m.map||'—')}</div>
             </div>
-            <div class="mc-info-row">
-                <span class="mc-info-label">Prize</span>
-                ${prizeHtml}
-            </div>
-            <div class="mc-info-row">
-                <span class="mc-info-label">Spots</span>
-                <span class="mc-info-val" id="spots-${m.matchId}">👥 ${m.spots||0}</span>
+            <div style="flex:1;padding:10px 0;text-align:center;">
+                <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Spots</div>
+                <div style="font-size:13px;font-weight:600;color:var(--text);" id="spots-${m.matchId}">${spotsText}</div>
             </div>
         </div>
 
-        ${dtHtml}
-        ${roomHtml}
-        ${streamHtml}
+        <!-- Room + Stream (only if set) -->
+        <div style="padding:0 16px;">
+            ${roomHtml}
+            ${streamHtml}
+        </div>
 
         <!-- Mini players preview -->
-        <div class="mc-divider" style="margin-top:10px;"></div>
-        <div class="players-section">
+        <div class="players-section" style="margin-top:${(m.roomId||m.streamUrl)?'10px':'0'};">
             <div class="players-head">
-                ${isSolo ? 'Joined Players' : 'Joined Teams'}
+                <span>${isSolo?'Joined Players':'Joined Teams'}</span>
                 <span class="cnt" id="player-count-${m.matchId}">—</span>
             </div>
             <div class="player-list" id="player-mini-${m.matchId}">
@@ -508,27 +535,10 @@ function buildCard(m){
             </div>
         </div>
 
+        <!-- Actions -->
         <div class="mc-divider" style="margin-top:10px;"></div>
         <div class="mc-actions">
-            <button class="mc-btn btn-room" onclick="openRoomSheet('${m.matchId}')">
-                <i class="fas fa-key"></i> ${m.roomId?'Edit Room':'Add Room'}
-            </button>
-            <button class="mc-btn btn-stream" onclick="openStreamSheet('${m.matchId}')">
-                <i class="fab fa-youtube"></i> ${m.streamUrl?'Edit Stream':'Add Stream'}
-            </button>
-            <button class="mc-btn btn-players" onclick="openPlayersSheet('${m.matchId}','${esc(m.title)}','${esc(m.entryType||'')}')">
-                <i class="fas fa-users"></i> ${isSolo?'Players':'Teams'}
-            </button>
-            ${!isOngoing?`
-            <button class="mc-btn btn-start" ${startDisabled} onclick="openStartSheet('${m.matchId}')">
-                <i class="fas fa-play"></i> Start
-            </button>
-            <button class="mc-btn btn-cancel" onclick="openCancelSheet('${m.matchId}')">
-                <i class="fas fa-times"></i> Cancel
-            </button>`:`
-            <button class="mc-btn btn-cancel" onclick="openCancelSheet('${m.matchId}')">
-                <i class="fas fa-stop"></i> End
-            </button>`}
+            ${actionBtns}
         </div>
     </div>`;
 }
