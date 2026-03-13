@@ -7,6 +7,16 @@ async function firebaseGet(path, dbUrl) {
   return res.json();
 }
 
+async function firebasePatch(path, dbUrl, data) {
+  const res = await fetch(`${dbUrl}/${path}.json`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error(`Firebase PATCH failed: ${res.status}`);
+  return res.json();
+}
+
 // ── FCM send (single token) ───────────────────────────────────────────────────
 async function sendOne(accessToken, projectId, token, title, body, data = {}) {
   const res = await fetch(
@@ -33,6 +43,44 @@ async function sendOne(accessToken, projectId, token, title, body, data = {}) {
   return res.ok;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Collect all real userIds from a match — works for BOTH Solo AND Team modes
+//
+// Solo:  match.players = { userId: { userId, inGameName } }
+//        → every userId value
+//
+// Multi: match.teams = { teamKey: { leaderId, teamName, members: { uid: IGN } } }
+//        → leaderId from every team
+//        → every uid KEY in members that is NOT a placeholder (p2, p3, p4…)
+// ─────────────────────────────────────────────────────────────────────────────
+function collectUserIds(match) {
+  const ids = new Set();
+
+  // Solo players
+  if (match.players && typeof match.players === 'object') {
+    Object.values(match.players).forEach(p => {
+      if (p && p.userId) ids.add(p.userId);
+    });
+  }
+
+  // Team players (Duo / Squad / 6v6)
+  if (match.teams && typeof match.teams === 'object') {
+    Object.values(match.teams).forEach(team => {
+      if (!team) return;
+      // Always add the leader
+      if (team.leaderId) ids.add(team.leaderId);
+      // Add real user uid keys from members (skip p2, p3, p4, p5, p6 placeholders)
+      if (team.members && typeof team.members === 'object') {
+        Object.keys(team.members).forEach(uid => {
+          if (!/^p\d+$/.test(uid)) ids.add(uid);
+        });
+      }
+    });
+  }
+
+  return [...ids];
+}
+
 // ── Main handler ──────────────────────────────────────────────────────────────
 exports.handler = async (event) => {
   const headers = {
@@ -46,58 +94,53 @@ exports.handler = async (event) => {
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
 
   try {
-
-    // ── Check env vars first ──────────────────────────────────────────────────
     if (!process.env.FIREBASE_SERVICE_ACCOUNT)
       return { statusCode: 500, headers, body: JSON.stringify({ error: 'Missing env: FIREBASE_SERVICE_ACCOUNT' }) };
     if (!process.env.FIREBASE_DB_URL)
       return { statusCode: 500, headers, body: JSON.stringify({ error: 'Missing env: FIREBASE_DB_URL' }) };
 
-    // ── Parse body ────────────────────────────────────────────────────────────
     if (!event.body)
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Request body is empty.' }) };
 
     const { matchId, type, reason } = JSON.parse(event.body);
-
     if (!matchId || !type)
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'matchId and type are required.' }) };
 
-    // ── Firebase config from env ──────────────────────────────────────────────
     const SERVICE_ACCOUNT = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    const DB_URL = process.env.FIREBASE_DB_URL;
+    const DB_URL          = process.env.FIREBASE_DB_URL;
 
-    // ── Get match details ─────────────────────────────────────────────────────
+    // Fetch match
     const match = await firebaseGet(`matches/${matchId}`, DB_URL);
-    if (!match) return { statusCode: 404, headers, body: JSON.stringify({ error: 'Match not found: ' + matchId }) };
+    if (!match)
+      return { statusCode: 404, headers, body: JSON.stringify({ error: 'Match not found: ' + matchId }) };
 
-    // ── Build notification message ────────────────────────────────────────────
+    // result_pending — just update status, no push needed
+    if (type === 'result_pending') {
+      await firebasePatch(`matches/${matchId}`, DB_URL, { status: 'result_pending' });
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true, statusUpdated: 'result_pending' }) };
+    }
+
+    // Build notification text
     let title, body;
-
     if (type === 'room_details') {
-      title = `Room Details Updated of Match #${matchId}`;
-      body  = `Join now the match #${matchId}\nRoom ID: ${match.roomId || '-'}  Password: ${match.roomPassword || '-'}`;
+      title = `🔑 Room Ready — Match #${matchId}`;
+      body  = `Room ID: ${match.roomId || '—'}   Password: ${match.roomPassword || '—'}`;
     } else if (type === 'match_started') {
-      title = `#${matchId}`;
-      body  = 'Match was started';
+      title = `🔴 Match #${matchId} is LIVE!`;
+      body  = `${match.title || 'Your match'} has started. Join the room now!`;
     } else if (type === 'match_cancelled') {
-      title = 'Match Canceled';
-      body  = `#${matchId} match was canceled due to ${reason || 'unknown reason'}`;
+      title = `❌ Match #${matchId} Cancelled`;
+      body  = reason ? `Reason: ${reason}` : 'The match has been cancelled.';
     } else {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Unknown type: ' + type }) };
     }
 
-    // ── Get joined players from match ─────────────────────────────────────────
-    const playersSnap = match.players;
-    if (!playersSnap || typeof playersSnap !== 'object')
+    // Collect all userIds from BOTH players (solo) and teams (multi)
+    const userIds = collectUserIds(match);
+    if (userIds.length === 0)
       return { statusCode: 200, headers, body: JSON.stringify({ sent: 0, message: 'No players joined yet.' }) };
 
-    const playerEntries = Object.values(playersSnap);
-    const userIds = [...new Set(playerEntries.map(p => p.userId).filter(Boolean))];
-
-    if (userIds.length === 0)
-      return { statusCode: 200, headers, body: JSON.stringify({ sent: 0, message: 'No valid userIds found.' }) };
-
-    // ── Fetch FCM tokens from users table ─────────────────────────────────────
+    // Fetch FCM tokens
     const fcmTokens = [];
     await Promise.all(
       userIds.map(async (uid) => {
@@ -111,31 +154,33 @@ exports.handler = async (event) => {
     );
 
     if (fcmTokens.length === 0)
-      return { statusCode: 200, headers, body: JSON.stringify({ sent: 0, message: 'No FCM tokens found for any player.' }) };
+      return { statusCode: 200, headers, body: JSON.stringify({ sent: 0, message: 'No FCM tokens found.' }) };
 
-    // ── Get FCM access token ──────────────────────────────────────────────────
+    // Get FCM access token
     const auth = new GoogleAuth({
       credentials: SERVICE_ACCOUNT,
       scopes: ['https://www.googleapis.com/auth/firebase.messaging']
     });
-    const client = await auth.getClient();
-    const tokenData = await client.getAccessToken();
+    const client      = await auth.getClient();
+    const tokenData   = await client.getAccessToken();
     const accessToken = tokenData.token;
-    const projectId = SERVICE_ACCOUNT.project_id;
+    const projectId   = SERVICE_ACCOUNT.project_id;
 
-    // ── Send to all tokens ────────────────────────────────────────────────────
+    // Send to all
     const notifData = { matchId: String(matchId), type };
     const results = await Promise.allSettled(
       fcmTokens.map(token => sendOne(accessToken, projectId, token, title, body, notifData))
     );
 
-    const sent = results.filter(r => r.status === 'fulfilled' && r.value === true).length;
+    const sent   = results.filter(r => r.status === 'fulfilled' && r.value === true).length;
     const failed = results.length - sent;
+
+    console.log(`[notify] matchId=${matchId} type=${type} users=${userIds.length} tokens=${fcmTokens.length} sent=${sent} failed=${failed}`);
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ success: true, sent, failed, total: fcmTokens.length })
+      body: JSON.stringify({ success: true, sent, failed, total: fcmTokens.length, userIds: userIds.length })
     };
 
   } catch (err) {
