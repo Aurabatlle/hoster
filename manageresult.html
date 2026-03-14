@@ -57,6 +57,25 @@
         .skel-line { background: var(--surface2); border-radius: 4px; animation: pulse 1.4s ease-in-out infinite; }
         @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:.8} }
 
+        /* ── Search Bar ── */
+        .search-wrap { padding: 12px 16px 4px; max-width: 600px; margin: 0 auto; position: relative; z-index: 1; }
+        .search-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .search-box { flex: 1; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0 14px; transition: border-color .2s; }
+        .search-box:focus-within { border-color: rgba(230,57,70,.45); box-shadow: 0 0 0 3px rgba(230,57,70,.08); }
+        .search-box i { color: var(--muted); font-size: 13px; flex-shrink: 0; }
+        .search-box input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 11px 0; }
+        .search-box input::placeholder { color: var(--muted); font-size: 13px; }
+        .search-clear { background: none; border: none; color: var(--muted); font-size: 13px; cursor: pointer; padding: 4px; display: none; transition: color .2s; align-items: center; justify-content: center; }
+        .search-clear.show { display: flex; }
+        .search-clear:hover { color: var(--red); }
+        .filter-row { display: flex; gap: 8px; }
+        .filter-box { flex: 1; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0 12px; transition: border-color .2s; }
+        .filter-box:focus-within { border-color: rgba(230,57,70,.45); }
+        .filter-box i { color: var(--muted); font-size: 11px; flex-shrink: 0; }
+        .filter-box input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 9px 0; min-width: 0; }
+        .filter-box input::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
+        .search-results-info { font-size: 11px; color: var(--muted); padding: 4px 2px 8px; letter-spacing: .5px; }
+
         /* ── Mode Badges ── */
         .mode-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
         .mode-BR { background: rgba(249,115,22,.14); color: #f97316; border: 1px solid rgba(249,115,22,.3); }
@@ -89,6 +108,16 @@
         .mc-info-val.green { color: var(--green); }
 
         .mc-divider { height: 1px; background: var(--border); margin: 0 16px; }
+
+        /* ── Datetime bar on card ── */
+        .mc-dt { display: flex; align-items: center; gap: 14px; padding: 0 16px 10px; font-size: 12px; color: var(--dim); }
+        .mc-dt-item { display: flex; align-items: center; gap: 5px; }
+        .mc-dt-item i { font-size: 10px; color: var(--muted); }
+
+        /* Highlighted member chip in multi teams */
+        .member-chip { font-size: 11px; border-radius: 20px; padding: 4px 10px; border: 1px solid; font-weight: 500; }
+        .member-chip.leader { color: var(--gold); background: rgba(245,197,24,.1); border-color: rgba(245,197,24,.3); }
+        .member-chip.regular { color: #60c8ff; background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.25); }
 
         /* Result Summary (completed tab) */
         .result-summary { margin: 12px 16px 4px; }
@@ -732,9 +761,11 @@
                 }
             }
 
-            // Update match: add results + set status to completed
+            // Update match: add results + set status to completed + wipe room credentials
             updates[`matches/${m._key}/results`] = resultsObj;
             updates[`matches/${m._key}/status`] = 'completed';
+            updates[`matches/${m._key}/roomId`] = null;       // null = delete in Firebase
+            updates[`matches/${m._key}/roomPassword`] = null;
 
             await db.ref().update(updates);
 
