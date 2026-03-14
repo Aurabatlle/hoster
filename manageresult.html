@@ -76,6 +76,11 @@
         .filter-box input::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
         .search-results-info { font-size: 11px; color: var(--muted); padding: 4px 2px 8px; letter-spacing: .5px; }
 
+        /* ── Filter clear button ── */
+        .filter-clear-btn { flex-shrink: 0; padding: 0 14px; height: 38px; background: var(--surface); border: 1px solid var(--border-red); border-radius: 10px; color: var(--red); font-family: "DM Sans", sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; display: none; align-items: center; gap: 5px; transition: background .2s; white-space: nowrap; }
+        .filter-clear-btn.show { display: flex; }
+        .filter-clear-btn:hover { background: rgba(230,57,70,.1); }
+
         /* ── Mode Badges ── */
         .mode-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
         .mode-BR { background: rgba(249,115,22,.14); color: #f97316; border: 1px solid rgba(249,115,22,.3); }
@@ -198,8 +203,11 @@
         .team-icon i { color: var(--red); font-size: 12px; }
         .team-block-name { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); flex: 1; }
         .team-leader-badge { font-size: 10px; color: var(--gold); background: rgba(245,197,24,.1); border: 1px solid rgba(245,197,24,.2); padding: 2px 8px; border-radius: 10px; letter-spacing: .5px; }
-        .team-block-members { padding: 8px 14px 6px; display: flex; flex-wrap: wrap; gap: 5px; }
-        .member-chip { font-size: 11px; color: var(--dim); background: var(--surface3); border-radius: 20px; padding: 4px 10px; border: 1px solid var(--border); }
+        .team-block-members { padding: 8px 14px 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+        .member-chip { font-size: 12px; font-weight: 600; border-radius: 20px; padding: 5px 11px; border: 1px solid; display: inline-flex; align-items: center; gap: 5px; }
+        .member-chip.chip-leader { color: #f5c518; background: rgba(245,197,24,.12); border-color: rgba(245,197,24,.35); }
+        .member-chip.chip-leader i { font-size: 9px; }
+        .member-chip.chip-member { color: #60c8ff; background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.28); }
         .team-block-input { padding: 10px 14px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid var(--border); }
         .team-input-label { font-size: 12px; color: var(--dim); }
         .team-input-label span { color: var(--gold); font-weight: 600; }
@@ -264,6 +272,29 @@
         Completed
         <span class="tab-badge" id="completedBadge"></span>
     </button>
+</div>
+
+<!-- Search & Filter -->
+<div class="search-wrap">
+    <div class="search-row">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search by Match ID..." oninput="applyFilters()">
+            <button class="search-clear" id="searchClear" onclick="clearSearch()"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+    <div class="filter-row">
+        <div class="filter-box">
+            <i class="fas fa-calendar-alt"></i>
+            <input type="date" id="filterDate" onchange="applyFilters()">
+        </div>
+        <div class="filter-box">
+            <i class="fas fa-clock"></i>
+            <input type="time" id="filterTime" onchange="applyFilters()">
+        </div>
+        <button class="filter-clear-btn" id="filterClear" onclick="clearFilters()"><i class="fas fa-times"></i> Clear</button>
+    </div>
+    <div class="search-results-info" id="searchInfo"></div>
 </div>
 
 <!-- Main Content -->
@@ -448,7 +479,10 @@
                 <div class="mc-info-row"><span class="mc-info-label">Prize</span><span class="mc-info-val gold">${prizeLabel}</span></div>
                 <div class="mc-info-row"><span class="mc-info-label">Joined</span><span class="mc-info-val green">${joined} / ${m.spots || '—'}</span></div>
                 ${m.map ? `<div class="mc-info-row"><span class="mc-info-label">Map</span><span class="mc-info-val">${esc(m.map)}</span></div>` : ''}
-                <div class="mc-info-row"><span class="mc-info-label">Time</span><span class="mc-info-val">${esc(m.time || '—')}</span></div>
+            </div>
+            <div class="mc-dt">
+                <div class="mc-dt-item"><i class="fas fa-calendar-alt"></i>${esc(m.date || '—')}</div>
+                <div class="mc-dt-item"><i class="fas fa-clock"></i>${esc(m.time || '—')}</div>
             </div>
             <div class="mc-actions">
                 <button class="btn-set-result" onclick="openSetResult('${m._key}')">
@@ -503,6 +537,10 @@
                 <div class="mc-info-row"><span class="mc-info-label">Type</span><span class="mc-info-val">${esc(m.entryType || 'Solo')}</span></div>
                 <div class="mc-info-row"><span class="mc-info-label">Prize</span><span class="mc-info-val gold">${prizeLabel}</span></div>
                 ${m.map ? `<div class="mc-info-row"><span class="mc-info-label">Map</span><span class="mc-info-val">${esc(m.map)}</span></div>` : ''}
+            </div>
+            <div class="mc-dt">
+                <div class="mc-dt-item"><i class="fas fa-calendar-alt"></i>${esc(m.date || '—')}</div>
+                <div class="mc-dt-item"><i class="fas fa-clock"></i>${esc(m.time || '—')}</div>
             </div>
             ${resultEntries.length ? '<div class="mc-divider"></div>' : ''}
             ${resultHtml}
@@ -595,8 +633,14 @@
 
             entryList.innerHTML = teamKeys.map((tk, i) => {
                 const t = teams[tk];
-                const memberNames = Object.values(t.members || {});
-                const mChips = memberNames.map(n => `<span class="member-chip">${esc(n)}</span>`).join('');
+                const membersObj = t.members || {};
+                const leaderId = t.leaderId;
+                const mChips = Object.entries(membersObj).map(([uid, name]) => {
+                    const isLeader = uid === leaderId;
+                    return isLeader
+                        ? `<span class="member-chip chip-leader"><i class="fas fa-crown"></i>${esc(name)}</span>`
+                        : `<span class="member-chip chip-member">${esc(name)}</span>`;
+                }).join('');
                 const leaderName = leaderNames[t.leaderId] || t.leaderId;
                 const inputType = isKill ? 'number' : 'number';
                 const placeholder = isKill ? 'Kills' : 'Rank';
@@ -822,6 +866,102 @@
         if (!str) return '';
         return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
+
+    /* ── Search & Filter ── */
+    let _allPending = [], _allCompleted = [];
+
+    // Override loadAll to cache matches for filtering
+    const _origLoadAll = window.loadAll;
+    window.loadAll = async function() {
+        const btn = document.getElementById('refreshBtn');
+        btn.classList.add('spin');
+        setTimeout(() => btn.classList.remove('spin'), 600);
+        document.getElementById('pendingList').innerHTML = skeletons(3);
+        document.getElementById('completedList').innerHTML = skeletons(2);
+        try {
+            const snap = await db.ref('matches').orderByChild('hosterUsername').equalTo(HOSTER_USERNAME).once('value');
+            _allPending = []; _allCompleted = [];
+            snap.forEach(s => {
+                const m = { ...s.val(), _key: s.key };
+                if (m.status === 'result_pending') _allPending.push(m);
+                else if (m.status === 'completed') _allCompleted.push(m);
+            });
+            const pb = document.getElementById('pendingBadge');
+            const cb = document.getElementById('completedBadge');
+            if (_allPending.length) { pb.textContent = _allPending.length; pb.classList.add('show'); } else pb.classList.remove('show');
+            if (_allCompleted.length) { cb.textContent = _allCompleted.length; cb.classList.add('show'); } else cb.classList.remove('show');
+            applyFilters();
+        } catch(e) {
+            document.getElementById('pendingList').innerHTML = emptyState('exclamation-circle','Load Failed','Check connection and refresh.');
+            document.getElementById('completedList').innerHTML = '';
+        }
+    };
+
+    window.applyFilters = function() {
+        const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+        const fd = (document.getElementById('filterDate').value || '').trim();    // YYYY-MM-DD
+        const ft = (document.getElementById('filterTime').value || '').trim();    // HH:MM
+
+        // Show/hide clear buttons
+        const clearBtn = document.getElementById('searchClear');
+        const filterClear = document.getElementById('filterClear');
+        clearBtn.classList.toggle('show', q.length > 0);
+        filterClear.classList.toggle('show', fd.length > 0 || ft.length > 0);
+
+        function matchFilter(m) {
+            // Match ID search
+            if (q) {
+                const id = String(m.matchId || m._key || '').toLowerCase();
+                if (!id.includes(q)) return false;
+            }
+            // Date filter — exact date match
+            if (fd) {
+                const mDate = String(m.date || '').trim();
+                if (mDate !== fd) return false;
+            }
+            // Time filter — match HH:MM (ignore seconds if any)
+            if (ft) {
+                const mTime = String(m.time || '').trim().slice(0, 5); // take HH:MM part
+                if (mTime !== ft) return false;
+            }
+            return true;
+        }
+
+        const filteredPending = _allPending.filter(matchFilter);
+        const filteredCompleted = _allCompleted.filter(matchFilter);
+        const hasFilter = q || fd || ft;
+        const total = filteredPending.length + filteredCompleted.length;
+
+        // Update info text
+        const info = document.getElementById('searchInfo');
+        if (hasFilter) {
+            info.textContent = total > 0
+                ? `${total} match${total !== 1 ? 'es' : ''} found`
+                : 'No matches found for this search';
+            info.style.color = total > 0 ? 'var(--dim)' : 'var(--red)';
+        } else {
+            info.textContent = '';
+        }
+
+        document.getElementById('pendingList').innerHTML = filteredPending.length
+            ? filteredPending.map(renderPendingCard).join('')
+            : emptyState('clock', hasFilter ? 'No Results' : 'No Pending Results', hasFilter ? 'Try a different search.' : 'All match results have been set.');
+
+        document.getElementById('completedList').innerHTML = filteredCompleted.length
+            ? filteredCompleted.map(renderCompletedCard).join('')
+            : emptyState('check-circle', hasFilter ? 'No Results' : 'No Completed Matches', hasFilter ? 'Try a different search.' : 'Results you set will appear here.');
+    };
+
+    window.clearSearch = function() {
+        document.getElementById('searchInput').value = '';
+        applyFilters();
+    };
+
+    window.clearFilters = function() {
+        document.getElementById('filterDate').value = '';
+        document.getElementById('filterTime').value = '';
+        applyFilters();
+    };
 
     /* ── Init ── */
     loadAll();
