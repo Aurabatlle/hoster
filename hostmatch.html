@@ -377,6 +377,25 @@
     </div>
 </div>
 
+
+<!-- ══ End Match Sheet ══ -->
+<div class="sh-overlay" id="endSheet">
+    <div class="sheet">
+        <div class="sh-stripe" style="background:linear-gradient(90deg,#f97316,#f5c518);"></div>
+        <div class="sh-handle"></div>
+        <div class="conf-body">
+            <input type="hidden" id="endMatchId">
+            <div class="conf-icon">🏁</div>
+            <div class="conf-title">End Match?</div>
+            <div class="conf-sub">Sets match to <strong>Result Pending</strong>.<br>Players will be notified to wait for results.</div>
+            <div class="conf-btns">
+                <button class="conf-cancel-btn" onclick="closeSheet('endSheet')">Go Back</button>
+                <button class="conf-green-btn" id="confirmEndBtn" onclick="confirmEndMatch()" style="background:linear-gradient(135deg,#f97316,#c2600f);">End Match</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -489,7 +508,7 @@ function buildCard(m){
         <!-- Header: ID + status -->
         <div class="mc-head">
             <div class="mc-id">#${esc(m.matchId)}</div>
-            <span class="mc-status ${m.status}">${isOngoing?'🔴 LIVE':'⏳ UPCOMING'}</span>
+            <span class="mc-status ${m.status}">${m.status==='ongoing'?'🔴 LIVE':m.status==='result_pending'?'🏁 RESULT PENDING':'⏳ UPCOMING'}</span>
         </div>
 
         <!-- Title -->
@@ -498,23 +517,37 @@ function buildCard(m){
             ${dtText?`<div class="mc-dt"><i class="far fa-clock"></i> ${dtText}</div>`:''}
         </div>
 
-        <!-- Key info: one clean row -->
+        <!-- Key info: 5-col row with icons -->
         <div style="display:flex;gap:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:12px;">
-            <div style="flex:1;padding:10px 0;text-align:center;border-right:1px solid var(--border);">
-                <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Mode</div>
-                <div style="font-size:13px;font-weight:600;color:var(--text);">${esc(m.matchType||'—')} · ${esc(m.entryType||'—')}</div>
+            <div style="flex:1;padding:9px 4px;text-align:center;border-right:1px solid var(--border);">
+                <div style="font-size:10px;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;justify-content:center;gap:3px;">
+                    <i class="fas fa-gamepad" style="font-size:9px;"></i> Mode
+                </div>
+                <div style="font-size:12px;font-weight:700;color:var(--red);font-family:'Rajdhani',sans-serif;letter-spacing:1px;">${esc(m.matchType||'—')}</div>
             </div>
-            <div style="flex:1;padding:10px 0;text-align:center;border-right:1px solid var(--border);">
-                <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Entry</div>
-                <div style="font-size:13px;font-weight:600;" class="mc-info-val ${feeClass}">${feeText}</div>
+            <div style="flex:1;padding:9px 4px;text-align:center;border-right:1px solid var(--border);">
+                <div style="font-size:10px;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;justify-content:center;gap:3px;">
+                    <i class="fas fa-users" style="font-size:9px;"></i> Type
+                </div>
+                <div style="font-size:12px;font-weight:700;color:var(--text);font-family:'Rajdhani',sans-serif;letter-spacing:1px;">${esc(m.entryType||'—')}</div>
             </div>
-            <div style="flex:1;padding:10px 0;text-align:center;border-right:1px solid var(--border);">
-                <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Map</div>
-                <div style="font-size:13px;font-weight:600;color:var(--text);">${esc(m.map||'—')}</div>
+            <div style="flex:1;padding:9px 4px;text-align:center;border-right:1px solid var(--border);">
+                <div style="font-size:10px;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;justify-content:center;gap:3px;">
+                    <i class="fas fa-map-marker-alt" style="font-size:9px;"></i> Map
+                </div>
+                <div style="font-size:12px;font-weight:700;color:var(--text);font-family:'Rajdhani',sans-serif;letter-spacing:1px;">${esc(m.map||'—')}</div>
             </div>
-            <div style="flex:1;padding:10px 0;text-align:center;">
-                <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">Spots</div>
-                <div style="font-size:13px;font-weight:600;color:var(--text);" id="spots-${m.matchId}">${spotsText}</div>
+            <div style="flex:1;padding:9px 4px;text-align:center;border-right:1px solid var(--border);">
+                <div style="font-size:10px;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;justify-content:center;gap:3px;">
+                    <i class="fas fa-coins" style="font-size:9px;"></i> Entry
+                </div>
+                <div style="font-size:12px;font-weight:700;font-family:'Rajdhani',sans-serif;" class="mc-info-val ${feeClass}">${feeText}</div>
+            </div>
+            <div style="flex:1;padding:9px 4px;text-align:center;">
+                <div style="font-size:10px;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;justify-content:center;gap:3px;">
+                    <i class="fas fa-bullseye" style="font-size:9px;"></i> Spots
+                </div>
+                <div style="font-size:12px;font-weight:700;color:var(--text);font-family:'Rajdhani',sans-serif;" id="spots-${m.matchId}">${esc(String(m.spots||'—'))}</div>
             </div>
         </div>
 
@@ -524,15 +557,16 @@ function buildCard(m){
             ${streamHtml}
         </div>
 
-        <!-- Mini players preview -->
-        <div class="players-section" style="margin-top:${(m.roomId||m.streamUrl)?'10px':'0'};">
-            <div class="players-head">
-                <span>${isSolo?'Joined Players':'Joined Teams'}</span>
-                <span class="cnt" id="player-count-${m.matchId}">—</span>
-            </div>
-            <div class="player-list" id="player-mini-${m.matchId}">
-                <div style="font-size:12px;color:var(--muted);padding:4px 0;">Loading...</div>
-            </div>
+        <!-- Players count bar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border);">
+            <span style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;">
+                <i class="fas fa-users" style="font-size:11px;"></i>
+                ${isSolo?'Players joined':'Teams joined'}
+            </span>
+            <span style="display:flex;align-items:center;gap:10px;">
+                <span style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--red);" id="player-count-${m.matchId}">—</span>
+                <span style="font-size:11px;color:var(--muted);">/ ${m.spots||'?'}</span>
+            </span>
         </div>
 
         <!-- Actions -->
@@ -543,54 +577,14 @@ function buildCard(m){
     </div>`;
 }
 
-// ── Mini players / teams preview ──────────────────────────────────────────────
+// ── Mini players count only (no IGN list on card) ────────────────────────────
 function loadPlayersForCard(m){
     const isSolo = (m.entryType||'').toLowerCase()==='solo';
     const ref    = isSolo ? `matches/${m.matchId}/players` : `matches/${m.matchId}/teams`;
-
     db.ref(ref).on('value', snap=>{
         const countEl = document.getElementById('player-count-'+m.matchId);
-        const miniEl  = document.getElementById('player-mini-'+m.matchId);
-        if(!countEl||!miniEl) return;
-
-        if(!snap.exists()){
-            countEl.textContent = '0';
-            miniEl.innerHTML    = `<div style="font-size:12px;color:var(--muted);padding:4px 0;">None yet.</div>`;
-            return;
-        }
-
-        if(isSolo){
-            const players=[]; snap.forEach(c=>players.push(c.val()));
-            countEl.textContent = players.length;
-            const preview = players.slice(0,3);
-            miniEl.innerHTML = preview.map((p,i)=>`
-                <div class="player-item">
-                    <div class="player-avatar">${(p.inGameName||'?').charAt(0).toUpperCase()}</div>
-                    <div class="player-name">🎮 ${esc(p.inGameName||'—')}</div>
-                    <div class="player-num">#${i+1}</div>
-                </div>`).join('')
-                +(players.length>3?`<div style="font-size:11px;color:var(--muted);padding:4px 6px;">+${players.length-3} more — tap ${esc((m.entryType||'').toLowerCase()==='solo'?'Players':'Teams')} to see all</div>`:'');
-
-        } else {
-            // Team entries
-            let idx=0; const entries=[];
-            snap.forEach(c=>{ entries.push({key:c.key,...c.val()}); idx++; });
-            countEl.textContent = entries.length;
-            const preview = entries.slice(0,2);
-            miniEl.innerHTML = preview.map((t,i)=>{
-                const members = Object.values(t.members||{});
-                const chips   = members.map(ign=>`<span class="member-chip">${esc(ign)}</span>`).join('');
-                return `<div class="team-preview-card">
-                    <div class="team-preview-header">
-                        <span class="team-preview-num">#${i+1}</span>
-                        <span class="team-preview-name">${esc(t.teamName||'Team')}</span>
-                        <span class="team-preview-count">${members.length} members</span>
-                    </div>
-                    <div class="team-preview-members">${chips}</div>
-                </div>`;
-            }).join('')
-            +(entries.length>2?`<div style="font-size:11px;color:var(--muted);padding:4px 6px;">+${entries.length-2} more teams — tap Teams to see all</div>`:'');
-        }
+        if(!countEl) return;
+        countEl.textContent = snap.exists() ? snap.numChildren() : '0';
     });
 }
 
@@ -738,6 +732,24 @@ window.confirmStart=async function(){
         toast('🔥 Match started! Players notified.','success');
     } catch(e){ toast('Error: '+e.message,'error'); }
     finally { btn.disabled=false; btn.textContent='Start Now'; }
+};
+
+// ── End Match sheet ───────────────────────────────────────────────────────────
+window.openEndSheet=function(matchId){
+    document.getElementById('endMatchId').value=matchId;
+    document.getElementById('endSheet').classList.add('show');
+};
+
+window.confirmEndMatch=async function(){
+    const matchId=document.getElementById('endMatchId').value;
+    const btn=document.getElementById('confirmEndBtn');
+    btn.disabled=true; btn.textContent='Ending...';
+    try {
+        await db.ref('matches/'+matchId).update({status:'result_pending'});
+        closeSheet('endSheet');
+        toast('🏁 Match ended. Status: Result Pending.','success');
+    } catch(e){ toast('Error: '+e.message,'error'); }
+    finally { btn.disabled=false; btn.textContent='End Match'; }
 };
 
 // ── Cancel sheet ──────────────────────────────────────────────────────────────
