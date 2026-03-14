@@ -288,21 +288,22 @@
 <script>
 (() => {
     /* ── Firebase ── */
-    const firebaseConfig = {
-        apiKey: "AIzaSyC9Z_placeholder_replace_with_yours",
-        authDomain: "aurabattle.firebaseapp.com",
-        databaseURL: "https://aurabattle-default-rtdb.firebaseio.com",
-        projectId: "aurabattle",
-        storageBucket: "aurabattle.appspot.com",
-        messagingSenderId: "000000000000",
-        appId: "1:000000000000:web:0000000000000000"
-    };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const _cfg = JSON.parse(atob('eyJhcGlLZXkiOiJBSXphU3lEN3BBc2RZcWtKekRiU3NpOHhiTHN5Mlg1czBiZ1AwNDAiLCJhdXRoRG9tYWluIjoiYXVyYS1iYXR0bGUtbWFpbi5maXJlYmFzZWFwcC5jb20iLCJkYXRhYmFzZVVSTCI6Imh0dHBzOi8vYXVyYS1iYXR0bGUtbWFpbi1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb20iLCJwcm9qZWN0SWQiOiJhdXJhLWJhdHRsZS1tYWluIiwic3RvcmFnZUJ1Y2tldCI6ImF1cmEtYmF0dGxlLW1haW4uZmlyZWJhc2VzdG9yYWdlLmFwcCIsIm1lc3NhZ2luZ1NlbmRlcklkIjoiNzYzNzc5OTkwMjg5IiwiYXBwSWQiOiIxOjc2Mzc3OTk5MDI4OTp3ZWI6NWNhYTdiYzg2MWU4MGI2ZjBiMDJiMCIsIm1lYXN1cmVtZW50SWQiOiJHLVpaWFowMEhLMDcifQ=='));
+    if (!firebase.apps.length) firebase.initializeApp(_cfg);
     const db = firebase.database();
 
     /* ── Session ── */
+    // Key = 'h_sess', value = base64(JSON) — matches index.html exactly
+    const SESS_KEY = 'h_sess';
+    const SESS_TTL = 90 * 60 * 1000; // 1.5 hours, same as index.html
     function getSession() {
-        try { return JSON.parse(localStorage.getItem('hosterSession') || sessionStorage.getItem('hosterSession') || 'null'); } catch { return null; }
+        try {
+            const raw = localStorage.getItem(SESS_KEY);
+            if (!raw) return null;
+            const s = JSON.parse(atob(raw));          // atob decode — same as dashboard
+            if (Date.now() - s.t > SESS_TTL) { localStorage.removeItem(SESS_KEY); return null; }
+            return s;
+        } catch(_) { localStorage.removeItem(SESS_KEY); return null; }
     }
     const sess = getSession();
     if (!sess) { window.location.href = 'index.html'; return; }
