@@ -435,9 +435,16 @@ function loadMatches(){
             snap.forEach(child=>{
                 const m={...child.val(), _key:child.key};
                 if(m.status==='upcoming') upcomingMatches.push(m);
-                else if(m.status==='ongoing'||m.status==='result_pending') ongoingMatches.push(m);
+                else if(m.status==='ongoing') ongoingMatches.push(m);
+                // result_pending and cancelled NOT shown in any tab
             });
         }
+        // Sort upcoming: earliest date+time on top
+        upcomingMatches.sort((a,b)=>{
+            const ta = new Date((a.date||'9999-12-31')+'T'+(a.time||'23:59')).getTime();
+            const tb = new Date((b.date||'9999-12-31')+'T'+(b.time||'23:59')).getTime();
+            return ta - tb;
+        });
         renderList('upcoming', upcomingMatches);
         renderList('ongoing',  ongoingMatches);
         document.getElementById('badge-upcoming').textContent=upcomingMatches.length;
