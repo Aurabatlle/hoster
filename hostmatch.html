@@ -774,10 +774,84 @@ window.confirmCancel=async function(){
     const btn=document.getElementById('confirmCancelBtn');
     btn.disabled=true; btn.textContent='Cancelling...';
     try {
+        // 1. Mark match as cancelled
         await db.ref('matches/'+matchId).update({status:'cancelled'});
+
+        // 2. Refund entry fee to all joined players (if paid match)
+        const matchSnap=await db.ref('matches/'+matchId).once('value');
+        const match=matchSnap.val();
+        const entryFee=Number(match&&match.entryFee||0);
+        const isFree=(match&&match.entryMode==='free')||!entryFee||entryFee<1;
+
+        if(!isFree){
+            const isSolo=(match&&match.entryType||'').toLowerCase()==='solo';
+            const now=new Date();
+            const pad=n=>String(n).padStart(2,'0');
+            const refDate=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+            const refTime=`${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+            if(isSolo){
+                // Solo: each player gets refund to their own depositGold
+                const playersSnap=await db.ref('matches/'+matchId+'/players').once('value');
+                if(playersSnap.exists()){
+                    const uids=[];
+                    playersSnap.forEach(child=>{
+                        const p=child.val();
+                        const uid=p.userId||p.uid||null;
+                        if(uid) uids.push(uid);
+                    });
+                    for(const uid of uids){
+                        const txnId=String(Date.now()+Math.floor(Math.random()*9999));
+                        const wRef=db.ref('users/'+uid+'/wallet/depositGold');
+                        const wSnap=await wRef.once('value');
+                        const updates={};
+                        updates['users/'+uid+'/wallet/depositGold']=(wSnap.val()||0)+entryFee;
+                        updates['users/'+uid+'/transactions/'+txnId]={
+                            transactionId:txnId,
+                            type:'Refund for Match',
+                            amount:entryFee,
+                            date:refDate,
+                            time:refTime
+                        };
+                        await db.ref().update(updates);
+                        await new Promise(r=>setTimeout(r,5));
+                    }
+                }
+            } else {
+                // Multi: refund to each team's leaderId only
+                const teamsSnap=await db.ref('matches/'+matchId+'/teams').once('value');
+                if(teamsSnap.exists()){
+                    const uids=[];
+                    teamsSnap.forEach(child=>{
+                        const t=child.val();
+                        const uid=t.leaderId||t.leaderUid||null;
+                        if(uid) uids.push(uid);
+                    });
+                    for(const uid of uids){
+                        const txnId=String(Date.now()+Math.floor(Math.random()*9999));
+                        const wRef=db.ref('users/'+uid+'/wallet/depositGold');
+                        const wSnap=await wRef.once('value');
+                        const updates={};
+                        updates['users/'+uid+'/wallet/depositGold']=(wSnap.val()||0)+entryFee;
+                        updates['users/'+uid+'/transactions/'+txnId]={
+                            transactionId:txnId,
+                            type:'Refund for Match',
+                            amount:entryFee,
+                            date:refDate,
+                            time:refTime
+                        };
+                        await db.ref().update(updates);
+                        await new Promise(r=>setTimeout(r,5));
+                    }
+                }
+            }
+        }
+
+        // 3. Notify players
         await sendNotification(matchId,'match_cancelled',reason);
         closeSheet('cancelSheet');
-        toast('Match cancelled. Players notified.','info');
+        const msg=isFree?'Match cancelled. Players notified.':'Match cancelled. Entry fees refunded to all players. ✅';
+        toast(msg,'info');
     } catch(e){ toast('Error: '+e.message,'error'); }
     finally { btn.disabled=false; btn.textContent='Cancel Match'; }
 };
