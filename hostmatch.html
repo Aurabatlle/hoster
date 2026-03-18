@@ -863,6 +863,10 @@ window.confirmCancel=async function(){
 
         // 3. Notify players
         await sendNotification(matchId,'match_cancelled',reason);
+
+        // 4. Delete entire match from database
+        await db.ref('matches/'+matchId).remove();
+
         closeSheet('cancelSheet');
         const msg=isFree?'Match cancelled. Players notified.':'Match cancelled. Entry fees refunded to all players. ✅';
         toast(msg,'info');
