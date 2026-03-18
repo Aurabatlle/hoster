@@ -558,34 +558,47 @@
             const teamKeys = Object.keys(teams);
             if (!teamKeys.length) { entryList.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:10px">No teams joined.</div>'; return; }
 
+            // Fetch both leader display names AND fresh member data from Firebase
+            // (members may be missing from the match snapshot if stored separately)
             const leaderNames = {};
+            const freshMembers = {}; // teamKey → { uid: IGN }
+
             await Promise.all(teamKeys.map(async tk => {
                 const t = teams[tk];
                 const lid = t.leaderId;
+
+                // Fetch leader real name for the badge
                 if (lid && !leaderNames[lid]) {
                     try {
                         const uSnap = await db.ref('users').child(lid).once('value');
-                        leaderNames[lid] = uSnap.val()?.name || lid;
+                        leaderNames[lid] = uSnap.val()?.name || uSnap.val()?.username || lid;
                     } catch { leaderNames[lid] = lid; }
+                }
+
+                // If members already in snapshot — use them
+                if (t.members && Object.keys(t.members).length > 0) {
+                    freshMembers[tk] = t.members;
+                } else {
+                    // Re-fetch this team's members directly from Firebase
+                    try {
+                        const mSnap = await db.ref(`matches/${m._key}/teams/${tk}/members`).once('value');
+                        freshMembers[tk] = mSnap.val() || {};
+                    } catch { freshMembers[tk] = {}; }
                 }
             }));
 
             entryList.innerHTML = teamKeys.map((tk, i) => {
                 const t = teams[tk];
                 const leaderId = t.leaderId;
+                const membersObj = freshMembers[tk] || {};
 
-                // Debug: log the full team object so we can see exact structure
-                console.log('[Team Data]', tk, JSON.stringify(t));
-
-                // members can be { uid: IGN } OR { uid: { inGameName, userId } }
-                // Handle both structures
-                const membersObj = t.members || {};
-                const memberEntries = Object.entries(membersObj);
+                // Filter out placeholder slots (p2, p3, p4, p5, p6)
+                const realMembers = Object.entries(membersObj).filter(([uid]) => !/^p\d+$/.test(uid));
 
                 let mChips = '';
-                if (memberEntries.length > 0) {
-                    mChips = memberEntries.map(([uid, val]) => {
-                        // val can be a string (IGN) or an object { inGameName, userId }
+                if (realMembers.length > 0) {
+                    mChips = realMembers.map(([uid, val]) => {
+                        // val can be a string IGN or object { inGameName, userId }
                         const name = typeof val === 'string' ? val : (val?.inGameName || val?.name || uid);
                         const isLeader = uid === leaderId;
                         return isLeader
@@ -593,7 +606,7 @@
                             : `<span class="member-chip chip-member">${esc(name)}</span>`;
                     }).join('');
                 } else {
-                    // No members object — at minimum show the leader from leaderNames
+                    // Absolute fallback — show leader name only
                     const lName = leaderNames[leaderId] || leaderId || 'Leader';
                     mChips = `<span class="member-chip chip-leader"><i class="fas fa-crown"></i>${esc(lName)}</span>`;
                 }
