@@ -813,14 +813,6 @@
 
             await db.ref().update(updates);
 
-            // ── Delete joined player/team data after result is saved ──────────
-            // Keeps the match clean — results node has all needed info
-            if (multi) {
-                await db.ref('matches/' + m._key + '/teams').remove();
-            } else {
-                await db.ref('matches/' + m._key + '/players').remove();
-            }
-
             hideLoader();
             showToast('Result set! Prizes credited.', 'success');
             closeSheet();
