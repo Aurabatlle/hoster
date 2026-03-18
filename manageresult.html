@@ -572,14 +572,32 @@
 
             entryList.innerHTML = teamKeys.map((tk, i) => {
                 const t = teams[tk];
-                const membersObj = t.members || {};
                 const leaderId = t.leaderId;
-                const mChips = Object.entries(membersObj).map(([uid, name]) => {
-                    const isLeader = uid === leaderId;
-                    return isLeader
-                        ? `<span class="member-chip chip-leader"><i class="fas fa-crown"></i>${esc(name)}</span>`
-                        : `<span class="member-chip chip-member">${esc(name)}</span>`;
-                }).join('');
+
+                // Debug: log the full team object so we can see exact structure
+                console.log('[Team Data]', tk, JSON.stringify(t));
+
+                // members can be { uid: IGN } OR { uid: { inGameName, userId } }
+                // Handle both structures
+                const membersObj = t.members || {};
+                const memberEntries = Object.entries(membersObj);
+
+                let mChips = '';
+                if (memberEntries.length > 0) {
+                    mChips = memberEntries.map(([uid, val]) => {
+                        // val can be a string (IGN) or an object { inGameName, userId }
+                        const name = typeof val === 'string' ? val : (val?.inGameName || val?.name || uid);
+                        const isLeader = uid === leaderId;
+                        return isLeader
+                            ? `<span class="member-chip chip-leader"><i class="fas fa-crown"></i>${esc(name)}</span>`
+                            : `<span class="member-chip chip-member">${esc(name)}</span>`;
+                    }).join('');
+                } else {
+                    // No members object — at minimum show the leader from leaderNames
+                    const lName = leaderNames[leaderId] || leaderId || 'Leader';
+                    mChips = `<span class="member-chip chip-leader"><i class="fas fa-crown"></i>${esc(lName)}</span>`;
+                }
+
                 const leaderName = leaderNames[t.leaderId] || t.leaderId;
                 const placeholder = isKill ? 'Kills' : 'Rank';
                 const maxAttr = !isKill && m.rankPrizes ? `max="${m.rankPrizes.length}"` : '';
