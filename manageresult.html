@@ -106,8 +106,8 @@
         .result-summary { margin: 12px 16px 4px; }
         .rs-head { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 600; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
         .rs-list { display: flex; flex-direction: column; gap: 6px; }
-        .rs-item { display: flex; align-items: center; gap: 10px; background: var(--surface2); border-radius: 10px; padding: 9px 12px; border: 1px solid var(--border); }
-        .rs-rank { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+        .rs-item { display: flex; align-items: flex-start; gap: 10px; background: var(--surface2); border-radius: 10px; padding: 9px 12px; border: 1px solid var(--border); }
+        .rs-rank { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
         .rs-rank.r1 { background: rgba(245,197,24,.15); color: var(--gold); border: 1px solid rgba(245,197,24,.35); }
         .rs-rank.r2 { background: rgba(148,163,184,.12); color: #94a3b8; border: 1px solid rgba(148,163,184,.25); }
         .rs-rank.r3 { background: rgba(205,127,50,.12); color: #cd7f32; border: 1px solid rgba(205,127,50,.25); }
@@ -115,7 +115,11 @@
         .rs-info { flex: 1; min-width: 0; }
         .rs-name { font-size: 13px; font-weight: 600; color: var(--gold); font-family: 'Rajdhani', sans-serif; letter-spacing: .5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .rs-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
-        .rs-gold { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: var(--gold); display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
+        /* ── NEW: member pills shown inside completed team result rows ── */
+        .rs-members { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+        .rs-member-chip { font-size: 10px; color: #60c8ff; background: rgba(59,130,246,.1); border: 1px solid rgba(59,130,246,.25); border-radius: 12px; padding: 2px 8px; }
+        .rs-member-chip.chip-leader { color: var(--gold); background: rgba(245,197,24,.1); border-color: rgba(245,197,24,.3); }
+        .rs-gold { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: var(--gold); display: flex; align-items: center; gap: 3px; flex-shrink: 0; margin-top: 2px; }
         .rs-gold i { font-size: 11px; }
 
         .mc-actions { padding: 12px 16px 16px; }
@@ -159,7 +163,6 @@
         .entry-row { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
         .entry-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(230,57,70,.1); border: 1px solid rgba(230,57,70,.2); display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; color: var(--red); flex-shrink: 0; }
         .entry-info { flex: 1; min-width: 0; }
-        /* IGN shown large/gold, real name shown small/muted below */
         .entry-ign { font-size: 14px; font-weight: 700; color: var(--gold); font-family: 'Rajdhani', sans-serif; letter-spacing: .5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .entry-realname { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .entry-input-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
@@ -423,6 +426,7 @@
     function renderCompletedCard(m) {
         const results = m.results || {};
         const prizeLabel = m.prizeType === 'kill' ? `${m.perKillGold || 0}G / Kill` : `Rank Prize`;
+        const multi = isMulti(m);
         const resultEntries = Object.entries(results).sort((a,b) => {
             if (m.prizeType === 'kill') return (b[1].kills||0) - (a[1].kills||0);
             return (a[1].rank||99) - (b[1].rank||99);
@@ -433,14 +437,33 @@
             const items = resultEntries.map(([uid, data], idx) => {
                 const rankClass = idx === 0 ? 'r1' : idx === 1 ? 'r2' : idx === 2 ? 'r3' : 'rn';
                 const rankLabel = m.prizeType === 'kill' ? (idx+1) : (data.rank || idx+1);
-                const subLabel = m.prizeType === 'kill' ? `${data.kills || 0} kills` : `${rankSuffix(data.rank || idx+1)} place`;
-                // ✅ FIX: show IGN (displayName stored as IGN), not uid
+                const subLabel  = m.prizeType === 'kill' ? `${data.kills || 0} kills` : `${rankSuffix(data.rank || idx+1)} place`;
                 const displayName = esc(data.displayName || uid);
+
+                // ── NEW: for team matches, find the matching team and render member chips ──
+                let memberChipsHtml = '';
+                if (multi && m.teams) {
+                    // Find team whose leaderId === uid
+                    const teamEntry = Object.values(m.teams).find(t => t.leaderId === uid);
+                    if (teamEntry && teamEntry.members) {
+                        const leaderId = teamEntry.leaderId;
+                        memberChipsHtml = `<div class="rs-members">` +
+                            Object.entries(teamEntry.members).map(([mUid, mName]) => {
+                                const isLeader = mUid === leaderId;
+                                return `<span class="rs-member-chip${isLeader ? ' chip-leader' : ''}">
+                                    ${isLeader ? '<i class="fas fa-crown" style="font-size:8px;margin-right:3px"></i>' : ''}${esc(mName)}
+                                </span>`;
+                            }).join('') +
+                        `</div>`;
+                    }
+                }
+
                 return `<div class="rs-item">
                     <div class="rs-rank ${rankClass}">${rankLabel}</div>
                     <div class="rs-info">
-                        <div class="rs-name"><i class="fas fa-gamepad" style="font-size:10px;opacity:.6;margin-right:4px"></i>${displayName}</div>
+                        <div class="rs-name"><i class="fas fa-${multi ? 'shield-alt' : 'gamepad'}" style="font-size:10px;opacity:.6;margin-right:4px"></i>${displayName}</div>
                         <div class="rs-sub">${subLabel}</div>
+                        ${memberChipsHtml}
                     </div>
                     <div class="rs-gold"><i class="fas fa-coins"></i>${data.goldAwarded || 0}</div>
                 </div>`;
@@ -560,7 +583,6 @@
                 const leaderName = leaderNames[t.leaderId] || t.leaderId;
                 const placeholder = isKill ? 'Kills' : 'Rank';
                 const maxAttr = !isKill && m.rankPrizes ? `max="${m.rankPrizes.length}"` : '';
-                // ✅ data-teamname uses teamName (already the correct IGN-style team name)
                 return `
                 <div class="team-block" id="teamBlock_${i}">
                     <div class="team-block-head">
@@ -578,18 +600,13 @@
                 </div>`;
             }).join('');
         } else {
-            // Solo players
             const players = m.players || {};
             const playerKeys = Object.keys(players);
             if (!playerKeys.length) { entryList.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:10px">No players joined.</div>'; return; }
 
-            // ✅ FIX: get inGameName from match.players (already stored there)
-            // Also fetch real name from /users for display only (shown below IGN)
             const inGameNames = {};
             const realNames = {};
-            playerKeys.forEach(uid => {
-                inGameNames[uid] = players[uid].inGameName || uid;
-            });
+            playerKeys.forEach(uid => { inGameNames[uid] = players[uid].inGameName || uid; });
             await Promise.all(playerKeys.map(async uid => {
                 try {
                     const uSnap = await db.ref('users').child(uid).once('value');
@@ -599,8 +616,8 @@
 
             const maxRank = (!isKill && m.rankPrizes) ? m.rankPrizes.length : 999;
             entryList.innerHTML = playerKeys.map((uid, i) => {
-                const igName = inGameNames[uid];       // in-game name — used as displayName
-                const realName = realNames[uid] || ''; // real account name — shown below
+                const igName   = inGameNames[uid];
+                const realName = realNames[uid] || '';
                 const placeholder = isKill ? 'Kills' : 'Rank';
                 const maxAttr = !isKill ? `max="${maxRank}"` : '';
                 return `
@@ -647,20 +664,9 @@
             const val = parseInt(inp.value);
             if (isNaN(val) || val < 0) return;
             if (multi) {
-                entries.push({
-                    teamKey:     inp.dataset.teamkey,
-                    leaderId:    inp.dataset.leaderid,
-                    // ✅ teamName used as displayName for teams
-                    displayName: inp.dataset.teamname,
-                    value: val
-                });
+                entries.push({ teamKey: inp.dataset.teamkey, leaderId: inp.dataset.leaderid, displayName: inp.dataset.teamname, value: val });
             } else {
-                entries.push({
-                    uid:         inp.dataset.uid,
-                    // ✅ FIX: use igname (in-game name) as displayName, NOT real name
-                    displayName: inp.dataset.igname,
-                    value: val
-                });
+                entries.push({ uid: inp.dataset.uid, displayName: inp.dataset.igname, value: val });
             }
         });
 
@@ -693,7 +699,6 @@
                     goldAmt = prize ? prize.gold : 0;
                 }
 
-                // ✅ displayName is now IGN for solo, teamName for multi
                 resultsObj[uid] = {
                     displayName: entry.displayName,
                     rank:        isKill ? null : entry.value,
@@ -705,21 +710,15 @@
                     const walletSnap = await db.ref('users').child(uid).child('wallet').child('winningGold').once('value');
                     const currentGold = walletSnap.val() || 0;
                     updates[`users/${uid}/wallet/winningGold`] = currentGold + goldAmt;
-
                     const txId = genTxId();
-                    updates[`users/${uid}/transactions/${txId}`] = {
-                        amount: goldAmt,
-                        date:   nowDateStr(),
-                        time:   nowTimeStr(),
-                        type:   'Match Reward'
-                    };
+                    updates[`users/${uid}/transactions/${txId}`] = { amount: goldAmt, date: nowDateStr(), time: nowTimeStr(), type: 'Match Reward' };
                 }
             }
 
-            updates[`matches/${m._key}/results`]       = resultsObj;
-            updates[`matches/${m._key}/status`]        = 'completed';
-            updates[`matches/${m._key}/roomId`]        = null;
-            updates[`matches/${m._key}/roomPassword`]  = null;
+            updates[`matches/${m._key}/results`]      = resultsObj;
+            updates[`matches/${m._key}/status`]       = 'completed';
+            updates[`matches/${m._key}/roomId`]       = null;
+            updates[`matches/${m._key}/roomPassword`] = null;
 
             await db.ref().update(updates);
 
