@@ -450,11 +450,14 @@
                     const teamEntry = Object.values(m.teams).find(t => t.leaderId === uid);
                     if (teamEntry && teamEntry.members) {
                         const leaderId = teamEntry.leaderId;
+                        const sortedMembers = Object.entries(teamEntry.members)
+                            .filter(([, v]) => { const s = typeof v === 'string' ? v.trim() : ''; return s !== '' && s !== '-' && s !== '—'; })
+                            .sort(([a], [b]) => a === leaderId ? -1 : b === leaderId ? 1 : 0);
                         memberChipsHtml = `<div class="rs-members">` +
-                            Object.entries(teamEntry.members).map(([mUid, mName]) => {
+                            sortedMembers.map(([mUid, mName], idx) => {
                                 const isLeader = mUid === leaderId;
                                 return `<span class="rs-member-chip${isLeader ? ' chip-leader' : ''}">
-                                    ${isLeader ? '<i class="fas fa-crown" style="font-size:8px;margin-right:3px"></i>' : ''}${esc(mName)}
+                                    ${isLeader ? '<i class="fas fa-crown" style="font-size:8px;margin-right:3px"></i>' : `<span style="font-size:9px;color:var(--muted);margin-right:2px">${idx+1}.</span>`}${esc(mName)}
                                 </span>`;
                             }).join('') +
                         `</div>`;
@@ -595,20 +598,24 @@
                 const leaderId = t.leaderId;
                 const membersObj = freshMembers[tk] || {};
 
-                // Filter out placeholder slots (p2, p3, p4, p5, p6)
-                const realMembers = Object.entries(membersObj).filter(([uid]) => !/^p\d+$/.test(uid));
-
-                // Sort: leader always first, then rest
-                realMembers.sort(([uidA], [uidB]) => {
-                    if (uidA === leaderId) return -1;
-                    if (uidB === leaderId) return 1;
-                    return 0;
-                });
+                // Sort all members: leader (real UID) first, then p2/p3/p4... slots
+                // Do NOT filter p2/p3 — they store real IGNs for non-leader members
+                const allMembers = Object.entries(membersObj)
+                    .filter(([, val]) => {
+                        // Skip only truly empty/placeholder values like "-", "—", ""
+                        const v = typeof val === 'string' ? val.trim() : '';
+                        return v !== '' && v !== '-' && v !== '—';
+                    })
+                    .sort(([uidA], [uidB]) => {
+                        // Leader's real UID always first
+                        if (uidA === leaderId) return -1;
+                        if (uidB === leaderId) return 1;
+                        return 0;
+                    });
 
                 let mChips = '';
-                if (realMembers.length > 0) {
-                    mChips = realMembers.map(([uid, val], idx) => {
-                        // val is always a plain IGN string per Firebase structure
+                if (allMembers.length > 0) {
+                    mChips = allMembers.map(([uid, val], idx) => {
                         const name = typeof val === 'string' ? val : (val?.inGameName || val?.name || uid);
                         const isLeader = uid === leaderId;
                         const serial = idx + 1;
@@ -621,7 +628,6 @@
                         </div>`;
                     }).join('');
                 } else {
-                    // Fallback — show leader name only
                     const lName = leaderNames[leaderId] || leaderId || 'Leader';
                     mChips = `<div class="member-row"><span class="member-serial">1</span><span class="member-chip chip-leader"><i class="fas fa-crown"></i>${esc(lName)}</span></div>`;
                 }
