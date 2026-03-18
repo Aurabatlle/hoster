@@ -21,7 +21,6 @@
         html, body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(230,57,70,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(230,57,70,0.025) 1px, transparent 1px); background-size: 44px 44px; pointer-events: none; z-index: 0; }
 
-        /* ── Header ── */
         .header { position: sticky; top: 0; z-index: 200; display: flex; align-items: center; gap: 12px; padding: 13px 18px; background: rgba(13,13,15,0.94); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
         .back-btn { width: 34px; height: 34px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; text-decoration: none; color: var(--dim); font-size: 14px; flex-shrink: 0; cursor: pointer; transition: color .2s; }
         .back-btn:hover { color: var(--text); }
@@ -29,35 +28,30 @@
         .h-logo i { color: var(--red); font-size: 13px; }
         .h-title { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; flex: 1; }
         .h-title span { color: var(--red); }
-        .h-refresh { width: 34px; height: 34px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--dim); font-size: 13px; cursor: pointer; transition: color .2s, transform .3s; border: none; }
+        .h-refresh { width: 34px; height: 34px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--dim); font-size: 13px; cursor: pointer; transition: color .2s, transform .3s; }
         .h-refresh:hover { color: var(--red); }
         .h-refresh.spin { transform: rotate(360deg); color: var(--red); }
 
-        /* ── Tabs ── */
         .tab-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 57px; z-index: 190; }
         .tab { flex: 1; padding: 13px 8px; text-align: center; font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; position: relative; background: none; border-top: none; border-left: none; border-right: none; }
         .tab.active { color: var(--red); border-bottom-color: var(--red); }
         .tab-badge { position: absolute; top: 8px; right: 16px; background: var(--red); color: #fff; font-size: 9px; font-family: 'DM Sans', sans-serif; font-weight: 600; padding: 1px 5px; border-radius: 10px; min-width: 16px; text-align: center; display: none; }
         .tab-badge.show { display: inline-block; }
 
-        /* ── Main ── */
         .main { padding: 16px; max-width: 600px; margin: 0 auto; position: relative; z-index: 1; padding-bottom: 40px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeUp .3s ease both; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ── Empty State ── */
         .empty-state { text-align: center; padding: 60px 20px; }
         .empty-icon { font-size: 48px; margin-bottom: 14px; opacity: .35; }
         .empty-title { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--dim); margin-bottom: 6px; }
         .empty-sub { font-size: 13px; color: var(--muted); }
 
-        /* ── Skeleton ── */
         .skeleton { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 18px; padding: 20px; }
         .skel-line { background: var(--surface2); border-radius: 4px; animation: pulse 1.4s ease-in-out infinite; }
         @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:.8} }
 
-        /* ── Search Bar ── */
         .search-wrap { padding: 12px 16px 4px; max-width: 600px; margin: 0 auto; position: relative; z-index: 1; }
         .search-row { display: flex; gap: 8px; margin-bottom: 8px; }
         .search-box { flex: 1; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0 14px; transition: border-color .2s; }
@@ -75,56 +69,40 @@
         .filter-box input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 9px 0; min-width: 0; }
         .filter-box input::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
         .search-results-info { font-size: 11px; color: var(--muted); padding: 4px 2px 8px; letter-spacing: .5px; }
-
-        /* ── Filter clear button ── */
         .filter-clear-btn { flex-shrink: 0; padding: 0 14px; height: 38px; background: var(--surface); border: 1px solid var(--border-red); border-radius: 10px; color: var(--red); font-family: "DM Sans", sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; display: none; align-items: center; gap: 5px; transition: background .2s; white-space: nowrap; }
         .filter-clear-btn.show { display: flex; }
         .filter-clear-btn:hover { background: rgba(230,57,70,.1); }
 
-        /* ── Mode Badges ── */
         .mode-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
         .mode-BR { background: rgba(249,115,22,.14); color: #f97316; border: 1px solid rgba(249,115,22,.3); }
         .mode-CS { background: rgba(59,130,246,.14); color: #3b82f6; border: 1px solid rgba(59,130,246,.3); }
         .mode-LW { background: rgba(168,85,247,.14); color: #a855f7; border: 1px solid rgba(168,85,247,.3); }
 
-        /* ── Match Card ── */
         .match-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 18px; transition: border-color .2s; }
         .match-card:hover { border-color: rgba(230,57,70,0.25); }
         .mc-stripe { height: 3px; }
         .mc-stripe.result_pending { background: linear-gradient(90deg, #f97316, #f5c518); animation: stripePulse 2s ease-in-out infinite; }
         .mc-stripe.completed { background: linear-gradient(90deg, var(--green-dark), var(--green)); }
         @keyframes stripePulse { 0%,100%{opacity:.7} 50%{opacity:1} }
-
         .mc-head { padding: 14px 16px 4px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
         .mc-id { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--red); letter-spacing: 2px; }
         .mc-badges { display: flex; align-items: center; gap: 6px; }
         .mc-status { padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
         .mc-status.result_pending { background: rgba(249,115,22,.12); color: #f97316; border: 1px solid rgba(249,115,22,.25); }
         .mc-status.completed { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.25); }
-
         .mc-title-block { padding: 6px 16px 4px; }
         .mc-title { font-family: 'Rajdhani', sans-serif; font-size: 19px; font-weight: 700; color: var(--text); letter-spacing: .5px; }
-
         .mc-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; padding: 8px 16px 12px; }
         .mc-info-row { display: flex; align-items: center; gap: 5px; font-size: 12px; }
         .mc-info-label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .8px; min-width: 46px; }
         .mc-info-val { color: var(--text); font-weight: 500; }
         .mc-info-val.gold { color: var(--gold); }
         .mc-info-val.green { color: var(--green); }
-
         .mc-divider { height: 1px; background: var(--border); margin: 0 16px; }
-
-        /* ── Datetime bar on card ── */
         .mc-dt { display: flex; align-items: center; gap: 14px; padding: 0 16px 10px; font-size: 12px; color: var(--dim); }
         .mc-dt-item { display: flex; align-items: center; gap: 5px; }
         .mc-dt-item i { font-size: 10px; color: var(--muted); }
 
-        /* Highlighted member chip in multi teams */
-        .member-chip { font-size: 11px; border-radius: 20px; padding: 4px 10px; border: 1px solid; font-weight: 500; }
-        .member-chip.leader { color: var(--gold); background: rgba(245,197,24,.1); border-color: rgba(245,197,24,.3); }
-        .member-chip.regular { color: #60c8ff; background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.25); }
-
-        /* Result Summary (completed tab) */
         .result-summary { margin: 12px 16px 4px; }
         .rs-head { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 600; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
         .rs-list { display: flex; flex-direction: column; gap: 6px; }
@@ -135,19 +113,17 @@
         .rs-rank.r3 { background: rgba(205,127,50,.12); color: #cd7f32; border: 1px solid rgba(205,127,50,.25); }
         .rs-rank.rn { background: var(--surface3); color: var(--dim); border: 1px solid var(--border); }
         .rs-info { flex: 1; min-width: 0; }
-        .rs-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .rs-name { font-size: 13px; font-weight: 600; color: var(--gold); font-family: 'Rajdhani', sans-serif; letter-spacing: .5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .rs-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
         .rs-gold { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: var(--gold); display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
         .rs-gold i { font-size: 11px; }
 
-        /* Actions */
         .mc-actions { padding: 12px 16px 16px; }
         .btn-set-result { width: 100%; padding: 13px 10px; border-radius: 12px; border: none; font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity .2s, transform .1s, box-shadow .2s; background: linear-gradient(135deg, var(--red), var(--red-dark)); color: #fff; box-shadow: 0 4px 16px rgba(230,57,70,.25); }
         .btn-set-result:hover { box-shadow: 0 6px 22px rgba(230,57,70,.38); }
         .btn-set-result:active { transform: scale(.97); }
         .btn-set-result:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 
-        /* ── Bottom Sheet ── */
         .sh-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(4px); z-index: 400; align-items: flex-end; justify-content: center; }
         .sh-overlay.show { display: flex; }
         .sheet { background: var(--surface); border-radius: 20px 20px 0 0; border-top: 1px solid var(--border-red); width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto; animation: slideUp .3s cubic-bezier(.22,1,.36,1) both; }
@@ -162,14 +138,12 @@
         .sh-x:hover { color: var(--text); }
         .sh-body { padding: 20px 22px 30px; }
 
-        /* Match info pill row inside sheet */
         .sh-match-info { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
         .sh-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 20px; background: var(--surface2); border: 1px solid var(--border); font-size: 12px; color: var(--dim); }
         .sh-pill i { font-size: 10px; color: var(--muted); }
         .sh-pill.gold-pill { color: var(--gold); border-color: rgba(245,197,24,.2); background: rgba(245,197,24,.06); }
         .sh-pill.gold-pill i { color: var(--gold); }
 
-        /* Prize Reference */
         .prize-ref { background: var(--surface2); border: 1px solid rgba(245,197,24,.18); border-radius: 12px; padding: 12px 14px; margin-bottom: 20px; }
         .prize-ref-head { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 600; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
         .prize-ref-list { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -177,26 +151,23 @@
         .prize-chip .pr-label { color: var(--dim); font-size: 10px; }
         .prize-chip .pr-val { color: var(--gold); font-weight: 600; font-family: 'Rajdhani', sans-serif; font-size: 14px; }
 
-        /* Section label */
         .sec-label { font-family: 'Rajdhani', sans-serif; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-        /* Player / Team input rows */
         .entry-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
 
-        /* Solo player row */
         .entry-row { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
         .entry-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(230,57,70,.1); border: 1px solid rgba(230,57,70,.2); display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; color: var(--red); flex-shrink: 0; }
         .entry-info { flex: 1; min-width: 0; }
-        .entry-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .entry-uid { font-size: 10px; color: var(--muted); font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; margin-top: 1px; }
+        /* IGN shown large/gold, real name shown small/muted below */
+        .entry-ign { font-size: 14px; font-weight: 700; color: var(--gold); font-family: 'Rajdhani', sans-serif; letter-spacing: .5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .entry-realname { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .entry-input-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
         .entry-input-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
         .entry-input { width: 72px; padding: 7px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; font-family: 'Rajdhani', sans-serif; font-weight: 600; text-align: center; transition: border-color .2s; -moz-appearance: textfield; }
         .entry-input::-webkit-outer-spin-button, .entry-input::-webkit-inner-spin-button { -webkit-appearance: none; }
         .entry-input:focus { outline: none; border-color: rgba(230,57,70,.5); box-shadow: 0 0 0 3px rgba(230,57,70,.1); }
 
-        /* Team block */
         .team-block { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
         .team-block-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: rgba(230,57,70,.06); border-bottom: 1px solid var(--border); }
         .team-icon { width: 30px; height: 30px; border-radius: 8px; background: rgba(230,57,70,.1); border: 1px solid rgba(230,57,70,.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -212,18 +183,15 @@
         .team-input-label { font-size: 12px; color: var(--dim); }
         .team-input-label span { color: var(--gold); font-weight: 600; }
 
-        /* Confirm button */
         .sh-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--red), var(--red-dark)); color: #fff; border: none; border-radius: 12px; font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 16px rgba(230,57,70,.25); transition: opacity .2s, transform .1s; }
         .sh-btn:hover { box-shadow: 0 6px 22px rgba(230,57,70,.38); }
         .sh-btn:active { transform: scale(.98); }
         .sh-btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 
-        /* Message */
         .sh-msg { margin-top: 12px; padding: 11px 14px; border-radius: 8px; font-size: 13px; display: none; }
         .sh-msg.success { background: rgba(34,197,94,.1); color: var(--green); border: 1px solid rgba(34,197,94,.2); }
         .sh-msg.error { background: rgba(230,57,70,.1); color: var(--red); border: 1px solid rgba(230,57,70,.2); }
 
-        /* Toast */
         .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; font-size: 14px; color: var(--text); z-index: 999; transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .3s; opacity: 0; pointer-events: none; white-space: nowrap; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 28px rgba(0,0,0,.4); }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
         .toast.success { border-color: rgba(34,197,94,.3); }
@@ -231,30 +199,25 @@
         .toast.error { border-color: rgba(230,57,70,.3); }
         .toast.error i { color: var(--red); }
 
-        /* Loading overlay */
         .loading-overlay { position: fixed; inset: 0; background: rgba(13,13,15,.75); backdrop-filter: blur(3px); z-index: 500; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 14px; }
         .loading-overlay.show { display: flex; }
         .spinner { width: 42px; height: 42px; border: 3px solid rgba(230,57,70,.2); border-top-color: var(--red); border-radius: 50%; animation: spin .7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 600; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; }
 
-        /* Scrollbar */
         .sheet::-webkit-scrollbar { width: 3px; }
         .sheet::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
     </style>
 </head>
 <body>
 
-<!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
     <div class="loading-text" id="loadingText">Processing...</div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMsg"></span></div>
 
-<!-- Header -->
 <div class="header">
     <a href="hoster-dashboard.html" class="back-btn"><i class="fas fa-chevron-left"></i></a>
     <div class="h-logo"><i class="fas fa-trophy"></i></div>
@@ -262,7 +225,6 @@
     <button class="h-refresh" id="refreshBtn" onclick="loadAll()"><i class="fas fa-sync-alt"></i></button>
 </div>
 
-<!-- Tabs -->
 <div class="tab-bar">
     <button class="tab active" onclick="switchTab('pending')" id="tabPending">
         Pending Result
@@ -274,7 +236,6 @@
     </button>
 </div>
 
-<!-- Search & Filter -->
 <div class="search-wrap">
     <div class="search-row">
         <div class="search-box">
@@ -297,19 +258,16 @@
     <div class="search-results-info" id="searchInfo"></div>
 </div>
 
-<!-- Main Content -->
 <div class="main">
-    <!-- Pending Tab -->
     <div class="tab-content active" id="tabContentPending">
         <div id="pendingList"></div>
     </div>
-    <!-- Completed Tab -->
     <div class="tab-content" id="tabContentCompleted">
         <div id="completedList"></div>
     </div>
 </div>
 
-<!-- ── Set Result Bottom Sheet ── -->
+<!-- Set Result Sheet -->
 <div class="sh-overlay" id="resultSheet" onclick="closeSheet()">
     <div class="sheet" onclick="event.stopPropagation()">
         <div class="sh-stripe"></div>
@@ -322,18 +280,13 @@
             <button class="sh-x" onclick="closeSheet()"><i class="fas fa-times"></i></button>
         </div>
         <div class="sh-body">
-            <!-- Match pills -->
             <div class="sh-match-info" id="shPills"></div>
-            <!-- Prize reference -->
             <div class="prize-ref" id="shPrizeRef" style="display:none">
                 <div class="prize-ref-head"><i class="fas fa-coins"></i> Prize Structure</div>
                 <div class="prize-ref-list" id="shPrizeList"></div>
             </div>
-            <!-- Entry section label -->
             <div class="sec-label" id="shEntryLabel">Players</div>
-            <!-- Entry list (players or teams) -->
             <div class="entry-list" id="shEntryList"></div>
-            <!-- Submit -->
             <button class="sh-btn" id="shSubmitBtn" onclick="submitResult()">
                 <i class="fas fa-check-circle"></i>&nbsp; Confirm &amp; Send Prizes
             </button>
@@ -342,25 +295,21 @@
     </div>
 </div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script>
 (() => {
-    /* ── Firebase ── */
     const _cfg = JSON.parse(atob('eyJhcGlLZXkiOiJBSXphU3lEN3BBc2RZcWtKekRiU3NpOHhiTHN5Mlg1czBiZ1AwNDAiLCJhdXRoRG9tYWluIjoiYXVyYS1iYXR0bGUtbWFpbi5maXJlYmFzZWFwcC5jb20iLCJkYXRhYmFzZVVSTCI6Imh0dHBzOi8vYXVyYS1iYXR0bGUtbWFpbi1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb20iLCJwcm9qZWN0SWQiOiJhdXJhLWJhdHRsZS1tYWluIiwic3RvcmFnZUJ1Y2tldCI6ImF1cmEtYmF0dGxlLW1haW4uZmlyZWJhc2VzdG9yYWdlLmFwcCIsIm1lc3NhZ2luZ1NlbmRlcklkIjoiNzYzNzc5OTkwMjg5IiwiYXBwSWQiOiIxOjc2Mzc3OTk5MDI4OTp3ZWI6NWNhYTdiYzg2MWU4MGI2ZjBiMDJiMCIsIm1lYXN1cmVtZW50SWQiOiJHLVpaWFowMEhLMDcifQ=='));
     if (!firebase.apps.length) firebase.initializeApp(_cfg);
     const db = firebase.database();
 
-    /* ── Session ── */
-    // Key = 'h_sess', value = base64(JSON) — matches index.html exactly
     const SESS_KEY = 'h_sess';
-    const SESS_TTL = 90 * 60 * 1000; // 1.5 hours, same as index.html
+    const SESS_TTL = 90 * 60 * 1000;
     function getSession() {
         try {
             const raw = localStorage.getItem(SESS_KEY);
             if (!raw) return null;
-            const s = JSON.parse(atob(raw));          // atob decode — same as dashboard
+            const s = JSON.parse(atob(raw));
             if (Date.now() - s.t > SESS_TTL) { localStorage.removeItem(SESS_KEY); return null; }
             return s;
         } catch(_) { localStorage.removeItem(SESS_KEY); return null; }
@@ -369,36 +318,16 @@
     if (!sess) { window.location.href = 'index.html'; return; }
     const HOSTER_USERNAME = sess.username;
 
-    /* ── State ── */
-    let _activeMatch = null;   // full match object + key for set-result sheet
+    let _activeMatch = null;
+    let _allPending = [], _allCompleted = [];
 
-    /* ── Helpers ── */
-    function genTxId() {
-        // 10-digit unique numeric transaction id
-        return String(Math.floor(1000000000 + Math.random() * 9000000000));
-    }
-    function nowDateStr() {
-        const d = new Date();
-        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-    }
-    function nowTimeStr() {
-        const d = new Date();
-        return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0');
-    }
+    function genTxId() { return String(Math.floor(1000000000 + Math.random() * 9000000000)); }
+    function nowDateStr() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+    function nowTimeStr() { const d = new Date(); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0'); }
     function initials(name) {
         if (!name) return '?';
         const parts = name.trim().split(' ');
         return parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.slice(0,2).toUpperCase();
-    }
-    function modeColor(m) {
-        if (m === 'BR') return '--orange';
-        if (m === 'CS') return '--blue';
-        return '--purple';
-    }
-    function modeIcon(m) {
-        if (m === 'BR') return 'fa-parachute-box';
-        if (m === 'CS') return 'fa-crosshairs';
-        return 'fa-sword'; // LW
     }
     function rankSuffix(n) {
         if (n === 1) return '1st'; if (n === 2) return '2nd'; if (n === 3) return '3rd';
@@ -408,8 +337,11 @@
         const et = (match.entryType || '').toLowerCase();
         return et === 'squad' || et === 'duo' || et === 'team';
     }
+    function esc(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 
-    /* ── Tab Switch ── */
     window.switchTab = function(tab) {
         document.getElementById('tabPending').classList.toggle('active', tab === 'pending');
         document.getElementById('tabCompleted').classList.toggle('active', tab === 'completed');
@@ -417,32 +349,25 @@
         document.getElementById('tabContentCompleted').classList.toggle('active', tab === 'completed');
     };
 
-    /* ── Load All Matches ── */
     window.loadAll = async function() {
         const btn = document.getElementById('refreshBtn');
         btn.classList.add('spin');
         setTimeout(() => btn.classList.remove('spin'), 600);
-
         document.getElementById('pendingList').innerHTML = skeletons(3);
         document.getElementById('completedList').innerHTML = skeletons(2);
-
         try {
             const snap = await db.ref('matches').orderByChild('hosterUsername').equalTo(HOSTER_USERNAME).once('value');
-            const pending = [], completed = [];
+            _allPending = []; _allCompleted = [];
             snap.forEach(s => {
                 const m = { ...s.val(), _key: s.key };
-                if (m.status === 'result_pending') pending.push(m);
-                else if (m.status === 'completed') completed.push(m);
+                if (m.status === 'result_pending') _allPending.push(m);
+                else if (m.status === 'completed') _allCompleted.push(m);
             });
-
-            // badges
             const pb = document.getElementById('pendingBadge');
             const cb = document.getElementById('completedBadge');
-            if (pending.length) { pb.textContent = pending.length; pb.classList.add('show'); } else pb.classList.remove('show');
-            if (completed.length) { cb.textContent = completed.length; cb.classList.add('show'); } else cb.classList.remove('show');
-
-            document.getElementById('pendingList').innerHTML = pending.length ? pending.map(renderPendingCard).join('') : emptyState('clock','No Pending Results','All match results have been set.');
-            document.getElementById('completedList').innerHTML = completed.length ? completed.map(renderCompletedCard).join('') : emptyState('check-circle','No Completed Matches','Results you set will appear here.');
+            if (_allPending.length) { pb.textContent = _allPending.length; pb.classList.add('show'); } else pb.classList.remove('show');
+            if (_allCompleted.length) { cb.textContent = _allCompleted.length; cb.classList.add('show'); } else cb.classList.remove('show');
+            applyFilters();
         } catch(e) {
             console.error(e);
             document.getElementById('pendingList').innerHTML = emptyState('exclamation-circle','Load Failed','Check connection and refresh.');
@@ -457,9 +382,12 @@
         return `<div class="empty-state"><div class="empty-icon"><i class="fas fa-${icon}"></i></div><div class="empty-title">${title}</div><div class="empty-sub">${sub}</div></div>`;
     }
 
-    /* ── Pending Card ── */
+    function countJoined(m) {
+        if (isMulti(m)) return Object.keys(m.teams || {}).length;
+        return Object.keys(m.players || {}).length;
+    }
+
     function renderPendingCard(m) {
-        const multi = isMulti(m);
         const joined = countJoined(m);
         const prizeLabel = m.prizeType === 'kill' ? `${m.perKillGold || 0}G / Kill` : `Rank Prize`;
         return `
@@ -492,10 +420,8 @@
         </div>`;
     }
 
-    /* ── Completed Card ── */
     function renderCompletedCard(m) {
         const results = m.results || {};
-        const multi = isMulti(m);
         const prizeLabel = m.prizeType === 'kill' ? `${m.perKillGold || 0}G / Kill` : `Rank Prize`;
         const resultEntries = Object.entries(results).sort((a,b) => {
             if (m.prizeType === 'kill') return (b[1].kills||0) - (a[1].kills||0);
@@ -508,10 +434,14 @@
                 const rankClass = idx === 0 ? 'r1' : idx === 1 ? 'r2' : idx === 2 ? 'r3' : 'rn';
                 const rankLabel = m.prizeType === 'kill' ? (idx+1) : (data.rank || idx+1);
                 const subLabel = m.prizeType === 'kill' ? `${data.kills || 0} kills` : `${rankSuffix(data.rank || idx+1)} place`;
+                // ✅ FIX: show IGN (displayName stored as IGN), not uid
                 const displayName = esc(data.displayName || uid);
                 return `<div class="rs-item">
                     <div class="rs-rank ${rankClass}">${rankLabel}</div>
-                    <div class="rs-info"><div class="rs-name">${displayName}</div><div class="rs-sub">${subLabel}</div></div>
+                    <div class="rs-info">
+                        <div class="rs-name"><i class="fas fa-gamepad" style="font-size:10px;opacity:.6;margin-right:4px"></i>${displayName}</div>
+                        <div class="rs-sub">${subLabel}</div>
+                    </div>
                     <div class="rs-gold"><i class="fas fa-coins"></i>${data.goldAwarded || 0}</div>
                 </div>`;
             }).join('');
@@ -548,13 +478,6 @@
         </div>`;
     }
 
-    /* ── Count Joined ── */
-    function countJoined(m) {
-        if (isMulti(m)) return Object.keys(m.teams || {}).length;
-        return Object.keys(m.players || {}).length;
-    }
-
-    /* ── Open Set Result Sheet ── */
     window.openSetResult = async function(matchKey) {
         showLoader('Loading match...');
         try {
@@ -570,7 +493,6 @@
         }
     };
 
-    /* ── Build Sheet ── */
     async function buildSheet(m) {
         const multi = isMulti(m);
         const isKill = m.prizeType === 'kill';
@@ -578,7 +500,6 @@
         document.getElementById('shMatchTitle').textContent = m.title || 'Set Result';
         document.getElementById('shMatchSub').textContent = `#${m.matchId || m._key} · ${m.matchType || '—'} · ${m.entryType || 'Solo'}`;
 
-        // Pills
         const pills = [
             `<span class="sh-pill"><i class="fas fa-gamepad"></i>${esc(m.matchType || '—')}</span>`,
             `<span class="sh-pill"><i class="fas fa-users"></i>${esc(m.entryType || 'Solo')}</span>`,
@@ -589,7 +510,6 @@
         ].join('');
         document.getElementById('shPills').innerHTML = pills;
 
-        // Prize reference
         const prizeRef = document.getElementById('shPrizeRef');
         const prizeList = document.getElementById('shPrizeList');
         if (!isKill && m.rankPrizes && m.rankPrizes.length) {
@@ -604,21 +524,17 @@
             prizeRef.style.display = 'none';
         }
 
-        // Section label
         const inputLabel = isKill ? 'Enter Kills' : 'Assign Ranks';
         document.getElementById('shEntryLabel').textContent = multi ? `Teams — ${inputLabel}` : `Players — ${inputLabel}`;
 
-        // Entry list
         const entryList = document.getElementById('shEntryList');
         entryList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px"><i class="fas fa-spinner fa-spin"></i>&nbsp; Loading...</div>';
 
         if (multi) {
-            // Squad/Duo - show team blocks
             const teams = m.teams || {};
             const teamKeys = Object.keys(teams);
             if (!teamKeys.length) { entryList.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:10px">No teams joined.</div>'; return; }
 
-            // Fetch all leader names
             const leaderNames = {};
             await Promise.all(teamKeys.map(async tk => {
                 const t = teams[tk];
@@ -642,9 +558,9 @@
                         : `<span class="member-chip chip-member">${esc(name)}</span>`;
                 }).join('');
                 const leaderName = leaderNames[t.leaderId] || t.leaderId;
-                const inputType = isKill ? 'number' : 'number';
                 const placeholder = isKill ? 'Kills' : 'Rank';
                 const maxAttr = !isKill && m.rankPrizes ? `max="${m.rankPrizes.length}"` : '';
+                // ✅ data-teamname uses teamName (already the correct IGN-style team name)
                 return `
                 <div class="team-block" id="teamBlock_${i}">
                     <div class="team-block-head">
@@ -662,41 +578,43 @@
                 </div>`;
             }).join('');
         } else {
-            // Solo - show player rows
+            // Solo players
             const players = m.players || {};
             const playerKeys = Object.keys(players);
             if (!playerKeys.length) { entryList.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:10px">No players joined.</div>'; return; }
 
-            // Fetch all player names
-            const playerNames = {};
+            // ✅ FIX: get inGameName from match.players (already stored there)
+            // Also fetch real name from /users for display only (shown below IGN)
             const inGameNames = {};
+            const realNames = {};
             playerKeys.forEach(uid => {
                 inGameNames[uid] = players[uid].inGameName || uid;
             });
             await Promise.all(playerKeys.map(async uid => {
                 try {
                     const uSnap = await db.ref('users').child(uid).once('value');
-                    playerNames[uid] = uSnap.val()?.name || uid;
-                } catch { playerNames[uid] = uid; }
+                    realNames[uid] = uSnap.val()?.name || '';
+                } catch { realNames[uid] = ''; }
             }));
 
             const maxRank = (!isKill && m.rankPrizes) ? m.rankPrizes.length : 999;
             entryList.innerHTML = playerKeys.map((uid, i) => {
-                const name = playerNames[uid] || uid;
-                const igName = inGameNames[uid] || '';
+                const igName = inGameNames[uid];       // in-game name — used as displayName
+                const realName = realNames[uid] || ''; // real account name — shown below
                 const placeholder = isKill ? 'Kills' : 'Rank';
                 const maxAttr = !isKill ? `max="${maxRank}"` : '';
                 return `
                 <div class="entry-row">
-                    <div class="entry-avatar">${initials(name)}</div>
+                    <div class="entry-avatar">${initials(igName)}</div>
                     <div class="entry-info">
-                        <div class="entry-name">${esc(name)}</div>
-                        <div class="entry-uid">${esc(igName)}</div>
+                        <div class="entry-ign">🎮 ${esc(igName)}</div>
+                        ${realName ? `<div class="entry-realname">${esc(realName)}</div>` : ''}
                     </div>
                     <div class="entry-input-wrap">
                         <div class="entry-input-label">${isKill ? 'Kills' : 'Rank'}</div>
                         <input class="entry-input" type="number" min="0" ${maxAttr} placeholder="${placeholder}"
-                            data-uid="${uid}" data-name="${esc(name)}"
+                            data-uid="${uid}"
+                            data-igname="${esc(igName)}"
                             id="playerInput_${i}" oninput="validateRankInput(this, ${isKill ? 'false' : 'true'})">
                     </div>
                 </div>`;
@@ -704,21 +622,18 @@
         }
     }
 
-    /* ── Rank duplicate check ── */
     window.validateRankInput = function(el, isRank) {
         if (!isRank) return;
         const val = parseInt(el.value);
         if (!val) return;
         const maxRank = _activeMatch?.rankPrizes?.length || 999;
         if (val > maxRank) { el.value = maxRank; return; }
-        // Highlight duplicates
         const allInputs = el.closest('.sh-body').querySelectorAll('.entry-input');
         const vals = {};
         allInputs.forEach(i => { const v = i.value; if (v) vals[v] = (vals[v] || 0) + 1; });
         allInputs.forEach(i => { i.style.borderColor = (i.value && vals[i.value] > 1) ? 'var(--red)' : ''; });
     };
 
-    /* ── Submit Result ── */
     window.submitResult = async function() {
         const m = _activeMatch;
         if (!m) return;
@@ -727,23 +642,23 @@
         const shBody = document.querySelector('#resultSheet .sh-body');
         const inputs = shBody.querySelectorAll('.entry-input');
 
-        // Collect entries
         const entries = [];
-        let hasError = false;
         inputs.forEach(inp => {
             const val = parseInt(inp.value);
-            if (isNaN(val) || val < 0) return; // skip empty
+            if (isNaN(val) || val < 0) return;
             if (multi) {
                 entries.push({
-                    teamKey: inp.dataset.teamkey,
-                    leaderId: inp.dataset.leaderid,
+                    teamKey:     inp.dataset.teamkey,
+                    leaderId:    inp.dataset.leaderid,
+                    // ✅ teamName used as displayName for teams
                     displayName: inp.dataset.teamname,
-                    value: val   // kills or rank
+                    value: val
                 });
             } else {
                 entries.push({
-                    uid: inp.dataset.uid,
-                    displayName: inp.dataset.name,
+                    uid:         inp.dataset.uid,
+                    // ✅ FIX: use igname (in-game name) as displayName, NOT real name
+                    displayName: inp.dataset.igname,
                     value: val
                 });
             }
@@ -751,7 +666,6 @@
 
         if (!entries.length) { shMsg('Please fill at least one entry.', 'error'); return; }
 
-        // Rank validation - no duplicates
         if (!isKill) {
             const rankVals = entries.map(e => e.value);
             const unique = new Set(rankVals);
@@ -765,13 +679,12 @@
 
         try {
             const resultsObj = {};
-            const updates = {}; // Firebase multi-path update
+            const updates = {};
 
             for (const entry of entries) {
                 const uid = multi ? entry.leaderId : entry.uid;
                 if (!uid) continue;
 
-                // Calculate gold
                 let goldAmt = 0;
                 if (isKill) {
                     goldAmt = (m.perKillGold || 0) * entry.value;
@@ -780,36 +693,33 @@
                     goldAmt = prize ? prize.gold : 0;
                 }
 
-                // Save to results object on match doc
+                // ✅ displayName is now IGN for solo, teamName for multi
                 resultsObj[uid] = {
                     displayName: entry.displayName,
-                    rank: isKill ? null : entry.value,
-                    kills: isKill ? entry.value : null,
+                    rank:        isKill ? null : entry.value,
+                    kills:       isKill ? entry.value : null,
                     goldAwarded: goldAmt
                 };
 
                 if (goldAmt > 0) {
-                    // Credit winningGold to user wallet
                     const walletSnap = await db.ref('users').child(uid).child('wallet').child('winningGold').once('value');
                     const currentGold = walletSnap.val() || 0;
                     updates[`users/${uid}/wallet/winningGold`] = currentGold + goldAmt;
 
-                    // Save transaction — unique 10-digit ID per user
                     const txId = genTxId();
                     updates[`users/${uid}/transactions/${txId}`] = {
                         amount: goldAmt,
-                        date: nowDateStr(),
-                        time: nowTimeStr(),
-                        type: 'Match Reward'
+                        date:   nowDateStr(),
+                        time:   nowTimeStr(),
+                        type:   'Match Reward'
                     };
                 }
             }
 
-            // Update match: add results + set status to completed + wipe room credentials
-            updates[`matches/${m._key}/results`] = resultsObj;
-            updates[`matches/${m._key}/status`] = 'completed';
-            updates[`matches/${m._key}/roomId`] = null;       // null = delete in Firebase
-            updates[`matches/${m._key}/roomPassword`] = null;
+            updates[`matches/${m._key}/results`]       = resultsObj;
+            updates[`matches/${m._key}/status`]        = 'completed';
+            updates[`matches/${m._key}/roomId`]        = null;
+            updates[`matches/${m._key}/roomPassword`]  = null;
 
             await db.ref().update(updates);
 
@@ -827,7 +737,6 @@
         }
     };
 
-    /* ── Sheet helpers ── */
     window.closeSheet = function() {
         document.getElementById('resultSheet').classList.remove('show');
         _activeMatch = null;
@@ -843,14 +752,11 @@
         btn.innerHTML = disabled ? '<i class="fas fa-spinner fa-spin"></i>&nbsp; Processing...' : '<i class="fas fa-check-circle"></i>&nbsp; Confirm &amp; Send Prizes';
     }
 
-    /* ── UI Helpers ── */
     function showLoader(text) {
         document.getElementById('loadingText').textContent = text || 'Processing...';
         document.getElementById('loadingOverlay').classList.add('show');
     }
-    function hideLoader() {
-        document.getElementById('loadingOverlay').classList.remove('show');
-    }
+    function hideLoader() { document.getElementById('loadingOverlay').classList.remove('show'); }
     let _toastTimer;
     function showToast(msg, type) {
         const t = document.getElementById('toast');
@@ -862,86 +768,32 @@
         clearTimeout(_toastTimer);
         _toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
     }
-    function esc(str) {
-        if (!str) return '';
-        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
-    /* ── Search & Filter ── */
-    let _allPending = [], _allCompleted = [];
-
-    // Override loadAll to cache matches for filtering
-    const _origLoadAll = window.loadAll;
-    window.loadAll = async function() {
-        const btn = document.getElementById('refreshBtn');
-        btn.classList.add('spin');
-        setTimeout(() => btn.classList.remove('spin'), 600);
-        document.getElementById('pendingList').innerHTML = skeletons(3);
-        document.getElementById('completedList').innerHTML = skeletons(2);
-        try {
-            const snap = await db.ref('matches').orderByChild('hosterUsername').equalTo(HOSTER_USERNAME).once('value');
-            _allPending = []; _allCompleted = [];
-            snap.forEach(s => {
-                const m = { ...s.val(), _key: s.key };
-                if (m.status === 'result_pending') _allPending.push(m);
-                else if (m.status === 'completed') _allCompleted.push(m);
-            });
-            const pb = document.getElementById('pendingBadge');
-            const cb = document.getElementById('completedBadge');
-            if (_allPending.length) { pb.textContent = _allPending.length; pb.classList.add('show'); } else pb.classList.remove('show');
-            if (_allCompleted.length) { cb.textContent = _allCompleted.length; cb.classList.add('show'); } else cb.classList.remove('show');
-            applyFilters();
-        } catch(e) {
-            document.getElementById('pendingList').innerHTML = emptyState('exclamation-circle','Load Failed','Check connection and refresh.');
-            document.getElementById('completedList').innerHTML = '';
-        }
-    };
 
     window.applyFilters = function() {
-        const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
-        const fd = (document.getElementById('filterDate').value || '').trim();    // YYYY-MM-DD
-        const ft = (document.getElementById('filterTime').value || '').trim();    // HH:MM
+        const q  = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+        const fd = (document.getElementById('filterDate').value || '').trim();
+        const ft = (document.getElementById('filterTime').value || '').trim();
 
-        // Show/hide clear buttons
-        const clearBtn = document.getElementById('searchClear');
-        const filterClear = document.getElementById('filterClear');
-        clearBtn.classList.toggle('show', q.length > 0);
-        filterClear.classList.toggle('show', fd.length > 0 || ft.length > 0);
+        document.getElementById('searchClear').classList.toggle('show', q.length > 0);
+        document.getElementById('filterClear').classList.toggle('show', fd.length > 0 || ft.length > 0);
 
         function matchFilter(m) {
-            // Match ID search
-            if (q) {
-                const id = String(m.matchId || m._key || '').toLowerCase();
-                if (!id.includes(q)) return false;
-            }
-            // Date filter — exact date match
-            if (fd) {
-                const mDate = String(m.date || '').trim();
-                if (mDate !== fd) return false;
-            }
-            // Time filter — match HH:MM (ignore seconds if any)
-            if (ft) {
-                const mTime = String(m.time || '').trim().slice(0, 5); // take HH:MM part
-                if (mTime !== ft) return false;
-            }
+            if (q) { const id = String(m.matchId || m._key || '').toLowerCase(); if (!id.includes(q)) return false; }
+            if (fd) { if (String(m.date || '').trim() !== fd) return false; }
+            if (ft) { if (String(m.time || '').trim().slice(0,5) !== ft) return false; }
             return true;
         }
 
-        const filteredPending = _allPending.filter(matchFilter);
+        const filteredPending   = _allPending.filter(matchFilter);
         const filteredCompleted = _allCompleted.filter(matchFilter);
         const hasFilter = q || fd || ft;
         const total = filteredPending.length + filteredCompleted.length;
 
-        // Update info text
         const info = document.getElementById('searchInfo');
         if (hasFilter) {
-            info.textContent = total > 0
-                ? `${total} match${total !== 1 ? 'es' : ''} found`
-                : 'No matches found for this search';
+            info.textContent = total > 0 ? `${total} match${total !== 1 ? 'es' : ''} found` : 'No matches found for this search';
             info.style.color = total > 0 ? 'var(--dim)' : 'var(--red)';
-        } else {
-            info.textContent = '';
-        }
+        } else { info.textContent = ''; }
 
         document.getElementById('pendingList').innerHTML = filteredPending.length
             ? filteredPending.map(renderPendingCard).join('')
@@ -952,18 +804,9 @@
             : emptyState('check-circle', hasFilter ? 'No Results' : 'No Completed Matches', hasFilter ? 'Try a different search.' : 'Results you set will appear here.');
     };
 
-    window.clearSearch = function() {
-        document.getElementById('searchInput').value = '';
-        applyFilters();
-    };
+    window.clearSearch  = function() { document.getElementById('searchInput').value = ''; applyFilters(); };
+    window.clearFilters = function() { document.getElementById('filterDate').value = ''; document.getElementById('filterTime').value = ''; applyFilters(); };
 
-    window.clearFilters = function() {
-        document.getElementById('filterDate').value = '';
-        document.getElementById('filterTime').value = '';
-        applyFilters();
-    };
-
-    /* ── Init ── */
     loadAll();
 })();
 </script>
