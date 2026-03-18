@@ -177,11 +177,14 @@
         .team-icon i { color: var(--red); font-size: 12px; }
         .team-block-name { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); flex: 1; }
         .team-leader-badge { font-size: 10px; color: var(--gold); background: rgba(245,197,24,.1); border: 1px solid rgba(245,197,24,.2); padding: 2px 8px; border-radius: 10px; letter-spacing: .5px; }
-        .team-block-members { padding: 8px 14px 10px; display: flex; flex-wrap: wrap; gap: 6px; }
-        .member-chip { font-size: 12px; font-weight: 600; border-radius: 20px; padding: 5px 11px; border: 1px solid; display: inline-flex; align-items: center; gap: 5px; }
+        .team-block-members { padding: 8px 14px 10px; display: flex; flex-direction: column; gap: 5px; }
+        .member-row { display: flex; align-items: center; gap: 8px; }
+        .member-serial { font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700; color: var(--muted); width: 18px; text-align: center; flex-shrink: 0; }
+        .member-chip { font-size: 13px; font-weight: 600; border-radius: 20px; padding: 5px 12px; border: 1px solid; display: inline-flex; align-items: center; gap: 6px; }
         .member-chip.chip-leader { color: #f5c518; background: rgba(245,197,24,.12); border-color: rgba(245,197,24,.35); }
         .member-chip.chip-leader i { font-size: 9px; }
         .member-chip.chip-member { color: #60c8ff; background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.28); }
+        .member-chip.chip-member i { font-size: 9px; }
         .team-block-input { padding: 10px 14px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid var(--border); }
         .team-input-label { font-size: 12px; color: var(--dim); }
         .team-input-label span { color: var(--gold); font-weight: 600; }
@@ -595,20 +598,32 @@
                 // Filter out placeholder slots (p2, p3, p4, p5, p6)
                 const realMembers = Object.entries(membersObj).filter(([uid]) => !/^p\d+$/.test(uid));
 
+                // Sort: leader always first, then rest
+                realMembers.sort(([uidA], [uidB]) => {
+                    if (uidA === leaderId) return -1;
+                    if (uidB === leaderId) return 1;
+                    return 0;
+                });
+
                 let mChips = '';
                 if (realMembers.length > 0) {
-                    mChips = realMembers.map(([uid, val]) => {
-                        // val can be a string IGN or object { inGameName, userId }
+                    mChips = realMembers.map(([uid, val], idx) => {
+                        // val is always a plain IGN string per Firebase structure
                         const name = typeof val === 'string' ? val : (val?.inGameName || val?.name || uid);
                         const isLeader = uid === leaderId;
-                        return isLeader
-                            ? `<span class="member-chip chip-leader"><i class="fas fa-crown"></i>${esc(name)}</span>`
-                            : `<span class="member-chip chip-member">${esc(name)}</span>`;
+                        const serial = idx + 1;
+                        return `<div class="member-row">
+                            <span class="member-serial">${serial}</span>
+                            ${isLeader
+                                ? `<span class="member-chip chip-leader"><i class="fas fa-crown"></i>${esc(name)}</span>`
+                                : `<span class="member-chip chip-member"><i class="fas fa-gamepad"></i>${esc(name)}</span>`
+                            }
+                        </div>`;
                     }).join('');
                 } else {
-                    // Absolute fallback — show leader name only
+                    // Fallback — show leader name only
                     const lName = leaderNames[leaderId] || leaderId || 'Leader';
-                    mChips = `<span class="member-chip chip-leader"><i class="fas fa-crown"></i>${esc(lName)}</span>`;
+                    mChips = `<div class="member-row"><span class="member-serial">1</span><span class="member-chip chip-leader"><i class="fas fa-crown"></i>${esc(lName)}</span></div>`;
                 }
 
                 const leaderName = leaderNames[t.leaderId] || t.leaderId;
