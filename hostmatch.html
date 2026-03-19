@@ -1054,15 +1054,32 @@ async function sendNotification(matchId, type, reason){
         if(isSolo){
             // Solo: each player is their own "leader"
             const pSnap = await db.ref('matches/'+matchId+'/players').once('value');
-            pSnap.forEach(c=>{ const uid=c.val().userId||c.val().uid; if(uid) leaderIds.add(uid); });
+            pSnap.forEach(c=>{
+                const v=c.val(); if(!v) return;
+                const uid=v.userId||v.uid;
+                if(uid) leaderIds.add(uid);
+            });
         } else if(isCSorLW){
-            // CS/LW: leaderId per slot
+            // CS/LW: read leaderId AND joiners map per slot
+            // Guard against empty slots (slots with no data return null from .val())
             const sSnap = await db.ref('matches/'+matchId+'/slots').once('value');
-            sSnap.forEach(s=>{ const lid=s.val().leaderId; if(lid) leaderIds.add(lid); });
+            sSnap.forEach(slotSnap=>{
+                const sv = slotSnap.val();
+                if(!sv) return;   // skip empty/null slots
+                // Primary: leaderId (first joiner)
+                if(sv.leaderId) leaderIds.add(sv.leaderId);
+                // Secondary: all joiners who took additional spots in the same slot
+                const joiners = sv.joiners||{};
+                Object.keys(joiners).forEach(uid=>{ if(uid) leaderIds.add(uid); });
+            });
         } else {
             // BR multi: leaderId per team
             const tSnap = await db.ref('matches/'+matchId+'/teams').once('value');
-            tSnap.forEach(t=>{ const lid=t.val().leaderId; if(lid) leaderIds.add(lid); });
+            tSnap.forEach(teamSnap=>{
+                const tv = teamSnap.val();
+                if(!tv) return;
+                if(tv.leaderId) leaderIds.add(tv.leaderId);
+            });
         }
 
         // Step 2: collect FCM tokens for each leaderId
