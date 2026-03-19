@@ -341,7 +341,11 @@
     }
     function isMulti(match) {
         const et = (match.entryType || '').toLowerCase();
-        return et === 'squad' || et === 'duo' || et === 'team';
+        return et === 'squad' || et === 'duo' || et === 'trio' || et === '6v6' || et === 'team';
+    }
+    function isCSorLW(match) {
+        const mt = (match.matchType || '').toUpperCase();
+        return mt === 'CS' || mt === 'LW';
     }
     function esc(str) {
         if (!str) return '';
@@ -389,7 +393,18 @@
     }
 
     function countJoined(m) {
-        if (isMulti(m)) return Object.keys(m.teams || {}).length;
+        if (isCSorLW(m)) {
+            // Count individual players across all slots
+            let total = 0;
+            Object.values(m.slots || {}).forEach(s => { if(s) total += Object.keys(s.players || {}).length; });
+            return total;
+        }
+        if (isMulti(m)) {
+            // Sum members across all BR teams
+            let total = 0;
+            Object.values(m.teams || {}).forEach(t => { if(t) total += Object.keys(t.members || {}).length; });
+            return total;
+        }
         return Object.keys(m.players || {}).length;
     }
 
@@ -443,24 +458,35 @@
                 const subLabel  = m.prizeType === 'kill' ? `${data.kills || 0} kills` : `${rankSuffix(data.rank || idx+1)} place`;
                 const displayName = esc(data.displayName || uid);
 
-                // ── NEW: for team matches, find the matching team and render member chips ──
+                // ── Show team members for both BR multi and CS/LW ──
                 let memberChipsHtml = '';
-                if (multi && m.teams) {
-                    // Find team whose leaderId === uid
-                    const teamEntry = Object.values(m.teams).find(t => t.leaderId === uid);
-                    if (teamEntry && teamEntry.members) {
-                        const leaderId = teamEntry.leaderId;
-                        const sortedMembers = Object.entries(teamEntry.members)
-                            .filter(([, v]) => { const s = typeof v === 'string' ? v.trim() : ''; return s !== '' && s !== '-' && s !== '—'; })
-                            .sort(([a], [b]) => a === leaderId ? -1 : b === leaderId ? 1 : 0);
+                const isCSLW_card = isCSorLW(m);
+                if (isCSLW_card && m.slots) {
+                    // CS/LW: uid is the resultKey (slotKey), find matching slot
+                    const slotData = m.slots[uid];
+                    if (slotData && slotData.players) {
+                        const spots = Object.keys(slotData.players).sort((a,b)=>Number(a)-Number(b));
                         memberChipsHtml = `<div class="rs-members">` +
-                            sortedMembers.map(([mUid, mName], idx) => {
-                                const isLeader = mUid === leaderId;
-                                return `<span class="rs-member-chip${isLeader ? ' chip-leader' : ''}">
-                                    ${isLeader ? '<i class="fas fa-crown" style="font-size:8px;margin-right:3px"></i>' : `<span style="font-size:9px;color:var(--muted);margin-right:2px">${idx+1}.</span>`}${esc(mName)}
+                            spots.map((sn, idx) => `<span class="rs-member-chip${idx===0?' chip-leader':''}">
+                                ${idx===0?'<i class="fas fa-crown" style="font-size:8px;margin-right:3px"></i>':`<span style="font-size:9px;color:var(--muted);margin-right:2px">S${sn}</span>`}
+                                ${esc(slotData.players[sn])}
+                            </span>`).join('') + `</div>`;
+                    }
+                } else if (multi && m.teams) {
+                    // BR multi: uid is the resultKey (teamKey)
+                    const teamEntry = m.teams[uid];
+                    if (teamEntry && teamEntry.members) {
+                        const spots = Object.keys(teamEntry.members).sort((a,b)=>Number(a)-Number(b));
+                        memberChipsHtml = `<div class="rs-members">` +
+                            spots.map((sn, idx) => {
+                                const ign = teamEntry.members[sn];
+                                const s = typeof ign === 'string' ? ign.trim() : '';
+                                if (!s || s==='-'||s==='—') return '';
+                                return `<span class="rs-member-chip${idx===0?' chip-leader':''}">
+                                    ${idx===0?'<i class="fas fa-crown" style="font-size:8px;margin-right:3px"></i>':`<span style="font-size:9px;color:var(--muted);margin-right:2px">${Number(sn)}</span>`}
+                                    ${esc(ign)}
                                 </span>`;
-                            }).join('') +
-                        `</div>`;
+                            }).join('') + `</div>`;
                     }
                 }
 
@@ -559,6 +585,53 @@
         const entryList = document.getElementById('shEntryList');
         entryList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px"><i class="fas fa-spinner fa-spin"></i>&nbsp; Loading...</div>';
 
+        // ── CS/LW: build from slots node ──────────────────────────────────────────
+        if (isCSorLW(m)) {
+            const slots = m.slots || {};
+            const slotKeys = Object.keys(slots).filter(k => slots[k] && slots[k].leaderId);
+            if (!slotKeys.length) { entryList.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:10px">No teams joined yet.</div>'; return; }
+
+            const isKillMode = m.prizeType === 'kill';
+            entryList.innerHTML = slotKeys.map((sk, i) => {
+                const slot     = slots[sk];
+                const teamNum  = slot.teamNumber || sk;
+                const tName    = slot.teamName || 'Team ' + teamNum;
+                const leaderId = slot.leaderId || '';
+                const players  = slot.players || {};
+                const spotNums = Object.keys(players).sort((a,b) => Number(a)-Number(b));
+
+                const playerRows = spotNums.map((sn, idx) => `
+                    <div class="member-row">
+                        <span class="member-serial">S${sn}</span>
+                        <span class="member-chip ${idx===0 ? 'chip-leader' : 'chip-member'}">
+                            ${idx===0 ? '<i class="fas fa-crown"></i>' : '<i class="fas fa-gamepad"></i>'}
+                            ${esc(players[sn])}
+                        </span>
+                    </div>`).join('') || '<div style="color:var(--muted);font-size:12px;padding:4px">No players</div>';
+
+                const placeholder = isKillMode ? 'Kills' : 'Rank';
+                const maxAttr     = !isKillMode && m.rankPrizes ? `max="${m.rankPrizes.length}"` : '';
+                return `
+                <div class="team-block" id="slotBlock_${i}">
+                    <div class="team-block-head">
+                        <div class="team-icon"><i class="fas fa-shield-alt"></i></div>
+                        <div class="team-block-name">${esc(tName)}</div>
+                        <span class="team-leader-badge"><i class="fas fa-key"></i> Team ${esc(String(teamNum))}</span>
+                    </div>
+                    <div class="team-block-members">${playerRows}</div>
+                    <div class="team-block-input">
+                        <span class="team-input-label">${isKillMode ? 'Total Kills' : 'Rank'} <span>(prize → leader)</span></span>
+                        <input class="entry-input" type="number" min="0" ${maxAttr} placeholder="${placeholder}"
+                            data-slotkey="${sk}" data-leaderid="${leaderId}"
+                            data-teamname="${esc(tName)}"
+                            id="slotInput_${i}" oninput="validateRankInput(this, ${isKillMode ? 'false' : 'true'})">
+                    </div>
+                </div>`;
+            }).join('');
+            return;
+        }
+
+        // ── BR Multi ──────────────────────────────────────────────────────────
         if (multi) {
             const teams = m.teams || {};
             const teamKeys = Object.keys(teams);
@@ -711,13 +784,19 @@
         const shBody = document.querySelector('#resultSheet .sh-body');
         const inputs = shBody.querySelectorAll('.entry-input');
 
+        const isCSLW = isCSorLW(m);
         const entries = [];
         inputs.forEach(inp => {
             const val = parseInt(inp.value);
             if (isNaN(val) || val < 0) return;
-            if (multi) {
+            if (isCSLW) {
+                // CS/LW: slotkey + leaderId + teamName as winner display name
+                entries.push({ slotKey: inp.dataset.slotkey, leaderId: inp.dataset.leaderid, displayName: inp.dataset.teamname, value: val });
+            } else if (multi) {
+                // BR multi: teamKey + leaderId + teamName as winner display name
                 entries.push({ teamKey: inp.dataset.teamkey, leaderId: inp.dataset.leaderid, displayName: inp.dataset.teamname, value: val });
             } else {
+                // Solo BR: uid + inGameName as winner display name
                 entries.push({ uid: inp.dataset.uid, displayName: inp.dataset.igname, value: val });
             }
         });
@@ -740,7 +819,8 @@
             const updates = {};
 
             for (const entry of entries) {
-                const uid = multi ? entry.leaderId : entry.uid;
+                // Leader receives the prize coin for their team/slot
+                const uid = (isCSLW || multi) ? entry.leaderId : entry.uid;
                 if (!uid) continue;
 
                 let goldAmt = 0;
@@ -751,19 +831,35 @@
                     goldAmt = prize ? prize.gold : 0;
                 }
 
-                resultsObj[uid] = {
-                    displayName: entry.displayName,
+                // Result key: use slotKey for CS/LW, teamKey for BR multi, uid for solo
+                // displayName is always the TEAM NAME (not player IGN)
+                const resultKey = isCSLW ? entry.slotKey : (multi ? entry.teamKey : uid);
+                resultsObj[resultKey] = {
+                    displayName: entry.displayName,   // team name saved as winner
+                    leaderId:    uid,                  // leader who receives prize
                     rank:        isKill ? null : entry.value,
                     kills:       isKill ? entry.value : null,
                     goldAwarded: goldAmt
                 };
 
                 if (goldAmt > 0) {
+                    // Credit winning gold to leader's wallet
                     const walletSnap = await db.ref('users').child(uid).child('wallet').child('winningGold').once('value');
                     const currentGold = walletSnap.val() || 0;
                     updates[`users/${uid}/wallet/winningGold`] = currentGold + goldAmt;
+                    // Generate unique transaction ID and save history
                     const txId = genTxId();
-                    updates[`users/${uid}/transactions/${txId}`] = { amount: goldAmt, date: nowDateStr(), time: nowTimeStr(), type: 'Match Reward' };
+                    updates[`users/${uid}/transactions/${txId}`] = {
+                        transactionId: txId,
+                        amount:        goldAmt,
+                        date:          nowDateStr(),
+                        time:          nowTimeStr(),
+                        type:          'Match Reward',
+                        matchId:       String(m.matchId || m._key),
+                        matchTitle:    String(m.title || ''),
+                        rank:          isKill ? null : entry.value,
+                        kills:         isKill ? entry.value : null
+                    };
                 }
             }
 
