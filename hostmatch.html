@@ -207,6 +207,52 @@
         .toast.error   { border-color: rgba(230,57,70,.45); color: #ff8a91; }
         .toast.success { border-color: rgba(34,197,94,.45); color: #4ade80; }
         .toast.info    { border-color: rgba(120,167,245,.45); color: #78a7f5; }
+
+        /* ── Full-screen Players Panel ── */
+        .fs-overlay { display:none; position:fixed; inset:0; background:var(--bg); z-index:500; flex-direction:column; overflow:hidden; }
+        .fs-overlay.show { display:flex; animation:fsFadeIn .25s ease both; }
+        @keyframes fsFadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        .fs-header { display:flex; align-items:center; gap:12px; padding:14px 18px; background:rgba(13,13,15,.96); border-bottom:1px solid var(--border); backdrop-filter:blur(14px); flex-shrink:0; }
+        .fs-back { width:36px;height:36px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:15px;cursor:pointer;flex-shrink:0; }
+        .fs-title-block { flex:1; }
+        .fs-title { font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px; }
+        .fs-sub { font-size:11px;color:var(--muted);margin-top:1px; }
+        .fs-count-badge { background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.3);color:var(--red);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:1px; }
+
+        .fs-tabs { display:flex;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0; }
+        .fs-tab { flex:1;padding:12px 8px;text-align:center;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s; }
+        .fs-tab.active { color:var(--red);border-bottom-color:var(--red); }
+
+        .fs-body { flex:1;overflow-y:auto;padding:16px; }
+        .fs-body::-webkit-scrollbar { width:3px; }
+        .fs-body::-webkit-scrollbar-thumb { background:var(--border);border-radius:2px; }
+
+        /* ── CS/LW Slot Card ── */
+        .slot-card { background:var(--surface2);border-radius:14px;overflow:hidden;margin-bottom:12px;border:1px solid var(--border); }
+        .slot-card-header { display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(230,57,70,.07);border-bottom:1px solid var(--border); }
+        .slot-team-num { font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--red);background:rgba(230,57,70,.12);border:1px solid rgba(230,57,70,.25);padding:2px 10px;border-radius:8px; }
+        .slot-team-name { font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:var(--text);flex:1; }
+        .slot-leader-wrap { display:flex;flex-direction:column;align-items:flex-end;gap:2px; }
+        .slot-leader-label { font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px; }
+        .slot-leader-id { font-size:11px;color:#7878a8;font-family:'Rajdhani',sans-serif;letter-spacing:1px; }
+        .slot-players { padding:10px 14px 12px;display:flex;flex-direction:column;gap:7px; }
+        .slot-player-row { display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface3);border-radius:9px; }
+        .slot-spot-num { font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--muted);width:22px;text-align:center;flex-shrink:0; }
+        .slot-spot-label { font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;width:22px;text-align:center;flex-shrink:0; }
+        .slot-ign { font-size:14px;font-weight:700;color:var(--gold);font-family:'Rajdhani',sans-serif;letter-spacing:.5px;flex:1; }
+
+        /* ── BR Team Card ── */
+        .br-team-card { background:var(--surface2);border-radius:14px;overflow:hidden;margin-bottom:12px;border:1px solid var(--border); }
+        .br-team-header { display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(230,57,70,.07);border-bottom:1px solid var(--border); }
+        .br-team-num { font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--muted);background:var(--surface3);border:1px solid var(--border);padding:2px 9px;border-radius:8px; }
+        .br-team-name { font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:var(--text);flex:1; }
+        .br-leader-wrap { display:flex;flex-direction:column;align-items:flex-end;gap:2px; }
+        .br-leader-label { font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px; }
+        .br-leader-id { font-size:11px;color:#7878a8;font-family:'Rajdhani',sans-serif;letter-spacing:1px; }
+        .br-members { padding:10px 14px 12px;display:flex;flex-direction:column;gap:7px; }
+        .br-member-row { display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface3);border-radius:9px; }
+        .br-spot-badge { font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:6px;flex-shrink:0; }
+        .br-member-ign { font-size:14px;font-weight:700;color:var(--gold);font-family:'Rajdhani',sans-serif;letter-spacing:.5px;flex:1; }
     </style>
 </head>
 <body>
@@ -297,21 +343,24 @@
     </div>
 </div>
 
-<!-- ══ Players Sheet (full screen) ══ -->
-<div class="sh-overlay" id="playersSheet">
-    <div class="sheet">
-        <div class="sh-stripe"></div>
-        <div class="sh-handle"></div>
-        <div class="sh-head">
-            <div>
-                <div class="sh-title" id="playersSheetTitle">👥 Players</div>
-                <div class="sh-subtitle" id="playersSheetSub"></div>
-            </div>
-            <button class="sh-x" onclick="closeSheet('playersSheet')"><i class="fas fa-times"></i></button>
+<!-- ══ Players Full-Screen Panel ══ -->
+<div class="fs-overlay" id="playersPanel">
+    <div class="fs-header">
+        <button class="fs-back" onclick="closePlayersPanel()"><i class="fas fa-arrow-left"></i></button>
+        <div class="fs-title-block">
+            <div class="fs-title" id="fsPanelTitle">👥 Players</div>
+            <div class="fs-sub" id="fsPanelSub"></div>
         </div>
-        <div class="sh-body" id="playersSheetBody">
-            <div style="text-align:center;padding:30px;color:var(--muted);">Loading...</div>
-        </div>
+        <div class="fs-count-badge" id="fsPanelCount">0</div>
+    </div>
+    <!-- mode tabs — shown only for CS/LW which can have 2 teams -->
+    <div class="fs-tabs" id="fsPanelTabs" style="display:none;">
+        <div class="fs-tab active" id="fsTab-all"   onclick="fsSwitchTab('all')">All</div>
+        <div class="fs-tab"        id="fsTab-team1" onclick="fsSwitchTab('team1')">Team 1</div>
+        <div class="fs-tab"        id="fsTab-team2" onclick="fsSwitchTab('team2')">Team 2</div>
+    </div>
+    <div class="fs-body" id="fsPanelBody">
+        <div style="text-align:center;padding:60px;color:var(--muted);">Loading...</div>
     </div>
 </div>
 
@@ -588,15 +637,35 @@ function buildCard(m){
     </div>`;
 }
 
-// ── Mini players count only (no IGN list on card) ────────────────────────────
+// ── Mini players count — correct per mode ────────────────────────────────────
 function loadPlayersForCard(m){
-    const isSolo = (m.entryType||'').toLowerCase()==='solo';
-    const ref    = isSolo ? `matches/${m.matchId}/players` : `matches/${m.matchId}/teams`;
-    db.ref(ref).on('value', snap=>{
-        const countEl = document.getElementById('player-count-'+m.matchId);
-        if(!countEl) return;
-        countEl.textContent = snap.exists() ? snap.numChildren() : '0';
-    });
+    const isSolo   = (m.entryType||'').toLowerCase()==='solo';
+    const isCSorLW = m.matchType==='CS' || m.matchType==='LW';
+    const countEl  = document.getElementById('player-count-'+m.matchId);
+    if(!countEl) return;
+
+    if(isCSorLW){
+        // Count individual players across all slots
+        db.ref(`matches/${m.matchId}/slots`).on('value', snap=>{
+            if(!countEl) return;
+            let total=0;
+            snap.forEach(slotSnap=>{ total+=slotSnap.child('players').numChildren(); });
+            countEl.textContent=total;
+        });
+    } else if(isSolo){
+        db.ref(`matches/${m.matchId}/players`).on('value', snap=>{
+            if(!countEl) return;
+            countEl.textContent=snap.exists()?snap.numChildren():0;
+        });
+    } else {
+        // BR multi: sum members across all teams
+        db.ref(`matches/${m.matchId}/teams`).on('value', snap=>{
+            if(!countEl) return;
+            let total=0;
+            snap.forEach(t=>{ total+=t.child('members').numChildren(); });
+            countEl.textContent=total;
+        });
+    }
 }
 
 const cardObserver=new MutationObserver(()=>{
@@ -605,72 +674,168 @@ const cardObserver=new MutationObserver(()=>{
 cardObserver.observe(document.getElementById('list-upcoming'),{childList:true});
 cardObserver.observe(document.getElementById('list-ongoing'),{childList:true});
 
-// ── Full Players / Teams Sheet ─────────────────────────────────────────────────
+// ── Full-screen Players Panel ─────────────────────────────────────────────────
+let _fsMatchId='', _fsMatchType='', _fsEntryType='', _fsSlotsData=null, _fsTeamsData=null, _fsPlayersData=null;
+
 window.openPlayersSheet=function(matchId, title, entryType){
-    const isSolo = (entryType||'').toLowerCase()==='solo';
-    document.getElementById('playersSheetTitle').textContent = isSolo ? `👥 ${title}` : `⚔️ ${title}`;
-    document.getElementById('playersSheetSub').textContent   = isSolo ? 'All joined players' : 'All joined teams';
-    document.getElementById('playersSheetBody').innerHTML    = '<div style="text-align:center;padding:30px;color:var(--muted);">Loading...</div>';
-    document.getElementById('playersSheet').classList.add('show');
+    _fsMatchId=matchId; _fsEntryType=entryType;
+    const m=[...upcomingMatches,...ongoingMatches].find(x=>x.matchId===matchId)||{};
+    _fsMatchType=m.matchType||'';
+    const isCSorLW = _fsMatchType==='CS' || _fsMatchType==='LW';
+    const isSolo   = (entryType||'').toLowerCase()==='solo';
 
-    const ref = isSolo ? `matches/${matchId}/players` : `matches/${matchId}/teams`;
-    db.ref(ref).once('value', snap=>{
-        const body = document.getElementById('playersSheetBody');
-        if(!snap.exists()||!snap.hasChildren()){
-            body.innerHTML=`<div style="text-align:center;padding:30px;color:var(--muted);">${isSolo?'No players':'No teams'} yet.</div>`;
-            return;
-        }
+    document.getElementById('fsPanelTitle').textContent = isCSorLW ? `⚔️ ${title}` : isSolo ? `👥 ${title}` : `⚔️ ${title}`;
+    document.getElementById('fsPanelSub').textContent   = isCSorLW ? 'CS/LW Slot Teams' : isSolo ? 'Solo Players' : 'BR Teams';
+    document.getElementById('fsPanelBody').innerHTML    = '<div style="text-align:center;padding:60px;color:var(--muted);">Loading...</div>';
+    document.getElementById('fsPanelCount').textContent = '…';
 
-        if(isSolo){
-            // ── Solo: serial number + IGN + UID ──
-            const players=[]; snap.forEach(c=>players.push(c.val()));
-            body.innerHTML = players.map((p,i)=>`
-                <div class="full-player-item">
-                    <div class="fp-num">${i+1}</div>
-                    <div class="fp-avatar">${(p.inGameName||'?').charAt(0).toUpperCase()}</div>
-                    <div class="fp-info">
-                        <div class="fp-ign-label">IN-GAME NAME</div>
-                        <div class="fp-name">🎮 ${esc(p.inGameName||'—')}</div>
-                        <div class="fp-uid">
-                            <span class="fp-uid-label">UID</span>
-                            <span>${esc(p.userId||'—')}</span>
-                        </div>
-                    </div>
-                </div>`).join('');
-
-        } else {
-            // ── Multi: team cards — big highlighted team name, members below ──
-            // Serial number on team. No serial on member rows.
-            let idx=1;
-            let html='';
-            snap.forEach(child=>{
-                const t       = child.val();
-                const members = Object.values(t.members||{});
-                // rawMembers used below for uid+ign pairs
-                const rawMembers = Object.entries(t.members||{});
-                const memberRows = rawMembers.map(([uid, ign])=>`
-                    <div class="tfm-row">
-                        <span class="tfm-ign">🎮 ${esc(ign)}</span>
-                        <div class="tfm-uid-wrap">
-                            <span class="tfm-uid-label">UID</span>
-                            <span class="tfm-uid">${esc(uid)}</span>
-                        </div>
-                    </div>`).join('');
-
-                html+=`<div class="team-full-card">
-                    <div class="team-full-header">
-                        <span class="tfc-num">#${idx}</span>
-                        <span class="tfc-name">${esc(t.teamName||'Unnamed Team')}</span>
-                        <span class="tfc-count">${members.length} player${members.length!==1?'s':''}</span>
-                    </div>
-                    <div class="team-full-members">${memberRows}</div>
-                </div>`;
-                idx++;
-            });
-            body.innerHTML = html;
-        }
+    // Show tabs only for CS/LW
+    document.getElementById('fsPanelTabs').style.display = isCSorLW ? 'flex' : 'none';
+    // Reset tab
+    ['all','team1','team2'].forEach(t=>{
+        document.getElementById('fsTab-'+t)?.classList.remove('active');
     });
+    document.getElementById('fsTab-all')?.classList.add('active');
+
+    document.getElementById('playersPanel').classList.add('show');
+
+    if(isCSorLW){
+        db.ref(`matches/${matchId}/slots`).once('value', snap=>{
+            _fsSlotsData=snap;
+            renderFsPanelCSLW('all');
+        });
+    } else if(isSolo){
+        db.ref(`matches/${matchId}/players`).once('value', snap=>{
+            _fsPlayersData=snap;
+            renderFsPanelSolo();
+        });
+    } else {
+        db.ref(`matches/${matchId}/teams`).once('value', snap=>{
+            _fsTeamsData=snap;
+            renderFsPanelBR();
+        });
+    }
 };
+
+window.closePlayersPanel=function(){
+    document.getElementById('playersPanel').classList.remove('show');
+};
+
+window.fsSwitchTab=function(tab){
+    ['all','team1','team2'].forEach(t=>document.getElementById('fsTab-'+t)?.classList.remove('active'));
+    document.getElementById('fsTab-'+tab)?.classList.add('active');
+    renderFsPanelCSLW(tab);
+};
+
+// ── CS/LW: slot cards with Team number, Team name, leaderId (dim), spot+IGN rows
+function renderFsPanelCSLW(filter){
+    const body=document.getElementById('fsPanelBody');
+    const snap=_fsSlotsData;
+    if(!snap||!snap.exists()||!snap.hasChildren()){
+        body.innerHTML='<div style="text-align:center;padding:60px;color:var(--muted);">No teams joined yet.</div>';
+        document.getElementById('fsPanelCount').textContent='0';
+        return;
+    }
+    let html=''; let totalPlayers=0;
+    snap.forEach(slotSnap=>{
+        const s       = slotSnap.val();
+        const tNum    = s.teamNumber||slotSnap.key;
+        const tName   = s.teamName||'Unnamed Team';
+        const leaderId= s.leaderId||'—';
+        const players = s.players||{};
+        const spotNums= Object.keys(players).sort((a,b)=>Number(a)-Number(b));
+
+        // Filter by team tab
+        if(filter==='team1' && String(tNum)!=='1') return;
+        if(filter==='team2' && String(tNum)!=='2') return;
+
+        totalPlayers+=spotNums.length;
+        const playerRows=spotNums.map(sn=>`
+            <div class="slot-player-row">
+                <div class="slot-spot-num">S${sn}</div>
+                <div class="slot-ign">🎮 ${esc(players[sn]||'—')}</div>
+            </div>`).join('');
+
+        html+=`<div class="slot-card">
+            <div class="slot-card-header">
+                <span class="slot-team-num">Team ${esc(String(tNum))}</span>
+                <span class="slot-team-name">${esc(tName)}</span>
+                <div class="slot-leader-wrap">
+                    <span class="slot-leader-label">Leader ID</span>
+                    <span class="slot-leader-id">${esc(leaderId)}</span>
+                </div>
+            </div>
+            <div class="slot-players">${playerRows||'<div style="color:var(--muted);font-size:13px;padding:4px;">No players yet</div>'}</div>
+        </div>`;
+    });
+    body.innerHTML=html||'<div style="text-align:center;padding:60px;color:var(--muted);">No teams for this filter.</div>';
+    document.getElementById('fsPanelCount').textContent=totalPlayers+' players';
+}
+
+// ── BR Solo: serial + IGN + userId
+function renderFsPanelSolo(){
+    const body=document.getElementById('fsPanelBody');
+    const snap=_fsPlayersData;
+    if(!snap||!snap.exists()||!snap.hasChildren()){
+        body.innerHTML='<div style="text-align:center;padding:60px;color:var(--muted);">No players yet.</div>';
+        document.getElementById('fsPanelCount').textContent='0';
+        return;
+    }
+    const players=[]; snap.forEach(c=>players.push(c.val()));
+    document.getElementById('fsPanelCount').textContent=players.length+' players';
+    body.innerHTML=players.map((p,i)=>`
+        <div class="full-player-item">
+            <div class="fp-num">${i+1}</div>
+            <div class="fp-avatar">${(p.inGameName||'?').charAt(0).toUpperCase()}</div>
+            <div class="fp-info">
+                <div class="fp-ign-label">IN-GAME NAME</div>
+                <div class="fp-name">🎮 ${esc(p.inGameName||'—')}</div>
+                <div class="fp-uid"><span class="fp-uid-label">UID</span> ${esc(p.userId||'—')}</div>
+            </div>
+        </div>`).join('');
+}
+
+// ── BR Multi: team cards — team number (dim), team name, leaderId (dim), spot+IGN rows
+function renderFsPanelBR(){
+    const body=document.getElementById('fsPanelBody');
+    const snap=_fsTeamsData;
+    if(!snap||!snap.exists()||!snap.hasChildren()){
+        body.innerHTML='<div style="text-align:center;padding:60px;color:var(--muted);">No teams joined yet.</div>';
+        document.getElementById('fsPanelCount').textContent='0';
+        return;
+    }
+    let html=''; let totalPlayers=0; let teamIdx=1;
+    snap.forEach(child=>{
+        const t       = child.val();
+        const tKey    = child.key;         // Firebase key = serial team number
+        const tName   = t.teamName||'Unnamed Team';
+        const leaderId= t.leaderId||'—';
+        const members = t.members||{};
+        const spots   = Object.keys(members).sort((a,b)=>Number(a)-Number(b));
+        totalPlayers+=spots.length;
+
+        const memberRows=spots.map(sn=>`
+            <div class="br-member-row">
+                <span class="br-spot-badge">P${sn}</span>
+                <span class="br-member-ign">🎮 ${esc(members[sn]||'—')}</span>
+            </div>`).join('');
+
+        html+=`<div class="br-team-card">
+            <div class="br-team-header">
+                <span class="br-team-num">Team #${esc(tKey)}</span>
+                <span class="br-team-name">${esc(tName)}</span>
+                <div class="br-leader-wrap">
+                    <span class="br-leader-label">Leader ID</span>
+                    <span class="br-leader-id">${esc(leaderId)}</span>
+                </div>
+            </div>
+            <div class="br-members">${memberRows}</div>
+        </div>`;
+        teamIdx++;
+    });
+    body.innerHTML=html;
+    document.getElementById('fsPanelCount').textContent=totalPlayers+' players';
+}
 
 // ── Room sheet ────────────────────────────────────────────────────────────────
 window.openRoomSheet=function(matchId){
@@ -766,9 +931,11 @@ window.confirmEndMatch=async function(){
     const btn=document.getElementById('confirmEndBtn');
     btn.disabled=true; btn.textContent='Ending...';
     try {
-        await db.ref('matches/'+matchId).update({status:'result_pending'});
+        // Set result_pending + delete roomId & roomPassword
+        await db.ref('matches/'+matchId).update({status:'result_pending', roomId:null, roomPassword:null});
+        await sendNotification(matchId,'match_ended');
         closeSheet('endSheet');
-        toast('🏁 Match ended. Status: Result Pending.','success');
+        toast('🏁 Match ended. Room details cleared. Players notified.','success');
     } catch(e){ toast('Error: '+e.message,'error'); }
     finally { btn.disabled=false; btn.textContent='End Match'; }
 };
@@ -874,15 +1041,54 @@ window.confirmCancel=async function(){
     finally { btn.disabled=false; btn.textContent='Cancel Match'; }
 };
 
-// ── Push notification ─────────────────────────────────────────────────────────
-async function sendNotification(matchId,type,reason){
+// ── Push notification — sends to all team/slot leaderIds ─────────────────────
+async function sendNotification(matchId, type, reason){
     try {
-        const res=await fetch('/.netlify/functions/notify',{
-            method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({matchId,type,...(reason?{reason}:{})})
+        // Step 1: collect all leaderIds for this match
+        const matchSnap = await db.ref('matches/'+matchId).once('value');
+        const match = matchSnap.val()||{};
+        const isSolo   = (match.entryType||'').toLowerCase()==='solo';
+        const isCSorLW = match.matchType==='CS' || match.matchType==='LW';
+        const leaderIds = new Set();
+
+        if(isSolo){
+            // Solo: each player is their own "leader"
+            const pSnap = await db.ref('matches/'+matchId+'/players').once('value');
+            pSnap.forEach(c=>{ const uid=c.val().userId||c.val().uid; if(uid) leaderIds.add(uid); });
+        } else if(isCSorLW){
+            // CS/LW: leaderId per slot
+            const sSnap = await db.ref('matches/'+matchId+'/slots').once('value');
+            sSnap.forEach(s=>{ const lid=s.val().leaderId; if(lid) leaderIds.add(lid); });
+        } else {
+            // BR multi: leaderId per team
+            const tSnap = await db.ref('matches/'+matchId+'/teams').once('value');
+            tSnap.forEach(t=>{ const lid=t.val().leaderId; if(lid) leaderIds.add(lid); });
+        }
+
+        // Step 2: collect FCM tokens for each leaderId
+        const tokens = [];
+        for(const uid of leaderIds){
+            const tokSnap = await db.ref('users/'+uid+'/fcmToken').once('value');
+            const tok = tokSnap.val();
+            if(tok) tokens.push(tok);
+        }
+
+        // Step 3: build notification payload per type
+        const payloads = {
+            room_details:   { title:'🔑 Room Details Ready!',  body:`Room ID & password are live for ${esc(match.title||matchId)}. Check now!` },
+            match_started:  { title:'🔥 Match Started!',       body:`${esc(match.title||matchId)} is now LIVE! Join the room now.` },
+            match_ended:    { title:'🏁 Match Ended',          body:`${esc(match.title||matchId)} has ended. Results coming soon.` },
+            match_cancelled:{ title:'❌ Match Cancelled',      body:`${esc(match.title||matchId)} was cancelled. ${reason?'Reason: '+reason:''}` },
+        };
+        const notif = payloads[type]||{ title:'Aura Battle', body:'Match update.' };
+
+        // Step 4: send via netlify function (passes tokens + payload)
+        const res = await fetch('/.netlify/functions/notify',{
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ matchId, type, tokens, notif, ...(reason?{reason}:{}) })
         });
-        const data=await res.json();
-        console.log(`Notified ${data.sent??0} players`);
+        const data = await res.json();
+        console.log(`Notified ${data.sent??tokens.length} players (${tokens.length} tokens)`);
     } catch(e){ console.warn('Push failed (non-critical):',e.message); }
 }
 
