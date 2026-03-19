@@ -55,26 +55,40 @@ async function sendOne(accessToken, projectId, token, title, body, data = {}) {
 // ─────────────────────────────────────────────────────────────────────────────
 function collectUserIds(match) {
   const ids = new Set();
+  const matchType = (match.matchType || '').toUpperCase();
+  const isCSorLW  = matchType === 'CS' || matchType === 'LW';
+  const isSolo    = (match.entryType || '').toLowerCase() === 'solo';
 
-  // Solo players
-  if (match.players && typeof match.players === 'object') {
-    Object.values(match.players).forEach(p => {
-      if (p && p.userId) ids.add(p.userId);
-    });
+  // ── CS / LW: slots/{teamNum}/leaderId + slots/{teamNum}/joiners/{userId}
+  if (isCSorLW) {
+    if (match.slots && typeof match.slots === 'object') {
+      Object.values(match.slots).forEach(slot => {
+        if (!slot) return;                          // guard empty slots
+        if (slot.leaderId) ids.add(slot.leaderId);  // first joiner
+        // additional joiners who filled remaining spots in the same slot
+        if (slot.joiners && typeof slot.joiners === 'object') {
+          Object.keys(slot.joiners).forEach(uid => { if (uid) ids.add(uid); });
+        }
+      });
+    }
+    return [...ids];
   }
 
-  // Team players (Duo / Squad / 6v6)
+  // ── BR Solo: players/{userId}/userId
+  if (isSolo) {
+    if (match.players && typeof match.players === 'object') {
+      Object.values(match.players).forEach(p => {
+        if (p && p.userId) ids.add(p.userId);
+      });
+    }
+    return [...ids];
+  }
+
+  // ── BR Multi (Duo / Squad / 6v6): teams/{teamNum}/leaderId
   if (match.teams && typeof match.teams === 'object') {
     Object.values(match.teams).forEach(team => {
       if (!team) return;
-      // Always add the leader
       if (team.leaderId) ids.add(team.leaderId);
-      // Add real user uid keys from members (skip p2, p3, p4, p5, p6 placeholders)
-      if (team.members && typeof team.members === 'object') {
-        Object.keys(team.members).forEach(uid => {
-          if (!/^p\d+$/.test(uid)) ids.add(uid);
-        });
-      }
     });
   }
 
@@ -128,6 +142,9 @@ exports.handler = async (event) => {
     } else if (type === 'match_started') {
       title = `🔴 Match #${matchId} is LIVE!`;
       body  = `${match.title || 'Your match'} has started. Join the room now!`;
+    } else if (type === 'match_ended') {
+      title = `🏁 Match #${matchId} Ended`;
+      body  = `${match.title || 'Your match'} has ended. Results coming soon.`;
     } else if (type === 'match_cancelled') {
       title = `❌ Match #${matchId} Cancelled`;
       body  = reason ? `Reason: ${reason}` : 'The match has been cancelled.';
