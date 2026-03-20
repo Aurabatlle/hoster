@@ -330,6 +330,30 @@
                 <div class="oc-name">Per Kill</div>
                 <div class="oc-desc">Gold per frag</div>
             </div>
+            <!-- Winner Only — shown only for CS/LW -->
+            <div class="opt-card" id="prizeWinnerCard" style="display:none;" onclick="setPrizeType('winner_only',this)">
+                <div class="oc-check"><i class="fas fa-check"></i></div>
+                <div class="oc-emoji">🥇</div>
+                <div class="oc-name">Winner Only</div>
+                <div class="oc-desc">All prize to winner</div>
+            </div>
+        </div>
+
+        <!-- Winner Only prize pool input — CS/LW only -->
+        <div id="winnerOnlySection" style="display:none;">
+            <div class="kill-box">
+                <div class="kill-box-head"><i class="fas fa-trophy"></i> Winner Prize Pool</div>
+                <div class="field" style="margin-bottom:0;">
+                    <label>Total Prize Pool <span style="color:var(--muted);font-size:11px;">(even number only)</span></label>
+                    <div class="gold-input-wrap">
+                        <img src="gold.png" class="gi-coin" alt="gold">
+                        <input type="number" id="winnerPrizePool" placeholder="e.g. 100" min="2" step="2" oninput="validateWinnerPrize(this)">
+                    </div>
+                    <div class="gold-hint" id="winnerPrizeHint" style="display:none;">
+                        <img src="gold.png" alt=""> <span id="winnerPrizeHintText"></span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Kill reward -->
@@ -390,10 +414,13 @@
         </div>
 
         <div class="field">
-            <label>Total Spots</label>
+            <label>Total Spots <span id="spotsAutoLabel" style="display:none;color:var(--muted);font-size:11px;font-weight:400;">(auto-set for CS/LW)</span></label>
             <div class="spots-wrap">
                 <img src="gold.png" class="si-coin" alt="spots">
                 <input type="number" id="matchSpots" placeholder="e.g. 100" min="2" style="padding-left:46px;">
+            </div>
+            <div id="spotsHint" style="display:none;font-size:11px;color:var(--muted);margin-top:6px;">
+                <i class="fas fa-info-circle" style="color:var(--gold);"></i> CS/LW: Duo = 4 spots, Squad = 8 spots, 6v6 = 12 spots
             </div>
         </div>
     </div>
@@ -470,7 +497,7 @@ const D={
     matchType:'', entryType:'',
     entryMode:'',  // 'free' | 'gold'
     entryFee:0,
-    prizeType:'', perKillGold:0, rankPrizes:[],
+    prizeType:'', perKillGold:0, rankPrizes:[], winnerPrizePool:0,
     title:'', description:'', date:'', time:'', map:'', spots:0
 };
 
@@ -479,7 +506,52 @@ window.sel=function(field,val,el,cls){
     D[field]=val;
     document.querySelectorAll('.'+cls).forEach(c=>c.classList.remove('sel'));
     el.classList.add('sel');
+    // When matchType changes, show/hide Winner Only prize card
+    if(field==='matchType') onMatchTypeChange();
+    // When entryType changes and it's CS/LW, auto-fill spots
+    if(field==='entryType') onEntryTypeChange();
 };
+
+function onMatchTypeChange(){
+    const isCSLW = D.matchType==='CS' || D.matchType==='LW';
+    document.getElementById('prizeWinnerCard').style.display = isCSLW ? '' : 'none';
+    // If winner_only was selected but user switched to BR, reset prize type
+    if(!isCSLW && D.prizeType==='winner_only'){
+        D.prizeType='';
+        document.querySelectorAll('#step2 .opt-card').forEach(c=>c.classList.remove('sel'));
+        document.getElementById('winnerOnlySection').style.display='none';
+    }
+    onEntryTypeChange(); // also refresh spots
+}
+
+function onEntryTypeChange(){
+    const isCSLW = D.matchType==='CS' || D.matchType==='LW';
+    const spotsInput = document.getElementById('matchSpots');
+    const spotsHint  = document.getElementById('spotsHint');
+    const autoLabel  = document.getElementById('spotsAutoLabel');
+    if(isCSLW && D.entryType){
+        const spotMap = { 'Duo':4, 'Squad':8, '6v6':12 };
+        const autoSpots = spotMap[D.entryType];
+        if(autoSpots){
+            spotsInput.value    = autoSpots;
+            spotsInput.readOnly = true;
+            spotsInput.style.opacity = '0.7';
+            spotsInput.style.cursor  = 'not-allowed';
+            spotsHint.style.display  = 'block';
+            autoLabel.style.display  = 'inline';
+            D.spots = autoSpots;
+        }
+    } else {
+        spotsInput.readOnly = false;
+        spotsInput.style.opacity = '1';
+        spotsInput.style.cursor  = '';
+        spotsHint.style.display  = 'none';
+        autoLabel.style.display  = 'none';
+        if(!isCSLW) spotsInput.value = '';
+    }
+    // Also update winner prize hint if already set
+    updateWinnerPrizeHint();
+}
 
 // ── Entry mode ─────────────────────────────────────────────────────────────
 window.setEntryMode=function(mode){
@@ -511,8 +583,35 @@ window.setPrizeType=function(type,el){
     el.classList.add('sel');
     document.getElementById('killSection').style.display=type==='kill'?'block':'none';
     document.getElementById('rankSection').style.display=type==='rank'?'block':'none';
+    document.getElementById('winnerOnlySection').style.display=type==='winner_only'?'block':'none';
     if(type==='rank' && document.querySelectorAll('.rank-row').length===0) addRankRow();
+    if(type==='winner_only') updateWinnerPrizeHint();
 };
+
+window.validateWinnerPrize=function(el){
+    let v=parseInt(el.value)||0;
+    // Block negative and zero
+    if(v<=0){ el.value=''; updateWinnerPrizeHint(); return; }
+    // Force even number
+    if(v%2!==0){ v=v%2===1?v-1:v; el.value=v; }
+    D.winnerPrizePool=v;
+    updateWinnerPrizeHint();
+};
+
+function updateWinnerPrizeHint(){
+    const hint    = document.getElementById('winnerPrizeHint');
+    const hintTxt = document.getElementById('winnerPrizeHintText');
+    if(!hint) return;
+    const v = parseInt(document.getElementById('winnerPrizePool')?.value)||0;
+    if(v>0 && D.prizeType==='winner_only'){
+        const teamSize = {'Duo':2,'Squad':4,'6v6':6}[D.entryType]||1;
+        const perPlayer = Math.floor(v/teamSize);
+        hint.style.display='inline-flex';
+        hintTxt.textContent=`Each player gets ${perPlayer} coins (${v} ÷ ${teamSize} players)`;
+    } else {
+        hint.style.display='none';
+    }
+}
 
 // ── Rank rows ──────────────────────────────────────────────────────────────
 let rankCount=0;
@@ -616,6 +715,12 @@ function validate(s){
             });
             if(!ok){ toast('Fill all rank prize amounts.','error'); return false; }
         }
+        if(D.prizeType==='winner_only'){
+            const v=parseInt(document.getElementById('winnerPrizePool').value);
+            if(!v||v<=0){ toast('Enter a prize pool amount.','error'); return false; }
+            if(v%2!==0){ toast('Prize pool must be an even number.','error'); return false; }
+            D.winnerPrizePool=v;
+        }
     }
     if(s===3){
         D.title=document.getElementById('matchTitle').value.trim();
@@ -628,6 +733,12 @@ function validate(s){
         if(!D.date){ toast('Select a match date.','error'); return false; }
         if(!D.time){ toast('Select a match time.','error'); return false; }
         if(!D.map){ toast('Enter a map name.','error'); return false; }
+        // For CS/LW spots are auto-set; for BR validate normally
+        const isCSLW = D.matchType==='CS' || D.matchType==='LW';
+        if(isCSLW){
+            const spotMap={'Duo':4,'Squad':8,'6v6':12};
+            D.spots=spotMap[D.entryType]||D.spots;
+        }
         if(!D.spots||D.spots<2){ toast('Enter valid spots (minimum 2).','error'); return false; }
     }
     return true;
@@ -644,9 +755,15 @@ async function buildReview(){
     document.getElementById('rv-fee').innerHTML=D.entryMode==='free'
         ? '<span style="color:var(--green)">🆓 FREE</span>'
         : `<img src="gold.png"> ${D.entryFee} Gold`;
-    document.getElementById('rv-prize').innerHTML=D.prizeType==='kill'
-        ? `💀 Per Kill — <img src="gold.png" style="width:14px;height:14px;"> ${D.perKillGold} Gold`
-        : `🏆 By Rank (${D.rankPrizes.length} positions)`;
+    let rvPrize='';
+    if(D.prizeType==='kill')      rvPrize=`💀 Per Kill — <img src="gold.png" style="width:14px;height:14px;"> ${D.perKillGold} Gold`;
+    else if(D.prizeType==='rank') rvPrize=`🏆 By Rank (${D.rankPrizes.length} positions)`;
+    else if(D.prizeType==='winner_only'){
+        const teamSize={'Duo':2,'Squad':4,'6v6':6}[D.entryType]||1;
+        const perPlayer=Math.floor(D.winnerPrizePool/teamSize);
+        rvPrize=`🥇 Winner Only — <img src="gold.png" style="width:14px;height:14px;"> ${D.winnerPrizePool} total · ${perPlayer}/player`;
+    }
+    document.getElementById('rv-prize').innerHTML=rvPrize;
     document.getElementById('rv-title').textContent=D.title;
     const dt=D.date?new Date(D.date+'T'+D.time).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'—';
     document.getElementById('rv-dt').textContent=dt;
@@ -674,6 +791,7 @@ async function submitMatch(){
         };
         if(D.prizeType==='kill') md.perKillGold=D.perKillGold;
         if(D.prizeType==='rank') md.rankPrizes=D.rankPrizes;
+        if(D.prizeType==='winner_only') md.winnerPrizePool=D.winnerPrizePool;
         await db.ref('matches/'+matchId).set(md);
         document.getElementById('progressWrap').style.display='none';
         document.querySelectorAll('.step-panel').forEach(p=>p.style.display='none');
