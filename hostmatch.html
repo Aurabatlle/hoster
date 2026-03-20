@@ -645,11 +645,20 @@ function loadPlayersForCard(m){
     if(!countEl) return;
 
     if(isCSorLW){
-        // Count individual players across all slots
+        // Count individual spots: s{N} keys on user object + extraSpots/s{N} keys
         db.ref(`matches/${m.matchId}/slots`).on('value', snap=>{
             if(!countEl) return;
             let total=0;
-            snap.forEach(slotSnap=>{ total+=slotSnap.child('players').numChildren(); });
+            snap.forEach(slotSnap=>{
+                slotSnap.child('players').forEach(playerSnap=>{
+                    // Count s{N} keys directly on user (primary spot)
+                    playerSnap.forEach(field=>{
+                        if(/^s\d+$/.test(field.key)) total++;
+                    });
+                    // Count extraSpots/s{N}
+                    total += playerSnap.child('extraSpots').numChildren();
+                });
+            });
             countEl.textContent=total;
         });
     } else if(isSolo){
@@ -727,7 +736,8 @@ window.fsSwitchTab=function(tab){
     renderFsPanelCSLW(tab);
 };
 
-// ── CS/LW: slot cards with Team number, Team name, leaderId (dim), spot+IGN rows
+// ── CS/LW: one flat list per team — all spots in order, userId shown beside IGN
+//           if that spot was booked by a different user than the first joiner
 function renderFsPanelCSLW(filter){
     const body=document.getElementById('fsPanelBody');
     const snap=_fsSlotsData;
@@ -736,40 +746,75 @@ function renderFsPanelCSLW(filter){
         document.getElementById('fsPanelCount').textContent='0';
         return;
     }
-    let html=''; let totalPlayers=0;
+
+    // Collect Team 1 and Team 2 data
+    const teams = { '1': null, '2': null };
     snap.forEach(slotSnap=>{
-        const s       = slotSnap.val();
-        const tNum    = s.teamNumber||slotSnap.key;
-        const tName   = s.teamName||'Unnamed Team';
-        const leaderId= s.leaderId||'—';
-        const players = s.players||{};
-        const spotNums= Object.keys(players).sort((a,b)=>Number(a)-Number(b));
+        const s    = slotSnap.val();
+        const tNum = String(s.teamNumber || slotSnap.key);
+        if(tNum==='1' || tNum==='2') teams[tNum] = s;
+    });
 
-        // Filter by team tab
-        if(filter==='team1' && String(tNum)!=='1') return;
-        if(filter==='team2' && String(tNum)!=='2') return;
+    // Build HTML for the requested filter
+    const teamNums = filter==='team1' ? ['1'] : filter==='team2' ? ['2'] : ['1','2'];
+    let totalSpots = 0;
+    let html = '';
 
-        totalPlayers+=spotNums.length;
-        const playerRows=spotNums.map(sn=>`
-            <div class="slot-player-row">
-                <div class="slot-spot-num">S${sn}</div>
-                <div class="slot-ign">🎮 ${esc(players[sn]||'—')}</div>
-            </div>`).join('');
+    teamNums.forEach(tNum=>{
+        const s = teams[tNum];
 
-        html+=`<div class="slot-card">
-            <div class="slot-card-header">
-                <span class="slot-team-num">Team ${esc(String(tNum))}</span>
-                <span class="slot-team-name">${esc(tName)}</span>
-                <div class="slot-leader-wrap">
-                    <span class="slot-leader-label">Leader ID</span>
-                    <span class="slot-leader-id">${esc(leaderId)}</span>
-                </div>
+        // Header always shown — even if no players yet
+        const playersObj = (s && s.players) || {};
+        const allSpots   = [];
+
+        // Flatten: players/{userId}/{sN:"IGN", extraSpots/{sN:"IGN"}}
+        Object.entries(playersObj).forEach(([userId, pData])=>{
+            if(!pData || typeof pData !== 'object') return;
+            Object.entries(pData).forEach(([k, v])=>{
+                if(/^s(\d+)$/.test(k) && v)
+                    allSpots.push({ spot: parseInt(k.slice(1)), ign: v, userId });
+            });
+            const extras = pData.extraSpots || {};
+            Object.entries(extras).forEach(([k, ign])=>{
+                if(/^s(\d+)$/.test(k) && ign)
+                    allSpots.push({ spot: parseInt(k.slice(1)), ign, userId });
+            });
+        });
+
+        allSpots.sort((a,b)=>a.spot-b.spot);
+        totalSpots += allSpots.length;
+
+        // Detect if multiple different users joined this team
+        const uniqueUsers = [...new Set(allSpots.map(x=>x.userId))];
+        const multiUser   = uniqueUsers.length > 1;
+
+        // Build flat rows — show userId beside IGN only when multiple users joined
+        const rows = allSpots.length
+            ? allSpots.map(({spot, ign, userId})=>`
+                <div style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--surface3);border-radius:9px;">
+                    <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--red);width:28px;flex-shrink:0;">S${spot}</span>
+                    <span style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--gold);flex:1;">🎮 ${esc(ign)}</span>
+                    ${multiUser
+                        ? `<span style="font-size:10px;color:#7878a8;font-family:'Rajdhani',sans-serif;letter-spacing:1px;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:6px;">${esc(userId)}</span>`
+                        : ''}
+                </div>`).join('')
+            : `<div style="color:var(--muted);font-size:13px;padding:12px 14px;">No players joined yet</div>`;
+
+        html+=`
+        <div style="background:var(--surface2);border-radius:14px;overflow:hidden;margin-bottom:14px;border:1px solid var(--border);">
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(230,57,70,.07);border-bottom:1px solid var(--border);">
+                <span style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--red);">Team ${tNum}</span>
+                <span style="font-family:'Rajdhani',sans-serif;font-size:13px;color:var(--muted);flex:1;">${allSpots.length} / — spots</span>
+                ${multiUser ? `<span style="font-size:10px;color:var(--gold);background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.25);padding:2px 9px;border-radius:10px;letter-spacing:.5px;">${uniqueUsers.length} joiners</span>` : ''}
             </div>
-            <div class="slot-players">${playerRows||'<div style="color:var(--muted);font-size:13px;padding:4px;">No players yet</div>'}</div>
+            <div style="display:flex;flex-direction:column;gap:6px;padding:10px 12px 12px;">
+                ${rows}
+            </div>
         </div>`;
     });
-    body.innerHTML=html||'<div style="text-align:center;padding:60px;color:var(--muted);">No teams for this filter.</div>';
-    document.getElementById('fsPanelCount').textContent=totalPlayers+' players';
+
+    body.innerHTML = html || '<div style="text-align:center;padding:60px;color:var(--muted);">No teams joined yet.</div>';
+    document.getElementById('fsPanelCount').textContent = totalSpots + ' player' + (totalSpots!==1?'s':'');
 }
 
 // ── BR Solo: serial + IGN + userId
@@ -1060,17 +1105,13 @@ async function sendNotification(matchId, type, reason){
                 if(uid) leaderIds.add(uid);
             });
         } else if(isCSorLW){
-            // CS/LW: read leaderId AND joiners map per slot
-            // Guard against empty slots (slots with no data return null from .val())
+            // CS/LW: new structure — players/{userId} keys are the userIds
             const sSnap = await db.ref('matches/'+matchId+'/slots').once('value');
             sSnap.forEach(slotSnap=>{
                 const sv = slotSnap.val();
-                if(!sv) return;   // skip empty/null slots
-                // Primary: leaderId (first joiner)
-                if(sv.leaderId) leaderIds.add(sv.leaderId);
-                // Secondary: all joiners who took additional spots in the same slot
-                const joiners = sv.joiners||{};
-                Object.keys(joiners).forEach(uid=>{ if(uid) leaderIds.add(uid); });
+                if(!sv) return;
+                const players = sv.players||{};
+                Object.keys(players).forEach(uid=>{ if(uid) leaderIds.add(uid); });
             });
         } else {
             // BR multi: leaderId per team
