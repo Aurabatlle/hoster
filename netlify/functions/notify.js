@@ -59,16 +59,14 @@ function collectUserIds(match) {
   const isCSorLW  = matchType === 'CS' || matchType === 'LW';
   const isSolo    = (match.entryType || '').toLowerCase() === 'solo';
 
-  // ── CS / LW: slots/{teamNum}/leaderId + slots/{teamNum}/joiners/{userId}
+  // ── CS / LW: new structure — slots/{teamNum}/players/{userId}/{spot,ign,extraSpots}
+  // Every key under players is a userId — collect all of them for notification
   if (isCSorLW) {
     if (match.slots && typeof match.slots === 'object') {
       Object.values(match.slots).forEach(slot => {
-        if (!slot) return;                          // guard empty slots
-        if (slot.leaderId) ids.add(slot.leaderId);  // first joiner
-        // additional joiners who filled remaining spots in the same slot
-        if (slot.joiners && typeof slot.joiners === 'object') {
-          Object.keys(slot.joiners).forEach(uid => { if (uid) ids.add(uid); });
-        }
+        if (!slot) return;
+        const players = slot.players || {};
+        Object.keys(players).forEach(uid => { if (uid) ids.add(uid); });
       });
     }
     return [...ids];
