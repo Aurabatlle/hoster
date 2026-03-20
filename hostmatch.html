@@ -788,15 +788,13 @@ function renderFsPanelCSLW(filter){
         const uniqueUsers = [...new Set(allSpots.map(x=>x.userId))];
         const multiUser   = uniqueUsers.length > 1;
 
-        // Build flat rows — show userId beside IGN only when multiple users joined
+        // Build flat rows — always show userId opposite IGN
         const rows = allSpots.length
             ? allSpots.map(({spot, ign, userId})=>`
                 <div style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--surface3);border-radius:9px;">
                     <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--red);width:28px;flex-shrink:0;">S${spot}</span>
                     <span style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--gold);flex:1;">🎮 ${esc(ign)}</span>
-                    ${multiUser
-                        ? `<span style="font-size:10px;color:#7878a8;font-family:'Rajdhani',sans-serif;letter-spacing:1px;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:6px;">${esc(userId)}</span>`
-                        : ''}
+                    <span style="font-size:10px;color:#7878a8;font-family:'Rajdhani',sans-serif;letter-spacing:1px;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:6px;flex-shrink:0;">${esc(userId)}</span>
                 </div>`).join('')
             : `<div style="color:var(--muted);font-size:13px;padding:12px 14px;">No players joined yet</div>`;
 
@@ -859,20 +857,20 @@ function renderFsPanelBR(){
         const spots   = Object.keys(members).sort((a,b)=>Number(a)-Number(b));
         totalPlayers+=spots.length;
 
+        // P1 (spot 1) = leader, rest are members — leader userId shown on P1 row
         const memberRows=spots.map(sn=>`
-            <div class="br-member-row">
+            <div class="br-member-row" style="display:flex;align-items:center;gap:10px;">
                 <span class="br-spot-badge">P${sn}</span>
-                <span class="br-member-ign">🎮 ${esc(members[sn]||'—')}</span>
+                <span class="br-member-ign" style="flex:1;">🎮 ${esc(members[sn]||'—')}</span>
+                ${sn==='1'
+                    ? `<span style="font-size:10px;color:#7878a8;font-family:'Rajdhani',sans-serif;letter-spacing:1px;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:6px;flex-shrink:0;">${esc(leaderId)}</span>`
+                    : `<span style="font-size:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;padding:2px 8px;flex-shrink:0;">member</span>`}
             </div>`).join('');
 
         html+=`<div class="br-team-card">
             <div class="br-team-header">
                 <span class="br-team-num">Team #${esc(tKey)}</span>
-                <span class="br-team-name">${esc(tName)}</span>
-                <div class="br-leader-wrap">
-                    <span class="br-leader-label">Leader ID</span>
-                    <span class="br-leader-id">${esc(leaderId)}</span>
-                </div>
+                <span class="br-team-name" style="flex:1;">${esc(tName)}</span>
             </div>
             <div class="br-members">${memberRows}</div>
         </div>`;
