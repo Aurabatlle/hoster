@@ -558,22 +558,31 @@
         const pills = [
             `<span class="sh-pill"><i class="fas fa-gamepad"></i>${esc(m.matchType || '—')}</span>`,
             `<span class="sh-pill"><i class="fas fa-users"></i>${esc(m.entryType || 'Solo')}</span>`,
-            isKill
+            m.prizeType === 'kill'
                 ? `<span class="sh-pill gold-pill"><i class="fas fa-crosshairs"></i>${m.perKillGold || 0}G per kill</span>`
-                : `<span class="sh-pill gold-pill"><i class="fas fa-trophy"></i>Rank Prize</span>`,
+                : m.prizeType === 'winner_only'
+                    ? `<span class="sh-pill gold-pill"><i class="fas fa-trophy"></i>Winner Only — ${m.winnerPrizePool || 0}G</span>`
+                    : `<span class="sh-pill gold-pill"><i class="fas fa-trophy"></i>Rank Prize</span>`,
             m.map ? `<span class="sh-pill"><i class="fas fa-map"></i>${esc(m.map)}</span>` : ''
         ].join('');
         document.getElementById('shPills').innerHTML = pills;
 
         const prizeRef = document.getElementById('shPrizeRef');
         const prizeList = document.getElementById('shPrizeList');
-        if (!isKill && m.rankPrizes && m.rankPrizes.length) {
-            prizeList.innerHTML = m.rankPrizes.map(p =>
-                `<div class="prize-chip"><span class="pr-label">${rankSuffix(p.rank)}</span><span class="pr-val">&nbsp;${p.gold}G</span></div>`
-            ).join('');
+        if (m.prizeType === 'winner_only') {
+            const teamSize = {'Duo':2,'Squad':4,'6v6':6}[m.entryType] || 2;
+            const perSpot  = Math.floor((m.winnerPrizePool || 0) / teamSize);
+            prizeList.innerHTML = `
+                <div class="prize-chip"><span class="pr-label">Total Pool</span><span class="pr-val">&nbsp;${m.winnerPrizePool || 0}G</span></div>
+                <div class="prize-chip"><span class="pr-label">Per Spot</span><span class="pr-val">&nbsp;${perSpot}G</span></div>`;
             prizeRef.style.display = '';
         } else if (isKill) {
             prizeList.innerHTML = `<div class="prize-chip"><span class="pr-label">Per Kill</span><span class="pr-val">&nbsp;${m.perKillGold || 0}G</span></div>`;
+            prizeRef.style.display = '';
+        } else if (m.rankPrizes && m.rankPrizes.length) {
+            prizeList.innerHTML = m.rankPrizes.map(p =>
+                `<div class="prize-chip"><span class="pr-label">${rankSuffix(p.rank)}</span><span class="pr-val">&nbsp;${p.gold}G</span></div>`
+            ).join('');
             prizeRef.style.display = '';
         } else {
             prizeRef.style.display = 'none';
@@ -585,27 +594,73 @@
         const entryList = document.getElementById('shEntryList');
         entryList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px"><i class="fas fa-spinner fa-spin"></i>&nbsp; Loading...</div>';
 
-        // ── CS/LW: build from slots node ──────────────────────────────────────────
+        // ── CS/LW ─────────────────────────────────────────────────────────────────
         if (isCSorLW(m)) {
-            const slots = m.slots || {};
-            const slotKeys = Object.keys(slots).filter(k => slots[k] && slots[k].leaderId);
+            const slots    = m.slots || {};
+            // Detect slots that have at least one player entry
+            const slotKeys = Object.keys(slots).filter(k => slots[k] && Object.keys(slots[k].players || {}).length > 0);
             if (!slotKeys.length) { entryList.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:10px">No teams joined yet.</div>'; return; }
 
-            const isKillMode = m.prizeType === 'kill';
-            entryList.innerHTML = slotKeys.map((sk, i) => {
-                const slot     = slots[sk];
-                const teamNum  = slot.teamNumber || sk;
-                const tName    = slot.teamName || 'Team ' + teamNum;
-                const leaderId = slot.leaderId || '';
-                const players  = slot.players || {};
-                const spotNums = Object.keys(players).sort((a,b) => Number(a)-Number(b));
+            // ── Winner Only: show Team 1 / Team 2 selector buttons ────────────
+            if (m.prizeType === 'winner_only') {
+                document.getElementById('shEntryLabel').textContent = 'Select Winning Team';
+                entryList.innerHTML = `
+                <div style="display:flex;flex-direction:column;gap:14px;padding:4px 0;">
+                    ${slotKeys.map(sk => {
+                        const slot    = slots[sk];
+                        const teamNum = slot.teamNumber || sk;
+                        // Flatten all IGNs from new structure: players/{userId}/{sN, extraSpots/{sN}}
+                        const allIgns = [];
+                        Object.values(slot.players || {}).forEach(pData => {
+                            if (!pData || typeof pData !== 'object') return;
+                            Object.entries(pData).forEach(([k,v]) => { if (/^s\d+$/.test(k) && v) allIgns.push(v); });
+                            Object.values(pData.extraSpots || {}).forEach(v => { if(v) allIgns.push(v); });
+                        });
+                        return `
+                        <div class="team-block winner-select-card" id="winnerCard_${sk}"
+                            data-slotkey="${sk}"
+                            onclick="selectWinnerTeam('${sk}')"
+                            style="cursor:pointer;border:2px solid var(--border);transition:border-color .2s,background .2s;">
+                            <div class="team-block-head" style="background:rgba(230,57,70,.06);">
+                                <div class="team-icon"><i class="fas fa-shield-alt"></i></div>
+                                <div class="team-block-name">Team ${esc(String(teamNum))}</div>
+                                <span id="winnerCheck_${sk}" style="display:none;color:var(--green);font-size:20px;">✅</span>
+                            </div>
+                            <div class="team-block-members" style="padding:8px 14px 12px;">
+                                ${allIgns.map((ign,i) => `
+                                <div class="member-row">
+                                    <span class="member-serial">S${i+1}</span>
+                                    <span class="member-chip chip-member"><i class="fas fa-gamepad"></i>${esc(ign)}</span>
+                                </div>`).join('') || '<div style="color:var(--muted);font-size:12px;">No players</div>'}
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+                <input type="hidden" id="selectedWinnerSlot" value="">`;
+                return;
+            }
 
-                const playerRows = spotNums.map((sn, idx) => `
+            // ── Rank / Kill: show each slot with IGNs and one input ───────────
+            const isKillMode = m.prizeType === 'kill';
+            document.getElementById('shEntryLabel').textContent = `Teams — ${isKillMode ? 'Enter Kills' : 'Assign Ranks'}`;
+
+            entryList.innerHTML = slotKeys.map((sk, i) => {
+                const slot    = slots[sk];
+                const teamNum = slot.teamNumber || sk;
+
+                // Flatten all IGNs from new structure: {userId: {sN:IGN, extraSpots:{sN:IGN}}}
+                const allIgns = [];
+                Object.values(slot.players || {}).forEach(pData => {
+                    if (!pData || typeof pData !== 'object') return;
+                    Object.entries(pData).forEach(([k,v]) => { if (/^s\d+$/.test(k) && v) allIgns.push(v); });
+                    Object.values(pData.extraSpots || {}).forEach(v => { if(v) allIgns.push(v); });
+                });
+
+                const playerRows = allIgns.map((ign, idx) => `
                     <div class="member-row">
-                        <span class="member-serial">S${sn}</span>
-                        <span class="member-chip ${idx===0 ? 'chip-leader' : 'chip-member'}">
-                            ${idx===0 ? '<i class="fas fa-crown"></i>' : '<i class="fas fa-gamepad"></i>'}
-                            ${esc(players[sn])}
+                        <span class="member-serial">S${idx+1}</span>
+                        <span class="member-chip chip-member">
+                            <i class="fas fa-gamepad"></i>${esc(ign)}
                         </span>
                     </div>`).join('') || '<div style="color:var(--muted);font-size:12px;padding:4px">No players</div>';
 
@@ -615,15 +670,14 @@
                 <div class="team-block" id="slotBlock_${i}">
                     <div class="team-block-head">
                         <div class="team-icon"><i class="fas fa-shield-alt"></i></div>
-                        <div class="team-block-name">${esc(tName)}</div>
-                        <span class="team-leader-badge"><i class="fas fa-key"></i> Team ${esc(String(teamNum))}</span>
+                        <div class="team-block-name">Team ${esc(String(teamNum))}</div>
+                        <span class="team-leader-badge"><i class="fas fa-users"></i> ${allIgns.length} players</span>
                     </div>
                     <div class="team-block-members">${playerRows}</div>
                     <div class="team-block-input">
-                        <span class="team-input-label">${isKillMode ? 'Total Kills' : 'Rank'} <span>(prize → leader)</span></span>
+                        <span class="team-input-label">${isKillMode ? 'Total Kills' : 'Rank'} <span>(prize split by spots)</span></span>
                         <input class="entry-input" type="number" min="0" ${maxAttr} placeholder="${placeholder}"
-                            data-slotkey="${sk}" data-leaderid="${leaderId}"
-                            data-teamname="${esc(tName)}"
+                            data-slotkey="${sk}"
                             id="slotInput_${i}" oninput="validateRankInput(this, ${isKillMode ? 'false' : 'true'})">
                     </div>
                 </div>`;
@@ -764,6 +818,24 @@
         }
     }
 
+    // ── Winner team selector (CS/LW winner_only mode) ────────────────────────
+    let _selectedWinnerSlotKey = '';
+    window.selectWinnerTeam = function(slotKey) {
+        _selectedWinnerSlotKey = slotKey;
+        // Deselect all cards
+        document.querySelectorAll('.winner-select-card').forEach(c => {
+            c.style.borderColor = 'var(--border)';
+            c.style.background  = '';
+        });
+        document.querySelectorAll('[id^="winnerCheck_"]').forEach(el => el.style.display = 'none');
+        // Highlight selected
+        const card  = document.getElementById('winnerCard_' + slotKey);
+        const check = document.getElementById('winnerCheck_' + slotKey);
+        if (card)  { card.style.borderColor = 'var(--green)'; card.style.background = 'rgba(34,197,94,.06)'; }
+        if (check) { check.style.display = 'inline'; }
+        document.getElementById('selectedWinnerSlot').value = slotKey;
+    };
+
     window.validateRankInput = function(el, isRank) {
         if (!isRank) return;
         const val = parseInt(el.value);
@@ -777,52 +849,263 @@
     };
 
     window.submitResult = async function() {
-        const m = _activeMatch;
+        const m      = _activeMatch;
         if (!m) return;
-        const multi = isMulti(m);
+        const multi  = isMulti(m);
+        const isCSLW = isCSorLW(m);
         const isKill = m.prizeType === 'kill';
+        const isWinnerOnly = m.prizeType === 'winner_only';
+
+        // ── Helper: count spots per userId in a CS/LW slot ──────────────────
+        function countSpotsForUser(pData) {
+            if (!pData || typeof pData !== 'object') return 0;
+            let count = 0;
+            Object.keys(pData).forEach(k => { if (/^s\d+$/.test(k)) count++; });
+            count += Object.keys(pData.extraSpots || {}).length;
+            return count;
+        }
+
+        // ── Helper: credit gold to a userId ─────────────────────────────────
+        async function creditUser(updates, uid, goldAmt, extraInfo = {}) {
+            if (!uid || goldAmt <= 0) return;
+            const walletSnap = await db.ref('users').child(uid).child('wallet').child('winningGold').once('value');
+            updates[`users/${uid}/wallet/winningGold`] = (walletSnap.val() || 0) + goldAmt;
+            const txId = genTxId();
+            updates[`users/${uid}/transactions/${txId}`] = {
+                transactionId: txId,
+                amount:        goldAmt,
+                date:          nowDateStr(),
+                time:          nowTimeStr(),
+                type:          'Match Reward',
+                matchId:       String(m.matchId || m._key),
+                matchTitle:    String(m.title || ''),
+                ...extraInfo
+            };
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // CS/LW — WINNER ONLY: hoster picked a winning team
+        // ════════════════════════════════════════════════════════════════════
+        if (isCSLW && isWinnerOnly) {
+            const winnerSlotKey = _selectedWinnerSlotKey;
+            if (!winnerSlotKey) { shMsg('Please select the winning team.', 'error'); return; }
+
+            setShBtn(true);
+            showLoader('Crediting prizes...');
+            try {
+                const updates    = {};
+                const resultsObj = {};
+                const slots      = m.slots || {};
+                const slot       = slots[winnerSlotKey];
+                const teamNum    = slot?.teamNumber || winnerSlotKey;
+                const playersObj = slot?.players || {};
+
+                // Count total spots in the winning slot
+                let totalSpots = 0;
+                Object.values(playersObj).forEach(pData => { totalSpots += countSpotsForUser(pData); });
+                const prizePool  = m.winnerPrizePool || 0;
+                const perSpot    = totalSpots > 0 ? Math.floor(prizePool / totalSpots) : 0;
+
+                // Credit each userId proportionally by their spot count
+                for (const [uid, pData] of Object.entries(playersObj)) {
+                    const userSpots = countSpotsForUser(pData);
+                    const userGold  = perSpot * userSpots;
+                    await creditUser(updates, uid, userGold, { winningTeam: String(teamNum) });
+                    resultsObj[uid] = { displayName: `Team ${teamNum}`, userId: uid, goldAwarded: userGold, spots: userSpots };
+                }
+
+                updates[`matches/${m._key}/results`]      = resultsObj;
+                updates[`matches/${m._key}/status`]       = 'completed';
+                updates[`matches/${m._key}/roomId`]       = null;
+                updates[`matches/${m._key}/roomPassword`] = null;
+                await db.ref().update(updates);
+
+                hideLoader();
+                showToast('Winner set! Prizes credited.', 'success');
+                closeSheet();
+                setTimeout(() => loadAll(), 700);
+            } catch(e) {
+                console.error(e); hideLoader();
+                shMsg('Failed to submit. Try again.', 'error');
+            } finally { setShBtn(false); }
+            return;
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // CS/LW — RANK / KILL: each slot gets a rank or kill count
+        // Prize split proportionally by spot count per userId
+        // ════════════════════════════════════════════════════════════════════
+        if (isCSLW) {
+            const shBody = document.querySelector('#resultSheet .sh-body');
+            const inputs = shBody.querySelectorAll('.entry-input');
+            const entries = [];
+            inputs.forEach(inp => {
+                const val = parseInt(inp.value);
+                if (isNaN(val) || val < 0) return;
+                entries.push({ slotKey: inp.dataset.slotkey, value: val });
+            });
+
+            if (!entries.length) { shMsg('Please fill at least one entry.', 'error'); return; }
+            if (!isKill) {
+                const rankVals = entries.map(e => e.value);
+                if (new Set(rankVals).size !== rankVals.length) { shMsg('Duplicate ranks found.', 'error'); return; }
+            }
+
+            setShBtn(true);
+            showLoader('Calculating prizes...');
+            try {
+                const updates    = {};
+                const resultsObj = {};
+                const slots      = m.slots || {};
+
+                for (const entry of entries) {
+                    const slot       = slots[entry.slotKey];
+                    if (!slot) continue;
+                    const teamNum    = slot.teamNumber || entry.slotKey;
+                    const playersObj = slot.players || {};
+
+                    // Calculate total gold for this slot
+                    let slotGold = 0;
+                    if (isKill) {
+                        slotGold = (m.perKillGold || 0) * entry.value;
+                    } else {
+                        const prize = (m.rankPrizes || []).find(p => p.rank === entry.value);
+                        slotGold = prize ? prize.gold : 0;
+                    }
+
+                    // Count total spots in slot for proportional split
+                    let totalSpots = 0;
+                    Object.values(playersObj).forEach(pData => { totalSpots += countSpotsForUser(pData); });
+                    const perSpot = totalSpots > 0 ? Math.floor(slotGold / totalSpots) : 0;
+
+                    // Credit each userId by their spot count
+                    for (const [uid, pData] of Object.entries(playersObj)) {
+                        const userSpots = countSpotsForUser(pData);
+                        const userGold  = perSpot * userSpots;
+                        await creditUser(updates, uid, userGold, {
+                            rank:  isKill ? null : entry.value,
+                            kills: isKill ? entry.value : null
+                        });
+                    }
+
+                    resultsObj[entry.slotKey] = {
+                        displayName: `Team ${teamNum}`,
+                        rank:        isKill ? null : entry.value,
+                        kills:       isKill ? entry.value : null,
+                        goldAwarded: slotGold
+                    };
+                }
+
+                updates[`matches/${m._key}/results`]      = resultsObj;
+                updates[`matches/${m._key}/status`]       = 'completed';
+                updates[`matches/${m._key}/roomId`]       = null;
+                updates[`matches/${m._key}/roomPassword`] = null;
+                await db.ref().update(updates);
+
+                hideLoader();
+                showToast('Result set! Prizes credited.', 'success');
+                closeSheet();
+                setTimeout(() => loadAll(), 700);
+            } catch(e) {
+                console.error(e); hideLoader();
+                shMsg('Failed to submit. Try again.', 'error');
+            } finally { setShBtn(false); }
+            return;
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // BR MULTI — RANK / KILL: prize to leaderId of each team
+        // ════════════════════════════════════════════════════════════════════
+        if (multi) {
+            const shBody = document.querySelector('#resultSheet .sh-body');
+            const inputs = shBody.querySelectorAll('.entry-input');
+            const entries = [];
+            inputs.forEach(inp => {
+                const val = parseInt(inp.value);
+                if (isNaN(val) || val < 0) return;
+                entries.push({ teamKey: inp.dataset.teamkey, leaderId: inp.dataset.leaderid, displayName: inp.dataset.teamname, value: val });
+            });
+
+            if (!entries.length) { shMsg('Please fill at least one entry.', 'error'); return; }
+            if (!isKill) {
+                const rankVals = entries.map(e => e.value);
+                if (new Set(rankVals).size !== rankVals.length) { shMsg('Duplicate ranks found.', 'error'); return; }
+                const maxRank = m.rankPrizes?.length || 999;
+                if (entries.some(e => e.value > maxRank)) { shMsg(`Max rank is ${maxRank}.`, 'error'); return; }
+            }
+
+            setShBtn(true);
+            showLoader('Calculating prizes...');
+            try {
+                const updates    = {};
+                const resultsObj = {};
+
+                for (const entry of entries) {
+                    const uid = entry.leaderId;
+                    let goldAmt = 0;
+                    if (isKill) {
+                        goldAmt = (m.perKillGold || 0) * entry.value;
+                    } else {
+                        const prize = (m.rankPrizes || []).find(p => p.rank === entry.value);
+                        goldAmt = prize ? prize.gold : 0;
+                    }
+                    await creditUser(updates, uid, goldAmt, {
+                        rank:  isKill ? null : entry.value,
+                        kills: isKill ? entry.value : null
+                    });
+                    resultsObj[entry.teamKey] = {
+                        displayName: entry.displayName,
+                        leaderId:    uid,
+                        rank:        isKill ? null : entry.value,
+                        kills:       isKill ? entry.value : null,
+                        goldAwarded: goldAmt
+                    };
+                }
+
+                updates[`matches/${m._key}/results`]      = resultsObj;
+                updates[`matches/${m._key}/status`]       = 'completed';
+                updates[`matches/${m._key}/roomId`]       = null;
+                updates[`matches/${m._key}/roomPassword`] = null;
+                await db.ref().update(updates);
+
+                hideLoader();
+                showToast('Result set! Prizes credited.', 'success');
+                closeSheet();
+                setTimeout(() => loadAll(), 700);
+            } catch(e) {
+                console.error(e); hideLoader();
+                shMsg('Failed to submit. Try again.', 'error');
+            } finally { setShBtn(false); }
+            return;
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // BR SOLO — RANK / KILL: prize directly to each player's userId
+        // ════════════════════════════════════════════════════════════════════
         const shBody = document.querySelector('#resultSheet .sh-body');
         const inputs = shBody.querySelectorAll('.entry-input');
-
-        const isCSLW = isCSorLW(m);
         const entries = [];
         inputs.forEach(inp => {
             const val = parseInt(inp.value);
             if (isNaN(val) || val < 0) return;
-            if (isCSLW) {
-                // CS/LW: slotkey + leaderId + teamName as winner display name
-                entries.push({ slotKey: inp.dataset.slotkey, leaderId: inp.dataset.leaderid, displayName: inp.dataset.teamname, value: val });
-            } else if (multi) {
-                // BR multi: teamKey + leaderId + teamName as winner display name
-                entries.push({ teamKey: inp.dataset.teamkey, leaderId: inp.dataset.leaderid, displayName: inp.dataset.teamname, value: val });
-            } else {
-                // Solo BR: uid + inGameName as winner display name
-                entries.push({ uid: inp.dataset.uid, displayName: inp.dataset.igname, value: val });
-            }
+            entries.push({ uid: inp.dataset.uid, displayName: inp.dataset.igname, value: val });
         });
 
         if (!entries.length) { shMsg('Please fill at least one entry.', 'error'); return; }
-
         if (!isKill) {
             const rankVals = entries.map(e => e.value);
-            const unique = new Set(rankVals);
-            if (unique.size !== rankVals.length) { shMsg('Duplicate ranks found. Each rank must be unique.', 'error'); return; }
+            if (new Set(rankVals).size !== rankVals.length) { shMsg('Duplicate ranks found.', 'error'); return; }
             const maxRank = m.rankPrizes?.length || 999;
-            if (entries.some(e => e.value > maxRank)) { shMsg(`Max rank allowed is ${maxRank} (based on prize list).`, 'error'); return; }
+            if (entries.some(e => e.value > maxRank)) { shMsg(`Max rank is ${maxRank}.`, 'error'); return; }
         }
 
         setShBtn(true);
         showLoader('Calculating prizes...');
-
         try {
+            const updates    = {};
             const resultsObj = {};
-            const updates = {};
 
             for (const entry of entries) {
-                // Leader receives the prize coin for their team/slot
-                const uid = (isCSLW || multi) ? entry.leaderId : entry.uid;
-                if (!uid) continue;
-
                 let goldAmt = 0;
                 if (isKill) {
                     goldAmt = (m.perKillGold || 0) * entry.value;
@@ -830,58 +1113,32 @@
                     const prize = (m.rankPrizes || []).find(p => p.rank === entry.value);
                     goldAmt = prize ? prize.gold : 0;
                 }
-
-                // Result key: use slotKey for CS/LW, teamKey for BR multi, uid for solo
-                // displayName is always the TEAM NAME (not player IGN)
-                const resultKey = isCSLW ? entry.slotKey : (multi ? entry.teamKey : uid);
-                resultsObj[resultKey] = {
-                    displayName: entry.displayName,   // team name saved as winner
-                    leaderId:    uid,                  // leader who receives prize
+                await creditUser(updates, entry.uid, goldAmt, {
+                    rank:  isKill ? null : entry.value,
+                    kills: isKill ? entry.value : null
+                });
+                resultsObj[entry.uid] = {
+                    displayName: entry.displayName,
                     rank:        isKill ? null : entry.value,
                     kills:       isKill ? entry.value : null,
                     goldAwarded: goldAmt
                 };
-
-                if (goldAmt > 0) {
-                    // Credit winning gold to leader's wallet
-                    const walletSnap = await db.ref('users').child(uid).child('wallet').child('winningGold').once('value');
-                    const currentGold = walletSnap.val() || 0;
-                    updates[`users/${uid}/wallet/winningGold`] = currentGold + goldAmt;
-                    // Generate unique transaction ID and save history
-                    const txId = genTxId();
-                    updates[`users/${uid}/transactions/${txId}`] = {
-                        transactionId: txId,
-                        amount:        goldAmt,
-                        date:          nowDateStr(),
-                        time:          nowTimeStr(),
-                        type:          'Match Reward',
-                        matchId:       String(m.matchId || m._key),
-                        matchTitle:    String(m.title || ''),
-                        rank:          isKill ? null : entry.value,
-                        kills:         isKill ? entry.value : null
-                    };
-                }
             }
 
             updates[`matches/${m._key}/results`]      = resultsObj;
             updates[`matches/${m._key}/status`]       = 'completed';
             updates[`matches/${m._key}/roomId`]       = null;
             updates[`matches/${m._key}/roomPassword`] = null;
-
             await db.ref().update(updates);
 
             hideLoader();
             showToast('Result set! Prizes credited.', 'success');
             closeSheet();
             setTimeout(() => loadAll(), 700);
-
         } catch(e) {
-            console.error(e);
-            hideLoader();
-            shMsg('Failed to submit result. Try again.', 'error');
-        } finally {
-            setShBtn(false);
-        }
+            console.error(e); hideLoader();
+            shMsg('Failed to submit. Try again.', 'error');
+        } finally { setShBtn(false); }
     };
 
     window.closeSheet = function() {
