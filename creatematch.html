@@ -339,23 +339,6 @@
             </div>
         </div>
 
-        <!-- Winner Only prize pool input — CS/LW only -->
-        <div id="winnerOnlySection" style="display:none;">
-            <div class="kill-box">
-                <div class="kill-box-head"><i class="fas fa-trophy"></i> Winner Prize Pool</div>
-                <div class="field" style="margin-bottom:0;">
-                    <label>Total Prize Pool <span style="color:var(--muted);font-size:11px;">(even number only)</span></label>
-                    <div class="gold-input-wrap">
-                        <img src="gold.png" class="gi-coin" alt="gold">
-                        <input type="number" id="winnerPrizePool" placeholder="e.g. 100" min="2" step="2" oninput="validateWinnerPrize(this)">
-                    </div>
-                    <div class="gold-hint" id="winnerPrizeHint" style="display:none;">
-                        <img src="gold.png" alt=""> <span id="winnerPrizeHintText"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Kill reward -->
         <div id="killSection" style="display:none;">
             <div class="kill-box">
@@ -382,7 +365,35 @@
         </div>
     </div>
 
-    <!-- ══ STEP 3: Match Details ══ -->
+    <!-- ══ STEP 2b: Winner Prize Pool (CS/LW winner_only only) ══ -->
+    <div class="step-panel" id="step2b">
+        <div class="panel-title">Prize <span>Pool</span></div>
+        <div class="panel-sub">Set the total prize amount for the winner. Must be an even number so it splits evenly.</div>
+
+        <div class="kill-box" style="margin-top:0;">
+            <div class="kill-box-head"><i class="fas fa-trophy"></i> Winner Prize Pool</div>
+            <div style="margin-bottom:14px;font-size:13px;color:var(--dim);line-height:1.6;">
+                Enter the <strong style="color:var(--gold);">total gold</strong> the winner will receive. The number must be even so it can be split equally among team members.
+            </div>
+            <div class="field" style="margin-bottom:0;">
+                <label>Total Prize Pool <span style="color:var(--muted);font-size:11px;">(even number only)</span></label>
+                <div class="gold-input-wrap">
+                    <img src="gold.png" class="gi-coin" alt="gold">
+                    <input type="number" id="winnerPrizePool" placeholder="e.g. 100, 200, 500" min="2" oninput="validateWinnerPrize(this)" onblur="enforceEvenWinnerPrize(this)">
+                </div>
+                <div class="gold-hint" id="winnerPrizeHint" style="display:none;">
+                    <img src="gold.png" alt=""> <span id="winnerPrizeHintText"></span>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:18px;background:rgba(245,197,24,0.06);border:1px solid var(--border-gold);border-radius:12px;padding:14px 16px;">
+            <div style="font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;"><i class="fas fa-info-circle"></i> Why Even Number?</div>
+            <div style="font-size:12px;color:var(--dim);line-height:1.7;">An even total ensures every winning team member gets a whole number of gold coins — no fractions, no rounding issues.</div>
+        </div>
+    </div>
+
+
     <div class="step-panel" id="step3">
         <div class="panel-title">Match <span>Details</span></div>
         <div class="panel-sub">Fill in all tournament information below.</div>
@@ -491,8 +502,6 @@ try {
 } catch(_){ window.location.href='index.html'; }
 
 // ── Data state ─────────────────────────────────────────────────────────────
-let step=1;
-const STEPS=4;
 const D={
     matchType:'', entryType:'',
     entryMode:'',  // 'free' | 'gold'
@@ -519,8 +528,8 @@ function onMatchTypeChange(){
     if(!isCSLW && D.prizeType==='winner_only'){
         D.prizeType='';
         document.querySelectorAll('#step2 .opt-card').forEach(c=>c.classList.remove('sel'));
-        document.getElementById('winnerOnlySection').style.display='none';
     }
+    refreshFeeLabel();
     onEntryTypeChange(); // also refresh spots
 }
 
@@ -551,6 +560,7 @@ function onEntryTypeChange(){
     }
     // Also update winner prize hint if already set
     updateWinnerPrizeHint();
+    refreshFeeLabel();
 }
 
 // ── Entry mode ─────────────────────────────────────────────────────────────
@@ -572,8 +582,33 @@ window.updateFeeHint=function(){
     const v=parseInt(document.getElementById('entryFee').value)||0;
     D.entryFee=v;
     const hint=document.getElementById('feeHint');
-    if(v>0){ hint.style.display='inline-flex'; document.getElementById('feeHintText').textContent=v+' Gold Coins per player'; }
-    else hint.style.display='none';
+    const feeLabel=document.getElementById('feeSection').querySelector('label');
+    if(v>0){
+        hint.style.display='inline-flex';
+        let hintMsg, labelTxt;
+        if(D.matchType==='BR'){
+            if(D.entryType==='Solo'){
+                labelTxt='Entry Fee per Player';
+                hintMsg=v+' Gold Coins per player';
+            } else {
+                labelTxt='Entry Fee per Team';
+                hintMsg=v+' Gold Coins per team';
+            }
+        } else {
+            labelTxt='Entry Fee Amount';
+            hintMsg=v+' Gold Coins per team';
+        }
+        feeLabel.textContent=labelTxt;
+        document.getElementById('feeHintText').textContent=hintMsg;
+    } else {
+        hint.style.display='none';
+        // Reset label text based on current mode
+        if(D.matchType==='BR'){
+            feeLabel.textContent = D.entryType==='Solo' ? 'Entry Fee per Player' : 'Entry Fee per Team';
+        } else {
+            feeLabel.textContent = 'Entry Fee Amount';
+        }
+    }
 };
 
 // ── Prize type ─────────────────────────────────────────────────────────────
@@ -583,17 +618,30 @@ window.setPrizeType=function(type,el){
     el.classList.add('sel');
     document.getElementById('killSection').style.display=type==='kill'?'block':'none';
     document.getElementById('rankSection').style.display=type==='rank'?'block':'none';
-    document.getElementById('winnerOnlySection').style.display=type==='winner_only'?'block':'none';
     if(type==='rank' && document.querySelectorAll('.rank-row').length===0) addRankRow();
-    if(type==='winner_only') updateWinnerPrizeHint();
 };
 
 window.validateWinnerPrize=function(el){
+    const v=parseInt(el.value)||0;
+    const hint=document.getElementById('winnerPrizeHint');
+    const hintTxt=document.getElementById('winnerPrizeHintText');
+    if(v<=0){ D.winnerPrizePool=0; updateWinnerPrizeHint(); return; }
+    // Show warning if odd but don't force-change value while typing
+    if(v%2!==0){
+        if(hint) { hint.style.display='inline-flex'; hint.style.borderColor='rgba(230,57,70,0.4)'; hint.style.color='var(--red)'; }
+        if(hintTxt) hintTxt.textContent='⚠️ Must be even — e.g. try '+(v+1)+' or '+(v-1);
+        D.winnerPrizePool=0;
+    } else {
+        if(hint) { hint.style.borderColor=''; hint.style.color=''; }
+        D.winnerPrizePool=v;
+        updateWinnerPrizeHint();
+    }
+};
+
+window.enforceEvenWinnerPrize=function(el){
     let v=parseInt(el.value)||0;
-    // Block negative and zero
-    if(v<=0){ el.value=''; updateWinnerPrizeHint(); return; }
-    // Force even number
-    if(v%2!==0){ v=v%2===1?v-1:v; el.value=v; }
+    if(v<=0){ el.value=''; D.winnerPrizePool=0; updateWinnerPrizeHint(); return; }
+    if(v%2!==0){ v=v+1; el.value=v; }
     D.winnerPrizePool=v;
     updateWinnerPrizeHint();
 };
@@ -611,6 +659,20 @@ function updateWinnerPrizeHint(){
     } else {
         hint.style.display='none';
     }
+}
+
+function refreshFeeLabel(){
+    const feeSection = document.getElementById('feeSection');
+    if(!feeSection) return;
+    const lbl = feeSection.querySelector('label');
+    if(!lbl) return;
+    if(D.matchType==='BR'){
+        lbl.textContent = D.entryType==='Solo' ? 'Entry Fee per Player' : 'Entry Fee per Team';
+    } else {
+        lbl.textContent = 'Entry Fee Amount';
+    }
+    // also refresh hint if fee already entered
+    updateFeeHint();
 }
 
 // ── Rank rows ──────────────────────────────────────────────────────────────
@@ -650,31 +712,61 @@ window.removeRankRow=function(el){
 };
 
 // ── Navigation ─────────────────────────────────────────────────────────────
+// Steps: 1 → 2 → [2b if CS/LW winner_only] → 3 → 4
+// We track a "virtual" step array
+let stepFlow = ['step1','step2','step3','step4'];
+let stepIdx = 0;
+
+function buildStepFlow(){
+    const needsPrizeStep = (D.matchType==='CS'||D.matchType==='LW') && D.prizeType==='winner_only';
+    stepFlow = needsPrizeStep
+        ? ['step1','step2','step2b','step3','step4']
+        : ['step1','step2','step3','step4'];
+}
+
+function currentStepNum(){
+    // Map panel id to progress dot number (step2b counts as step 2 visually)
+    const id=stepFlow[stepIdx];
+    if(id==='step1') return 1;
+    if(id==='step2') return 2;
+    if(id==='step2b') return 2; // same progress dot
+    if(id==='step3') return 3;
+    if(id==='step4') return 4;
+    return 1;
+}
+
 window.nextStep=function(){
-    if(!validate(step)) return;
-    if(step===STEPS){ submitMatch(); return; }
-    step++; renderStep();
+    if(!validate(stepFlow[stepIdx])) return;
+    if(stepIdx===stepFlow.length-1){ submitMatch(); return; }
+    // Rebuild flow in case user changed prize type on step2
+    if(stepFlow[stepIdx]==='step2') buildStepFlow();
+    stepIdx++;
+    renderStep();
 };
 window.prevStep=function(){
-    if(step<=1) return;
-    step--; renderStep();
+    if(stepIdx<=0) return;
+    stepIdx--;
+    renderStep();
 };
 
 function renderStep(){
+    const panelId=stepFlow[stepIdx];
     document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));
-    document.getElementById('step'+step).classList.add('active');
-    for(let i=1;i<=STEPS;i++){
+    document.getElementById(panelId).classList.add('active');
+    const sn=currentStepNum();
+    const TOTAL=4;
+    for(let i=1;i<=TOTAL;i++){
         const d=document.getElementById('dot'+i);
         d.classList.remove('active','done');
-        if(i<step){ d.classList.add('done'); d.innerHTML='<i class="fas fa-check" style="font-size:9px;"></i>'; }
-        else if(i===step){ d.classList.add('active'); d.textContent=i; }
+        if(i<sn){ d.classList.add('done'); d.innerHTML='<i class="fas fa-check" style="font-size:9px;"></i>'; }
+        else if(i===sn){ d.classList.add('active'); d.textContent=i; }
         else d.textContent=i;
-        document.getElementById('lbl'+i).classList.toggle('active',i===step);
-        if(i<STEPS) document.getElementById('line'+i).classList.toggle('done',i<step);
+        document.getElementById('lbl'+i).classList.toggle('active',i===sn);
+        if(i<TOTAL) document.getElementById('line'+i).classList.toggle('done',i<sn);
     }
-    document.getElementById('btnBack').disabled=step===1;
+    document.getElementById('btnBack').disabled=stepIdx===0;
     const bn=document.getElementById('btnNext');
-    if(step===STEPS){
+    if(stepIdx===stepFlow.length-1){
         bn.innerHTML='<img src="gold.png" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;" alt=""> Create Match';
         bn.classList.add('gold');
         buildReview();
@@ -685,12 +777,12 @@ function renderStep(){
 }
 
 // ── Validation ─────────────────────────────────────────────────────────────
-function validate(s){
-    if(s===1){
+function validate(panelId){
+    if(panelId==='step1'){
         if(!D.matchType){ toast('Select a game mode (BR / CS / LW).','error'); return false; }
         if(!D.entryType){ toast('Select a player format.','error'); return false; }
     }
-    if(s===2){
+    if(panelId==='step2'){
         if(!D.entryMode){ toast('Choose entry mode — Free or Gold.','error'); return false; }
         if(D.entryMode==='gold'){
             const v=parseInt(document.getElementById('entryFee').value);
@@ -715,14 +807,15 @@ function validate(s){
             });
             if(!ok){ toast('Fill all rank prize amounts.','error'); return false; }
         }
-        if(D.prizeType==='winner_only'){
-            const v=parseInt(document.getElementById('winnerPrizePool').value);
-            if(!v||v<=0){ toast('Enter a prize pool amount.','error'); return false; }
-            if(v%2!==0){ toast('Prize pool must be an even number.','error'); return false; }
-            D.winnerPrizePool=v;
-        }
+        // winner_only validation happens on step2b
     }
-    if(s===3){
+    if(panelId==='step2b'){
+        const v=parseInt(document.getElementById('winnerPrizePool').value);
+        if(!v||v<=0){ toast('Enter a prize pool amount.','error'); return false; }
+        if(v%2!==0){ toast('Prize pool must be an even number.','error'); return false; }
+        D.winnerPrizePool=v;
+    }
+    if(panelId==='step3'){
         D.title=document.getElementById('matchTitle').value.trim();
         D.description=document.getElementById('matchDesc').value.trim();
         D.date=document.getElementById('matchDate').value;
