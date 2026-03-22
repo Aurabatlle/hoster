@@ -379,7 +379,7 @@
                 <label>Total Prize Pool <span style="color:var(--muted);font-size:11px;">(even number only)</span></label>
                 <div class="gold-input-wrap">
                     <img src="gold.png" class="gi-coin" alt="gold">
-                    <input type="number" id="winnerPrizePool" placeholder="e.g. 100, 200, 500" min="2" oninput="validateWinnerPrize(this)" onblur="enforceEvenWinnerPrize(this)">
+                    <input type="number" id="winnerPrizePool" placeholder="e.g. 100, 200, 500" min="2" oninput="validateWinnerPrize(this)">
                 </div>
                 <div class="gold-hint" id="winnerPrizeHint" style="display:none;">
                     <img src="gold.png" alt=""> <span id="winnerPrizeHintText"></span>
@@ -578,36 +578,29 @@ window.setEntryMode=function(mode){
     }
 };
 
+function getFeeContext(){
+    const isCSLW = D.matchType==='CS' || D.matchType==='LW';
+    // CS/LW: always per player regardless of format
+    if(isCSLW) return { label:'Entry Fee per Player', hint:'per player' };
+    // BR: solo = per player, duo/squad/6v6 = per team
+    if(D.entryType==='Solo') return { label:'Entry Fee per Player', hint:'per player' };
+    return { label:'Entry Fee per Team', hint:'per team' };
+}
+
 window.updateFeeHint=function(){
     const v=parseInt(document.getElementById('entryFee').value)||0;
     D.entryFee=v;
     const hint=document.getElementById('feeHint');
     const feeLabel=document.getElementById('feeSection').querySelector('label');
+    const ctx=getFeeContext();
+    feeLabel.textContent=ctx.label;
     if(v>0){
         hint.style.display='inline-flex';
-        let hintMsg, labelTxt;
-        if(D.matchType==='BR'){
-            if(D.entryType==='Solo'){
-                labelTxt='Entry Fee per Player';
-                hintMsg=v+' Gold Coins per player';
-            } else {
-                labelTxt='Entry Fee per Team';
-                hintMsg=v+' Gold Coins per team';
-            }
-        } else {
-            labelTxt='Entry Fee Amount';
-            hintMsg=v+' Gold Coins per team';
-        }
-        feeLabel.textContent=labelTxt;
-        document.getElementById('feeHintText').textContent=hintMsg;
+        hint.style.borderColor='';
+        hint.style.color='';
+        document.getElementById('feeHintText').textContent=v+' Gold Coins '+ctx.hint;
     } else {
         hint.style.display='none';
-        // Reset label text based on current mode
-        if(D.matchType==='BR'){
-            feeLabel.textContent = D.entryType==='Solo' ? 'Entry Fee per Player' : 'Entry Fee per Team';
-        } else {
-            feeLabel.textContent = 'Entry Fee Amount';
-        }
     }
 };
 
@@ -625,25 +618,18 @@ window.validateWinnerPrize=function(el){
     const v=parseInt(el.value)||0;
     const hint=document.getElementById('winnerPrizeHint');
     const hintTxt=document.getElementById('winnerPrizeHintText');
-    if(v<=0){ D.winnerPrizePool=0; updateWinnerPrizeHint(); return; }
-    // Show warning if odd but don't force-change value while typing
+    if(v<=0){ D.winnerPrizePool=0; if(hint) hint.style.display='none'; return; }
     if(v%2!==0){
-        if(hint) { hint.style.display='inline-flex'; hint.style.borderColor='rgba(230,57,70,0.4)'; hint.style.color='var(--red)'; }
-        if(hintTxt) hintTxt.textContent='⚠️ Must be even — e.g. try '+(v+1)+' or '+(v-1);
+        // Odd — show red warning, mark as invalid, do NOT change the typed value
+        if(hint){ hint.style.display='inline-flex'; hint.style.borderColor='rgba(230,57,70,0.5)'; hint.style.color='var(--red)'; }
+        if(hintTxt) hintTxt.textContent='⚠️ Odd number! Must be even — e.g. '+(v-1)+' or '+(v+1);
         D.winnerPrizePool=0;
     } else {
-        if(hint) { hint.style.borderColor=''; hint.style.color=''; }
+        // Even — show green success hint
+        if(hint){ hint.style.display='inline-flex'; hint.style.borderColor=''; hint.style.color=''; }
         D.winnerPrizePool=v;
         updateWinnerPrizeHint();
     }
-};
-
-window.enforceEvenWinnerPrize=function(el){
-    let v=parseInt(el.value)||0;
-    if(v<=0){ el.value=''; D.winnerPrizePool=0; updateWinnerPrizeHint(); return; }
-    if(v%2!==0){ v=v+1; el.value=v; }
-    D.winnerPrizePool=v;
-    updateWinnerPrizeHint();
 };
 
 function updateWinnerPrizeHint(){
@@ -666,12 +652,7 @@ function refreshFeeLabel(){
     if(!feeSection) return;
     const lbl = feeSection.querySelector('label');
     if(!lbl) return;
-    if(D.matchType==='BR'){
-        lbl.textContent = D.entryType==='Solo' ? 'Entry Fee per Player' : 'Entry Fee per Team';
-    } else {
-        lbl.textContent = 'Entry Fee Amount';
-    }
-    // also refresh hint if fee already entered
+    lbl.textContent = getFeeContext().label;
     updateFeeHint();
 }
 
@@ -812,7 +793,7 @@ function validate(panelId){
     if(panelId==='step2b'){
         const v=parseInt(document.getElementById('winnerPrizePool').value);
         if(!v||v<=0){ toast('Enter a prize pool amount.','error'); return false; }
-        if(v%2!==0){ toast('Prize pool must be an even number.','error'); return false; }
+        if(v%2!==0){ toast('❌ '+v+' is odd! Enter an even number (e.g. '+(v+1)+').','error'); return false; }
         D.winnerPrizePool=v;
     }
     if(panelId==='step3'){
