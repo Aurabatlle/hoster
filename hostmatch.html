@@ -847,37 +847,65 @@ function renderFsPanelBR(){
         document.getElementById('fsPanelCount').textContent='0';
         return;
     }
-    let html=''; let totalPlayers=0; let teamIdx=1;
+    let html=''; let totalPlayers=0;
     snap.forEach(child=>{
-        const t       = child.val();
-        const tKey    = child.key;         // Firebase key = serial team number
-        const tName   = t.teamName||'Unnamed Team';
-        const leaderId= t.leaderId||'—';
-        const members = t.members||{};
-        const spots   = Object.keys(members).sort((a,b)=>Number(a)-Number(b));
-        totalPlayers+=spots.length;
+        const t        = child.val();
+        const tKey     = child.key;        // Firebase key = team number
+        const tName    = t.teamName || 'Unnamed Team';
+        const leaderId = t.leaderId || '—';
+        const members  = t.members  || {};
 
-        // P1 (spot 1) = leader, rest are members — leader userId shown on P1 row
-        const memberRows=spots.map(sn=>`
-            <div class="br-member-row" style="display:flex;align-items:center;gap:10px;">
-                <span class="br-spot-badge">P${sn}</span>
-                <span class="br-member-ign" style="flex:1;">🎮 ${esc(members[sn]||'—')}</span>
-                ${sn==='1'
-                    ? `<span style="font-size:10px;color:#7878a8;font-family:'Rajdhani',sans-serif;letter-spacing:1px;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:6px;flex-shrink:0;">${esc(leaderId)}</span>`
-                    : `<span style="font-size:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;padding:2px 8px;flex-shrink:0;">member</span>`}
-            </div>`).join('');
+        // Sort spots numerically: "1","2","3","4"...
+        const spots = Object.keys(members).sort((a,b) => Number(a) - Number(b));
+        totalPlayers += spots.length;
 
-        html+=`<div class="br-team-card">
+        const memberRows = spots.map(sn => {
+            const ign     = members[sn] || '—';
+            const isLeader = sn === '1';
+            return `
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface3);border-radius:9px;">
+                <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;
+                      color:${isLeader ? 'var(--red)' : 'var(--muted)'};
+                      background:${isLeader ? 'rgba(230,57,70,.12)' : 'var(--surface2)'};
+                      border:1px solid ${isLeader ? 'rgba(230,57,70,.3)' : 'var(--border)'};
+                      padding:2px 9px;border-radius:6px;flex-shrink:0;min-width:32px;text-align:center;">
+                    P${sn}
+                </span>
+                <span style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;
+                      color:var(--gold);flex:1;letter-spacing:.5px;">
+                    🎮 ${esc(ign)}
+                </span>
+                ${isLeader
+                    ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+                           <span style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Leader ID</span>
+                           <span style="font-size:11px;color:#7878a8;font-family:'Rajdhani',sans-serif;
+                                 letter-spacing:1px;background:var(--surface2);border:1px solid var(--border);
+                                 padding:2px 8px;border-radius:6px;">${esc(leaderId)}</span>
+                       </div>`
+                    : `<span style="font-size:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;
+                             background:var(--surface2);border:1px solid var(--border);
+                             padding:2px 8px;border-radius:6px;flex-shrink:0;">Member</span>`
+                }
+            </div>`;
+        }).join('');
+
+        html += `
+        <div class="br-team-card">
             <div class="br-team-header">
                 <span class="br-team-num">Team #${esc(tKey)}</span>
                 <span class="br-team-name" style="flex:1;">${esc(tName)}</span>
+                <span style="font-size:11px;color:var(--muted);background:var(--surface3);
+                      border:1px solid var(--border);padding:3px 9px;border-radius:10px;">
+                    ${spots.length} player${spots.length!==1?'s':''}
+                </span>
             </div>
-            <div class="br-members">${memberRows}</div>
+            <div class="br-members" style="display:flex;flex-direction:column;gap:6px;padding:10px 12px 12px;">
+                ${memberRows || '<div style="color:var(--muted);font-size:13px;padding:8px;">No members</div>'}
+            </div>
         </div>`;
-        teamIdx++;
     });
-    body.innerHTML=html;
-    document.getElementById('fsPanelCount').textContent=totalPlayers+' players';
+    body.innerHTML = html || '<div style="text-align:center;padding:60px;color:var(--muted);">No teams joined yet.</div>';
+    document.getElementById('fsPanelCount').textContent = totalPlayers + ' player' + (totalPlayers!==1?'s':'');
 }
 
 // ── Room sheet ────────────────────────────────────────────────────────────────
