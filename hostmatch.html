@@ -685,8 +685,16 @@ cardObserver.observe(document.getElementById('list-ongoing'),{childList:true});
 
 // ── Full-screen Players Panel ─────────────────────────────────────────────────
 let _fsMatchId='', _fsMatchType='', _fsEntryType='', _fsSlotsData=null, _fsTeamsData=null, _fsPlayersData=null;
+// Live Firebase listeners for BR panel — detached when panel closes
+let _brSoloRef=null, _brSoloListener=null, _brTeamsRef=null, _brTeamsListener=null;
+
+function _detachBRListeners(){
+    if(_brSoloRef  && _brSoloListener)  { _brSoloRef.off('value', _brSoloListener);  _brSoloRef=null;  _brSoloListener=null; }
+    if(_brTeamsRef && _brTeamsListener) { _brTeamsRef.off('value', _brTeamsListener); _brTeamsRef=null; _brTeamsListener=null; }
+}
 
 window.openPlayersSheet=function(matchId, title, entryType){
+    _detachBRListeners(); // clean up any previous live listener
     _fsMatchId=matchId; _fsEntryType=entryType;
     const m=[...upcomingMatches,...ongoingMatches].find(x=>x.matchId===matchId)||{};
     _fsMatchType=m.matchType||'';
@@ -694,13 +702,12 @@ window.openPlayersSheet=function(matchId, title, entryType){
     const isSolo   = (entryType||'').toLowerCase()==='solo';
 
     document.getElementById('fsPanelTitle').textContent = isCSorLW ? `⚔️ ${title}` : isSolo ? `👥 ${title}` : `⚔️ ${title}`;
-    document.getElementById('fsPanelSub').textContent   = isCSorLW ? 'CS/LW Slot Teams' : isSolo ? 'Solo Players' : 'BR Teams';
+    document.getElementById('fsPanelSub').textContent   = isCSorLW ? 'CS/LW Slot Teams' : isSolo ? 'Solo Players — Live' : 'BR Teams — Live';
     document.getElementById('fsPanelBody').innerHTML    = '<div style="text-align:center;padding:60px;color:var(--muted);">Loading...</div>';
     document.getElementById('fsPanelCount').textContent = '…';
 
     // Show tabs only for CS/LW
     document.getElementById('fsPanelTabs').style.display = isCSorLW ? 'flex' : 'none';
-    // Reset tab
     ['all','team1','team2'].forEach(t=>{
         document.getElementById('fsTab-'+t)?.classList.remove('active');
     });
@@ -709,17 +716,22 @@ window.openPlayersSheet=function(matchId, title, entryType){
     document.getElementById('playersPanel').classList.add('show');
 
     if(isCSorLW){
+        // CS/LW: one-time fetch is fine (slots don't change mid-match)
         db.ref(`matches/${matchId}/slots`).once('value', snap=>{
             _fsSlotsData=snap;
             renderFsPanelCSLW('all');
         });
     } else if(isSolo){
-        db.ref(`matches/${matchId}/players`).once('value', snap=>{
+        // BR Solo: live listener — updates instantly when a new player joins
+        _brSoloRef = db.ref(`matches/${matchId}/players`);
+        _brSoloListener = _brSoloRef.on('value', snap=>{
             _fsPlayersData=snap;
             renderFsPanelSolo();
         });
     } else {
-        db.ref(`matches/${matchId}/teams`).once('value', snap=>{
+        // BR Multi: live listener — updates instantly when a new team joins
+        _brTeamsRef = db.ref(`matches/${matchId}/teams`);
+        _brTeamsListener = _brTeamsRef.on('value', snap=>{
             _fsTeamsData=snap;
             renderFsPanelBR();
         });
@@ -727,6 +739,7 @@ window.openPlayersSheet=function(matchId, title, entryType){
 };
 
 window.closePlayersPanel=function(){
+    _detachBRListeners();
     document.getElementById('playersPanel').classList.remove('show');
 };
 
@@ -815,7 +828,7 @@ function renderFsPanelCSLW(filter){
     document.getElementById('fsPanelCount').textContent = totalSpots + ' player' + (totalSpots!==1?'s':'');
 }
 
-// ── BR Solo: serial + IGN + userId
+// ── BR Solo: serial + IGN + teamName + userId (live — called on every Firebase update)
 function renderFsPanelSolo(){
     const body=document.getElementById('fsPanelBody');
     const snap=_fsPlayersData;
@@ -824,43 +837,56 @@ function renderFsPanelSolo(){
         document.getElementById('fsPanelCount').textContent='0';
         return;
     }
-    const players=[]; snap.forEach(c=>players.push(c.val()));
-    document.getElementById('fsPanelCount').textContent=players.length+' players';
-    body.innerHTML=players.map((p,i)=>`
+    const players=[];
+    snap.forEach(c=>{
+        // Firebase key is the userId; store it alongside val fields
+        const v=c.val()||{};
+        players.push({ uid: c.key, ...v });
+    });
+    document.getElementById('fsPanelCount').textContent=players.length+' player'+(players.length!==1?'s':'');
+    body.innerHTML=players.map((p,i)=>{
+        const uid     = p.userId || p.uid || p._key || '—';
+        const teamTag = p.teamName ? `<span style="font-size:10px;color:var(--dim);background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:6px;letter-spacing:.5px;">${esc(p.teamName)}</span>` : '';
+        return `
         <div class="full-player-item">
             <div class="fp-num">${i+1}</div>
             <div class="fp-avatar">${(p.inGameName||'?').charAt(0).toUpperCase()}</div>
             <div class="fp-info">
-                <div class="fp-ign-label">IN-GAME NAME</div>
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+                    <div class="fp-ign-label">IN-GAME NAME</div>
+                    ${teamTag}
+                </div>
                 <div class="fp-name">🎮 ${esc(p.inGameName||'—')}</div>
-                <div class="fp-uid"><span class="fp-uid-label">UID</span> ${esc(p.userId||'—')}</div>
+                <div class="fp-uid"><span class="fp-uid-label">UID</span> ${esc(uid)}</div>
             </div>
-        </div>`).join('');
+        </div>`;
+    }).join('');
 }
 
-// ── BR Multi: team cards — team number (dim), team name, leaderId (dim), spot+IGN rows
+// ── BR Multi: team cards — team number, team name, leaderId, spot+IGN rows (live)
 function renderFsPanelBR(){
     const body=document.getElementById('fsPanelBody');
     const snap=_fsTeamsData;
     if(!snap||!snap.exists()||!snap.hasChildren()){
         body.innerHTML='<div style="text-align:center;padding:60px;color:var(--muted);">No teams joined yet.</div>';
-        document.getElementById('fsPanelCount').textContent='0';
+        document.getElementById('fsPanelCount').textContent='0 teams';
         return;
     }
-    let html=''; let totalPlayers=0;
+    let html=''; let totalTeams=0; let totalPlayers=0;
     snap.forEach(child=>{
         const t        = child.val();
-        const tKey     = child.key;        // Firebase key = team number
+        const tKey     = child.key;        // Firebase key = serial team number
         const tName    = t.teamName || 'Unnamed Team';
         const leaderId = t.leaderId || '—';
         const members  = t.members  || {};
+        totalTeams++;
 
-        // Sort spots numerically: "1","2","3","4"...
+        // Sort member spots numerically: "1","2","3","4"...
         const spots = Object.keys(members).sort((a,b) => Number(a) - Number(b));
         totalPlayers += spots.length;
 
         const memberRows = spots.map(sn => {
-            const ign     = members[sn] || '—';
+            const ign      = members[sn] || '—';
             const isLeader = sn === '1';
             return `
             <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface3);border-radius:9px;">
@@ -869,7 +895,7 @@ function renderFsPanelBR(){
                       background:${isLeader ? 'rgba(230,57,70,.12)' : 'var(--surface2)'};
                       border:1px solid ${isLeader ? 'rgba(230,57,70,.3)' : 'var(--border)'};
                       padding:2px 9px;border-radius:6px;flex-shrink:0;min-width:32px;text-align:center;">
-                    P${sn}
+                    P${sn}${isLeader ? ' 👑' : ''}
                 </span>
                 <span style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;
                       color:var(--gold);flex:1;letter-spacing:.5px;">
@@ -877,7 +903,7 @@ function renderFsPanelBR(){
                 </span>
                 ${isLeader
                     ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
-                           <span style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Leader ID</span>
+                           <span style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Leader UID</span>
                            <span style="font-size:11px;color:#7878a8;font-family:'Rajdhani',sans-serif;
                                  letter-spacing:1px;background:var(--surface2);border:1px solid var(--border);
                                  padding:2px 8px;border-radius:6px;">${esc(leaderId)}</span>
@@ -892,20 +918,20 @@ function renderFsPanelBR(){
         html += `
         <div class="br-team-card">
             <div class="br-team-header">
-                <span class="br-team-num">Team #${esc(tKey)}</span>
+                <span class="br-team-num">#${esc(tKey)}</span>
                 <span class="br-team-name" style="flex:1;">${esc(tName)}</span>
                 <span style="font-size:11px;color:var(--muted);background:var(--surface3);
                       border:1px solid var(--border);padding:3px 9px;border-radius:10px;">
-                    ${spots.length} player${spots.length!==1?'s':''}
+                    ${spots.length}/${spots.length || '?'} 👤
                 </span>
             </div>
             <div class="br-members" style="display:flex;flex-direction:column;gap:6px;padding:10px 12px 12px;">
-                ${memberRows || '<div style="color:var(--muted);font-size:13px;padding:8px;">No members</div>'}
+                ${memberRows || '<div style="color:var(--muted);font-size:13px;padding:8px;">No members recorded</div>'}
             </div>
         </div>`;
     });
     body.innerHTML = html || '<div style="text-align:center;padding:60px;color:var(--muted);">No teams joined yet.</div>';
-    document.getElementById('fsPanelCount').textContent = totalPlayers + ' player' + (totalPlayers!==1?'s':'');
+    document.getElementById('fsPanelCount').textContent = `${totalTeams} team${totalTeams!==1?'s':''} · ${totalPlayers} player${totalPlayers!==1?'s':''}`;
 }
 
 // ── Room sheet ────────────────────────────────────────────────────────────────
@@ -1044,12 +1070,13 @@ window.confirmCancel=async function(){
 
             if(isSolo){
                 // Solo: each player gets refund to their own depositGold
+                // Firebase key is always the userId; also read field as fallback
                 const playersSnap=await db.ref('matches/'+matchId+'/players').once('value');
                 if(playersSnap.exists()){
                     const uids=[];
                     playersSnap.forEach(child=>{
                         const p=child.val();
-                        const uid=p.userId||p.uid||null;
+                        const uid=p.userId||p.uid||child.key||null;
                         if(uid) uids.push(uid);
                     });
                     for(const uid of uids){
@@ -1123,11 +1150,11 @@ async function sendNotification(matchId, type, reason){
         const leaderIds = new Set();
 
         if(isSolo){
-            // Solo: each player is their own "leader"
+            // Solo: each player is their own leader — Firebase key is always the userId
             const pSnap = await db.ref('matches/'+matchId+'/players').once('value');
             pSnap.forEach(c=>{
                 const v=c.val(); if(!v) return;
-                const uid=v.userId||v.uid;
+                const uid=v.userId||v.uid||c.key;
                 if(uid) leaderIds.add(uid);
             });
         } else if(isCSorLW){
